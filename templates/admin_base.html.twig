@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Administration - FIRMETNA{% endblock %}</title>
+    
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --sidebar-bg: #1a4d2e;
+            --sidebar-hover: #23613a;
+            --content-bg: #f8fafc;
+            --primary-green: #00964d;
+            --text-dark: #111827;
+            --text-muted: #64748b;
+        }
+
+        body { 
+            display: flex; 
+            min-height: 100vh; 
+            background-color: var(--content-bg);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+        }
+
+        /* Sidebar Styling */
+        .sidebar { 
+            width: 280px; 
+            background: var(--sidebar-bg); 
+            color: white;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.25rem;
+            font-weight: 800;
+            margin: 0;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-list {
+            list-style: none;
+            padding: 0;
+            margin: 1rem 0;
+            flex-grow: 1;
+        }
+
+        .nav-item {
+            margin: 0.25rem 0.5rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 1rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.2s;
+            font-weight: 500;
+            position: relative;
+        }
+
+        .nav-link:hover {
+            background: var(--sidebar-hover);
+            color: white;
+        }
+
+        .nav-link.active {
+            background: var(--sidebar-hover);
+            color: white;
+        }
+
+        .nav-link i {
+            width: 24px;
+            margin-right: 12px;
+            font-size: 1.1rem;
+        }
+
+        .badge-count {
+            position: absolute;
+            right: 1rem;
+            background: #ef4444;
+            color: white;
+            font-size: 0.75rem;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: 700;
+        }
+
+        .sidebar-footer {
+            padding: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-logout {
+            width: 100%;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.8rem;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.2s;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .btn-logout:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        /* Main Content Styling */
+        .main-content { 
+            flex: 1; 
+            margin-left: 280px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .top-bar {
+            background: white;
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .page-info h1 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin: 0;
+        }
+
+        .page-info p {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-info {
+            text-align: right;
+        }
+
+        .user-name {
+            font-weight: 700;
+            color: var(--text-dark);
+            font-size: 0.95rem;
+            display: block;
+        }
+
+        .user-status {
+            font-size: 0.8rem;
+            color: var(--primary-green);
+            font-weight: 600;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: #e2e8f0;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            overflow: hidden;
+        }
+
+        .content-inner {
+            padding: 2rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .sidebar { width: 80px; }
+            .sidebar-header h2, .nav-link span, .badge-count, .user-info, .sidebar-footer span { display: none; }
+            .main-content { margin-left: 80px; }
+            .nav-link i { margin-right: 0; font-size: 1.5rem; }
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+        }
+    </style>
+    {% block stylesheets %}{% endblock %}
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="d-flex align-items-center">
+                <img src="{{ asset('images/logo_hand.png') }}" alt="Logo" style="height: 55px; margin-right: 10px;">
+                <h2 style="font-size: 1.1rem;">FIRMETNA ADMIN</h2>
+            </div>
+            <i class="fas fa-times d-lg-none"></i>
+        </div>
+
+        <ul class="nav-list">
+            <li class="nav-item">
+                <a href="{{ path('app_admin_dashboard') }}" class="nav-link {% if app.request.get('_route') == 'app_admin_dashboard' %}active{% endif %}">
+                    <i class="fas fa-th-large"></i>
+                    <span>Tableau de bord</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ path('app_admin_user_index') }}" class="nav-link {% if 'admin_user' in app.request.get('_route') %}active{% endif %}">
+                    <i class="fas fa-users"></i>
+                    <span>Utilisateurs</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ path('app_admin_produits') }}" class="nav-link {% if app.request.get('_route') == 'app_admin_produits' %}active{% endif %}">
+                    <i class="fas fa-box"></i>
+                    <span>Produits</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ path('app_admin_evenements') }}" class="nav-link {% if app.request.get('_route') == 'app_admin_evenements' %}active{% endif %}">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Événements</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ path('app_admin_forum') }}" class="nav-link {% if app.request.get('_route') == 'app_admin_forum' %}active{% endif %}">
+                    <i class="fas fa-comments"></i>
+                    <span>Forum</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ path('app_admin_donations') }}" class="nav-link {% if app.request.get('_route') == 'app_admin_donations' %}active{% endif %}">
+                    <i class="fas fa-heart"></i>
+                    <span>Donations</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ path('app_admin_commandes') }}" class="nav-link {% if app.request.get('_route') == 'app_admin_commandes' %}active{% endif %}">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Commandes</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <a href="{{ path('app_home') }}" class="btn-logout mb-2" style="border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
+                <i class="fas fa-external-link-alt"></i>
+                <span>Voir le site</span>
+            </a>
+            <a href="{{ path('app_logout') }}" class="btn-logout">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Déconnexion</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="top-bar">
+            <div class="page-info d-flex align-items-center">
+                <img src="{{ asset('images/logo_hand.png') }}" alt="FIRMETNA Logo" style="height: 60px; margin-right: 15px;">
+                <div>
+                    <h1>FIRMETNA Administration</h1>
+                    <p>Gestion complète de la plateforme</p>
+                </div>
+            </div>
+
+            <div class="user-profile">
+                <div class="user-info">
+                    <span class="user-name">Admin</span>
+                    <span class="user-status">Connecté</span>
+                </div>
+                <div class="user-avatar">
+                   <i class="fas fa-user"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-inner">
+            {% for label, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ label }} alert-dismissible fade show border-0 shadow-sm mb-4" style="border-radius: 12px;">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endfor %}
+
+            {% block body %}{% endblock %}
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {% block javascripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,120 @@
+{% extends 'admin_base.html.twig' %}
+
+{% block title %}Gestion Utilisateurs - FIRMETNA{% endblock %}
+
+{% block body %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-0">Gestion Utilisateurs</h2>
+        <p class="text-muted mb-0">Gérez tous les utilisateurs de la plateforme</p>
+    </div>
+    <a href="{{ path('app_admin_user_new') }}" class="btn btn-success px-4 py-2" style="background-color: #1a4d2e; border: none; border-radius: 8px;">
+        <i class="fas fa-plus me-2"></i> Ajouter un utilisateur
+    </a>
+</div>
+
+<div class="card border-0 shadow-sm mb-4" style="border-radius: 15px;">
+    <div class="card-body p-4">
+        <form method="get" action="{{ path('app_admin_user_index') }}" class="row g-3">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-0"><i class="fas fa-search text-muted"></i></span>
+                    <input type="text" name="q" value="{{ app.request.query.get('q') }}" class="form-control bg-light border-0" placeholder="Rechercher par nom ou email...">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <select name="type" class="form-select bg-light border-0" onchange="this.form.submit()">
+                    <option {% if app.request.query.get('type') == 'Tous les types' %}selected{% endif %}>Tous les types</option>
+                    <option {% if app.request.query.get('type') == 'Agriculteur' %}selected{% endif %}>Agriculteur</option>
+                    <option {% if app.request.query.get('type') == 'Client' %}selected{% endif %}>Client</option>
+                    <option {% if app.request.query.get('type') == 'Volontaire' %}selected{% endif %}>Volontaire</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select name="statut" class="form-select bg-light border-0" onchange="this.form.submit()">
+                    <option {% if app.request.query.get('statut') == 'Tous les statuts' %}selected{% endif %}>Tous les statuts</option>
+                    <option {% if app.request.query.get('statut') == 'Actif' %}selected{% endif %}>Actif</option>
+                    <option {% if app.request.query.get('statut') == 'Inactif' %}selected{% endif %}>Inactif</option>
+                </select>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm" style="border-radius: 15px;">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4 py-3 border-0" style="width: 80px;">ID</th>
+                        <th class="py-3 border-0">Nom</th>
+                        <th class="py-3 border-0">Email</th>
+                        <th class="py-3 border-0">Type</th>
+                        <th class="py-3 border-0">Statut</th>
+                        <th class="py-3 border-0">Date d'inscription</th>
+                        <th class="py-3 border-0 pe-4 text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td class="ps-4 fw-bold text-muted">#{{ user.id }}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-sm me-3 rounded-circle bg-success-subtle text-success d-flex align-items-center justify-content-center fw-bold" style="width: 35px; height: 35px; font-size: 0.8rem;">
+                                    {{ user.profile ? user.profile.nom|first|upper : (user.email|first|upper) }}{{ user.profile ? user.profile.prenom|first|upper : '' }}
+                                </div>
+                                <span class="fw-600">
+                                    {% if user.profile and (user.profile.nom or user.profile.prenom) %}
+                                        {{ user.profile.nom }} {{ user.profile.prenom }}
+                                    {% else %}
+                                        {{ user.email|split('@')[0] }}
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </td>
+                        <td class="text-muted">{{ user.email }}</td>
+                        <td>
+                            {% set type = (user.profile and user.profile.roleType) ? user.profile.roleType : 'Client' %}
+                            {% set badge_class = 'bg-info-subtle text-info' %}
+                            {% if type == 'Agriculteur' %}{% set badge_class = 'bg-success-subtle text-success' %}
+                            {% elseif type == 'Volontaire' %}{% set badge_class = 'bg-purple-subtle text-purple' %}
+                            {% endif %}
+                            <span class="badge {{ badge_class }} px-3 py-2 rounded-pill fw-bold" style="font-size: 0.75rem;">{{ type }}</span>
+                        </td>
+                        <td>
+                            {% set status = (user.profile and user.profile.statut) ? user.profile.statut : 'Actif' %}
+                            {% set status_class = 'bg-success-subtle text-success' %}
+                            {% if status == 'Inactif' %}{% set status_class = 'bg-danger-subtle text-danger' %}{% endif %}
+                            <span class="badge {{ status_class }} px-3 py-2 rounded-pill fw-bold" style="font-size: 0.75rem;">{{ status }}</span>
+                        </td>
+                        <td class="text-muted">
+                            {{ (user.profile and user.profile.dateInscription) ? user.profile.dateInscription|date('Y-m-d') : '2026-02-01' }}
+                        </td>
+                        <td class="pe-4 text-end">
+                            <div class="d-flex justify-content-end gap-2">
+                                <a href="{{ path('app_admin_user_edit', {'id': user.id}) }}" class="btn btn-sm btn-light border" title="Modifier"><i class="fas fa-pen text-muted"></i></a>
+                                <form method="post" action="{{ path('app_admin_user_delete', {'id': user.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?');" class="d-inline">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.id) }}">
+                                    <button class="btn btn-sm btn-light border" title="Supprimer"><i class="fas fa-trash text-danger"></i></button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center py-5 text-muted">Aucun utilisateur trouvé</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-purple-subtle { background-color: #f3e8ff; }
+    .text-purple { color: #7e22ce; }
+</style>
+{% endblock %}
