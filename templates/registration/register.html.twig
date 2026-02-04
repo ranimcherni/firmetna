@@ -254,7 +254,17 @@
                 </div>
                 <h2>CRÉER UN COMPTE</h2>
                 <p>Bienvenue parmi nous !</p>
+                {{ form_errors(registrationForm) }}
             </div>
+
+            {# Flash Messages #}
+            {% for label, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ label == 'danger' ? 'danger' : (label == 'error' ? 'danger' : 'success') }} mb-3" role="alert">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endfor %}
 
             {{ form_start(registrationForm, {'attr': {'enctype': 'multipart/form-data'}}) }}
                 
@@ -276,18 +286,22 @@
                     <div class="form-group">
                         {{ form_label(registrationForm.nom, 'Nom', {'label_attr': {'class': 'form-label'}}) }}
                         {{ form_widget(registrationForm.nom, {'attr': {'class': 'form-control', 'placeholder': 'Ex: Cherni'}}) }}
+                        <div class="text-danger small">{{ form_errors(registrationForm.nom) }}</div>
                     </div>
                     <div class="form-group">
                         {{ form_label(registrationForm.prenom, 'Prénom', {'label_attr': {'class': 'form-label'}}) }}
                         {{ form_widget(registrationForm.prenom, {'attr': {'class': 'form-control', 'placeholder': 'Ex: Ranim'}}) }}
+                        <div class="text-danger small">{{ form_errors(registrationForm.prenom) }}</div>
                     </div>
                     <div class="form-group full-width">
                         {{ form_label(registrationForm.email, 'Email', {'label_attr': {'class': 'form-label'}}) }}
                         {{ form_widget(registrationForm.email, {'attr': {'class': 'form-control', 'placeholder': 'votre@email.com'}}) }}
+                        <div class="text-danger small">{{ form_errors(registrationForm.email) }}</div>
                     </div>
                     <div class="form-group">
                         {{ form_label(registrationForm.telephone, 'Téléphone (+217)', {'label_attr': {'class': 'form-label'}}) }}
                         {{ form_widget(registrationForm.telephone, {'attr': {'class': 'form-control', 'placeholder': '+217'}}) }}
+                        <div class="text-danger small">{{ form_errors(registrationForm.telephone) }}</div>
                     </div>
                     <div class="form-group">
                         {{ form_label(registrationForm.roleType, 'Type de compte', {'label_attr': {'class': 'form-label'}}) }}
@@ -296,10 +310,12 @@
                     <div class="form-group full-width">
                         {{ form_label(registrationForm.plainPassword.first, 'Mot de passe', {'label_attr': {'class': 'form-label'}}) }}
                         {{ form_widget(registrationForm.plainPassword.first, {'attr': {'class': 'form-control', 'placeholder': '••••••••'}}) }}
+                        <div class="text-danger small">{{ form_errors(registrationForm.plainPassword.first) }}</div>
                     </div>
                     <div class="form-group full-width">
                         {{ form_label(registrationForm.plainPassword.second, 'Confirmer le mot de passe', {'label_attr': {'class': 'form-label'}}) }}
                         {{ form_widget(registrationForm.plainPassword.second, {'attr': {'class': 'form-control', 'placeholder': '••••••••'}}) }}
+                        <div class="text-danger small">{{ form_errors(registrationForm.plainPassword.second) }}</div>
                     </div>
                 </div>
 

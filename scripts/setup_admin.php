@@ -11,7 +11,7 @@ $kernel = new App\Kernel($_SERVER['APP_ENV'] ?? 'dev', (bool) ($_SERVER['APP_DEB
 $kernel->boot();
 $container = $kernel->getContainer();
 $entityManager = $container->get('doctrine')->getManager();
-$passwordHasher = $container->get('security.password_hasher');
+$passwordHasher = $container->get('security.user_password_hasher');
 
 $userRepo = $entityManager->getRepository(User::class);
 $admin = $userRepo->findOneBy(['email' => 'admin@firmetna.com']);

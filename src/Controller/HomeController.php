@@ -10,6 +10,8 @@ class HomeController extends AbstractController
     #[Route('/', name: 'app_home')]
     public function index(): Response
     {
+        // Afficher la page d'accueil pour tous les utilisateurs
+        // Les admins peuvent accéder au back office via /admin/dashboard
         return $this->render('home/index.html.twig');
     }
 }

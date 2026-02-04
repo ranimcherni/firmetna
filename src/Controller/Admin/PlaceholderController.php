@@ -48,13 +48,13 @@ class PlaceholderController extends AbstractController
         ]);
     }
 
-    #[Route('/commandes', name: 'app_admin_commandes')]
-    #[Route('/commande', name: 'app_admin_commande')]
-    public function commandes(): Response
+    #[Route('/partenariats', name: 'app_admin_partenariats')]
+    #[Route('/partenariat', name: 'app_admin_partenariat')]
+    public function partenariats(): Response
     {
         return $this->render('admin/placeholder.html.twig', [
-            'module' => 'Commandes',
-            'icon' => 'fas fa-shopping-cart'
+            'module' => 'Partenariats',
+            'icon' => 'fas fa-handshake'
         ]);
     }
 }

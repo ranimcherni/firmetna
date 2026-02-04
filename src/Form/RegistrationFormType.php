@@ -3,7 +3,6 @@
 namespace App\Form;
 
 use App\Entity\User;
-use App\Entity\Profile;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
@@ -40,12 +39,10 @@ class RegistrationFormType extends AbstractType
                 ],
             ])
             ->add('nom', TextType::class, [
-                'mapped' => false,
                 'label' => 'Nom',
                 'attr' => ['placeholder' => 'Ex: Cherni'],
             ])
             ->add('prenom', TextType::class, [
-                'mapped' => false,
                 'label' => 'Prénom',
                 'attr' => ['placeholder' => 'Ex: Ranim'],
             ])
@@ -54,12 +51,10 @@ class RegistrationFormType extends AbstractType
                 'attr' => ['placeholder' => 'votre@email.com'],
             ])
             ->add('telephone', TextType::class, [
-                'mapped' => false,
                 'label' => 'Téléphone (+217)',
                 'attr' => ['value' => '+217 '],
             ])
             ->add('roleType', ChoiceType::class, [
-                'mapped' => false,
                 'label' => 'Type de compte',
                 'choices' => [
                     'Agriculteur' => 'Agriculteur',

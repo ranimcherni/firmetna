@@ -63,11 +63,11 @@
                         <td>
                             <div class="d-flex align-items-center">
                                 <div class="avatar-sm me-3 rounded-circle bg-success-subtle text-success d-flex align-items-center justify-content-center fw-bold" style="width: 35px; height: 35px; font-size: 0.8rem;">
-                                    {{ user.profile ? user.profile.nom|first|upper : (user.email|first|upper) }}{{ user.profile ? user.profile.prenom|first|upper : '' }}
+                                    {{ user.nom ? user.nom|first|upper : (user.email|first|upper) }}{{ user.prenom ? user.prenom|first|upper : '' }}
                                 </div>
                                 <span class="fw-600">
-                                    {% if user.profile and (user.profile.nom or user.profile.prenom) %}
-                                        {{ user.profile.nom }} {{ user.profile.prenom }}
+                                    {% if user.nom or user.prenom %}
+                                        {{ user.nom }} {{ user.prenom }}
                                     {% else %}
                                         {{ user.email|split('@')[0] }}
                                     {% endif %}
@@ -76,7 +76,7 @@
                         </td>
                         <td class="text-muted">{{ user.email }}</td>
                         <td>
-                            {% set type = (user.profile and user.profile.roleType) ? user.profile.roleType : 'Client' %}
+                            {% set type = user.roleType ? user.roleType : 'Client' %}
                             {% set badge_class = 'bg-info-subtle text-info' %}
                             {% if type == 'Agriculteur' %}{% set badge_class = 'bg-success-subtle text-success' %}
                             {% elseif type == 'Volontaire' %}{% set badge_class = 'bg-purple-subtle text-purple' %}
@@ -84,13 +84,13 @@
                             <span class="badge {{ badge_class }} px-3 py-2 rounded-pill fw-bold" style="font-size: 0.75rem;">{{ type }}</span>
                         </td>
                         <td>
-                            {% set status = (user.profile and user.profile.statut) ? user.profile.statut : 'Actif' %}
+                            {% set status = user.statut ? user.statut : 'Actif' %}
                             {% set status_class = 'bg-success-subtle text-success' %}
                             {% if status == 'Inactif' %}{% set status_class = 'bg-danger-subtle text-danger' %}{% endif %}
                             <span class="badge {{ status_class }} px-3 py-2 rounded-pill fw-bold" style="font-size: 0.75rem;">{{ status }}</span>
                         </td>
                         <td class="text-muted">
-                            {{ (user.profile and user.profile.dateInscription) ? user.profile.dateInscription|date('Y-m-d') : '2026-02-01' }}
+                            {{ user.dateInscription ? user.dateInscription|date('Y-m-d') : '2026-02-01' }}
                         </td>
                         <td class="pe-4 text-end">
                             <div class="d-flex justify-content-end gap-2">

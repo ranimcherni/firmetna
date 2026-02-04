@@ -22,26 +22,25 @@ class UserController extends AbstractController
         $type = $request->query->get('type');
         $statut = $request->query->get('statut');
 
-        $queryBuilder = $userRepository->createQueryBuilder('u')
-            ->leftJoin('u.profile', 'p');
+        $queryBuilder = $userRepository->createQueryBuilder('u');
 
         if ($q) {
             if (is_numeric($q)) {
                 $queryBuilder->andWhere('u.id = :id')
                     ->setParameter('id', $q);
             } else {
-                $queryBuilder->andWhere('u.email LIKE :q OR p.nom LIKE :q OR p.prenom LIKE :q')
+                $queryBuilder->andWhere('u.email LIKE :q OR u.nom LIKE :q OR u.prenom LIKE :q')
                     ->setParameter('q', '%'.$q.'%');
             }
         }
 
         if ($type && $type !== 'Tous les types') {
-            $queryBuilder->andWhere('p.roleType = :type')
+            $queryBuilder->andWhere('u.roleType = :type')
                 ->setParameter('type', $type);
         }
 
         if ($statut && $statut !== 'Tous les statuts') {
-            $queryBuilder->andWhere('p.statut = :statut')
+            $queryBuilder->andWhere('u.statut = :statut')
                 ->setParameter('statut', $statut);
         }
 
@@ -65,21 +64,18 @@ class UserController extends AbstractController
                 )
             );
 
-            // Création du profil
-            $profile = new \App\Entity\Profile();
-            $profile->setNom($form->get('nom')->getData());
-            $profile->setPrenom($form->get('prenom')->getData());
-            $profile->setRoleType($form->get('roleType')->getData());
-            $profile->setStatut($form->get('statut')->getData());
-            $profile->setDateInscription(new \DateTime());
-            $profile->setUser($user);
+            $user->setDateInscription(new \DateTime());
 
             $entityManager->persist($user);
-            $entityManager->persist($profile);
             $entityManager->flush();
 
             $this->addFlash('success', 'Utilisateur créé avec succès !');
             return $this->redirectToRoute('app_admin_user_index');
+        }
+
+        // Display validation errors
+        if ($form->isSubmitted() && !$form->isValid()) {
+            $this->addFlash('danger', 'Erreur de validation. Veuillez vérifier les champs du formulaire.');
         }
 
         return $this->render('admin/user/new.html.twig', [
@@ -91,16 +87,7 @@ class UserController extends AbstractController
     #[Route('/{id}/edit', name: 'app_admin_user_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, User $user, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response
     {
-        $profile = $user->getProfile() ?? new \App\Entity\Profile();
-        
         $form = $this->createForm(UserAdminType::class, $user, ['is_new' => false]);
-        
-        // Pré-remplir les champs non-mappés
-        $form->get('nom')->setData($profile->getNom());
-        $form->get('prenom')->setData($profile->getPrenom());
-        $form->get('roleType')->setData($profile->getRoleType());
-        $form->get('statut')->setData($profile->getStatut());
-        
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -109,22 +96,15 @@ class UserController extends AbstractController
                 $user->setPassword($passwordHasher->hashPassword($user, $plainPassword));
             }
 
-            // Mise à jour du profil
-            $profile->setNom($form->get('nom')->getData());
-            $profile->setPrenom($form->get('prenom')->getData());
-            $profile->setRoleType($form->get('roleType')->getData());
-            $profile->setStatut($form->get('statut')->getData());
-            
-            if (!$profile->getId()) {
-                $profile->setUser($user);
-                $profile->setDateInscription(new \DateTime());
-                $entityManager->persist($profile);
-            }
-
             $entityManager->flush();
 
             $this->addFlash('success', 'Utilisateur modifié !');
             return $this->redirectToRoute('app_admin_user_index');
+        }
+
+        // Display validation errors
+        if ($form->isSubmitted() && !$form->isValid()) {
+            $this->addFlash('danger', 'Erreur de validation. Veuillez vérifier les champs du formulaire.');
         }
 
         return $this->render('admin/user/edit.html.twig', [

@@ -28,7 +28,7 @@
         body { font-family: 'Inter', sans-serif; }
         
         .navbar-custom { 
-            background-color: white !important; 
+            background: white !important; 
             padding: 0.6rem 0;
             box-shadow: 0 4px 15px rgba(0,0,0,0.05);
         }
@@ -90,12 +90,27 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto align-items-center">
-                    <li class="nav-item"><a class="nav-link" href="{{ path('app_home') }}">Accueil</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#modules">Modules</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ path('app_home') }}"><i class="fas fa-home me-1"></i>Accueil</a></li>
                     {% if app.user %}
-                        <li class="nav-item"><a class="nav-link" href="#"><i class="fas fa-user-circle"></i> Profil</a></li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="produitsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-shopping-basket me-1"></i>Produits
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="produitsDropdown">
+                                <li><a class="dropdown-item" href="{{ path('app_products') }}"><i class="fas fa-store me-2"></i>Marketplace</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{{ path('app_products_vegetale') }}"><i class="fas fa-leaf me-2 text-success"></i>Produits Végétaux</a></li>
+                                <li><a class="dropdown-item" href="{{ path('app_products_animale') }}"><i class="fas fa-drumstick-bite me-2 text-danger"></i>Produits Animaux</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item"><a class="nav-link" href="{{ path('app_events') }}"><i class="fas fa-calendar-alt me-1"></i>Événements</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ path('app_forum') }}"><i class="fas fa-comments me-1"></i>Forum</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ path('app_donations') }}"><i class="fas fa-hand-holding-heart me-1"></i>Dons</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ path('app_partenariats') }}"><i class="fas fa-handshake me-1"></i>Partenariats</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ path('app_profil_me') }}"><i class="fas fa-user-circle"></i> Profil</a></li>
                         <li class="nav-item ms-lg-2"><a class="btn btn-danger btn-sm px-4 rounded-pill" href="{{ path('app_logout') }}">Déconnexion</a></li>
                     {% else %}
+                        <li class="nav-item"><a class="nav-link" href="#modules">Modules</a></li>
                         <li class="nav-item ms-lg-2"><a class="btn btn-connexion" href="{{ path('app_login') }}">CONNEXION</a></li>
                     {% endif %}
                 </ul>

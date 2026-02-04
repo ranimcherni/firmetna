@@ -11,35 +11,35 @@
                     <div class="bg-white rounded-circle d-inline-flex align-items-center justify-content-center text-success mb-3" style="width: 100px; height: 100px;">
                         <i class="fas fa-user fa-4x"></i>
                     </div>
-                    <h2 class="fw-bold mb-0">{{ profile.prenom }} {{ profile.nom }}</h2>
-                    <p class="mb-0 opacity-75">{{ profile.roleType|default('Utilisateur') }}</p>
+                    <h2 class="fw-bold mb-0">{{ user.prenom }} {{ user.nom }}</h2>
+                    <p class="mb-0 opacity-75">{{ user.roleType|default('Utilisateur') }}</p>
                 </div>
                 
                 <div class="card-body p-4">
                     <div class="row mb-4">
                         <div class="col-sm-4 fw-bold text-muted">Statut</div>
-                        <div class="col-sm-8 text-success fw-bold"><i class="fas fa-check-circle me-1"></i> {{ profile.statut|default('ACTIF') }}</div>
+                        <div class="col-sm-8 text-success fw-bold"><i class="fas fa-check-circle me-1"></i> {{ user.statut|default('ACTIF') }}</div>
                     </div>
                     
                     <div class="row mb-4">
                         <div class="col-sm-4 fw-bold text-muted">Spécialité</div>
-                        <div class="col-sm-8">{{ profile.specialite|default('Non spécifiée') }}</div>
+                        <div class="col-sm-8">{{ user.specialite|default('Non spécifiée') }}</div>
                     </div>
                     
                     <div class="row mb-4">
                         <div class="col-sm-4 fw-bold text-muted">Localisation</div>
-                        <div class="col-sm-8"><i class="fas fa-map-marker-alt text-muted me-1"></i> {{ profile.localisation|default('Non renseignée') }}</div>
+                        <div class="col-sm-8"><i class="fas fa-map-marker-alt text-muted me-1"></i> {{ user.localisation|default('Non renseignée') }}</div>
                     </div>
                     
                     <div class="row mb-4">
                         <div class="col-sm-4 fw-bold text-muted">Bio</div>
-                        <div class="col-sm-8">{{ profile.bio|default('Aucune bio disponible.') }}</div>
+                        <div class="col-sm-8">{{ user.bio|default('Aucune bio disponible.') }}</div>
                     </div>
 
                     <hr class="my-4">
                     
                     <div class="d-flex gap-2">
-                        <a href="{{ path('app_profil_edit', {'id': profile.id}) }}" class="btn btn-success rounded-pill px-4">
+                        <a href="{{ path('app_profil_edit', {'id': user.id}) }}" class="btn btn-success rounded-pill px-4">
                             <i class="fas fa-edit me-1"></i> Modifier le profil
                         </a>
                         <a href="{{ path('app_home') }}" class="btn btn-outline-secondary rounded-pill px-4">

@@ -9,6 +9,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
@@ -130,6 +132,30 @@
         .btn-logout:hover {
             background: rgba(255, 255, 255, 0.1);
             color: white;
+        }
+
+        .btn-view-site {
+            width: 100%;
+            background: linear-gradient(135deg, #10b981, #059669);
+            border: none;
+            color: white;
+            padding: 0.8rem;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.2s;
+            text-decoration: none;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-view-site:hover {
+            background: linear-gradient(135deg, #059669, #047857);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
         }
 
         /* Main Content Styling */
@@ -267,16 +293,16 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a href="{{ path('app_admin_commandes') }}" class="nav-link {% if app.request.get('_route') == 'app_admin_commandes' %}active{% endif %}">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span>Commandes</span>
+                <a href="{{ path('app_admin_partenariats') }}" class="nav-link {% if app.request.get('_route') == 'app_admin_partenariats' %}active{% endif %}">
+                    <i class="fas fa-handshake"></i>
+                    <span>Partenariats</span>
                 </a>
             </li>
         </ul>
 
         <div class="sidebar-footer">
-            <a href="{{ path('app_home') }}" class="btn-logout mb-2" style="border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
-                <i class="fas fa-external-link-alt"></i>
+            <a href="{{ path('app_front_dashboard') }}" class="btn-view-site mb-2">
+                <i class="fas fa-globe"></i>
                 <span>Voir le site</span>
             </a>
             <a href="{{ path('app_logout') }}" class="btn-logout">

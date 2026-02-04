@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-use App\Entity\Profile;
 use App\Entity\User;
 use App\Form\UserType;
 use App\Repository\UserRepository;
@@ -22,34 +21,19 @@ class UserController extends AbstractController
         // Récupérer les paramètres de filtrage
         $search = $request->query->get('search');
         
-        // Créer la requête avec join sur le profil
-        $queryBuilder = $userRepository->createQueryBuilder('u')
-            ->leftJoin('u.profile', 'p')
-            ->addSelect('p');
+        $queryBuilder = $userRepository->createQueryBuilder('u');
         
         if ($search) {
-            $queryBuilder->andWhere('p.nom LIKE :search OR p.prenom LIKE :search OR u.email LIKE :search')
+            $queryBuilder->andWhere('u.nom LIKE :search OR u.prenom LIKE :search OR u.email LIKE :search')
                         ->setParameter('search', '%' . $search . '%');
         }
         
         $users = $queryBuilder->getQuery()->getResult();
         
-        // Statistiques (basées sur le profil roleType ou user role)
+        // Statistiques (basées sur le roleType ou user role)
         $stats = [
-            'agriculteurs' => $userRepository->createQueryBuilder('u')
-                ->join('u.profile', 'p')
-                ->select('count(u.id)')
-                ->where('p.roleType = :role')
-                ->setParameter('role', 'AGRICULTEUR')
-                ->getQuery()
-                ->getSingleScalarResult(),
-            'consommateurs' => $userRepository->createQueryBuilder('u')
-                ->join('u.profile', 'p')
-                ->select('count(u.id)')
-                ->where('p.roleType = :role')
-                ->setParameter('role', 'CLIENT')
-                ->getQuery()
-                ->getSingleScalarResult(),
+            'agriculteurs' => $userRepository->count(['roleType' => 'AGRICULTEUR']),
+            'consommateurs' => $userRepository->count(['roleType' => 'CLIENT']),
             'admins' => $userRepository->count(['role' => 'ROLE_ADMIN']),
         ];
         
@@ -63,11 +47,8 @@ class UserController extends AbstractController
     public function new(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response
     {
         $user = new User();
-        // Initialiser un profil vide
-        $profile = new Profile();
-        $user->setProfile($profile);
-        $profile->setDateInscription(new \DateTime());
-        $profile->setStatut('ACTIF');
+        $user->setDateInscription(new \DateTime());
+        $user->setStatut('ACTIF');
 
         $form = $this->createForm(UserType::class, $user);
         $form->handleRequest($request);
@@ -79,8 +60,6 @@ class UserController extends AbstractController
                 $user->getPassword()
             );
             $user->setPassword($hashedPassword);
-            
-            // Le rôle est déjà défini dans le formulaire ou par défaut
             
             $entityManager->persist($user);
             $entityManager->flush();

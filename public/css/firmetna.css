@@ -57,7 +57,16 @@
 
 /* Navbar */
 .navbar-custom {
-    background: linear-gradient(135deg, var(--vert-foret), var(--vert-olive));
+    background: white !important;
+    border-bottom: 1px solid #eef2ee;
+}
+
+.navbar-custom .nav-link {
+    color: var(--vert-foret) !important;
+}
+
+.navbar-custom .nav-link i {
+    color: var(--vert-foret);
 }
 
 /* Forms */

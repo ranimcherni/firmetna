@@ -3,7 +3,6 @@
 namespace App\Form;
 
 use App\Entity\User;
-use App\Form\ProfileType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
@@ -36,7 +35,16 @@ class UserType extends AbstractType
                 'data' => 'ROLE_USER',
                 'attr' => ['class' => 'd-none'] // Hidden in UI but present for Symfony
             ])
-            ->add('profile', ProfileType::class)
+            ->add('nom')
+            ->add('prenom')
+            ->add('telephone')
+            ->add('adresse')
+            ->add('imageUrl')
+            ->add('statut')
+            ->add('roleType')
+            ->add('bio')
+            ->add('specialite')
+            ->add('localisation')
         ;
     }
 

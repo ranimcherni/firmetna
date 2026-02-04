@@ -31,19 +31,16 @@ class UserAdminType extends AbstractType
             ])
             ->add('nom', null, [
                 'label' => 'Nom',
-                'mapped' => false,
                 'required' => false,
                 'attr' => ['class' => 'form-control']
             ])
             ->add('prenom', null, [
                 'label' => 'Prénom',
-                'mapped' => false,
                 'required' => false,
                 'attr' => ['class' => 'form-control']
             ])
             ->add('roleType', ChoiceType::class, [
                 'label' => 'Type d\'Utilisateur',
-                'mapped' => false,
                 'choices' => [
                     'Client' => 'Client',
                     'Agriculteur' => 'Agriculteur',
@@ -53,7 +50,6 @@ class UserAdminType extends AbstractType
             ])
             ->add('statut', ChoiceType::class, [
                 'label' => 'Statut',
-                'mapped' => false,
                 'choices' => [
                     'Actif' => 'Actif',
                     'Inactif' => 'Inactif',

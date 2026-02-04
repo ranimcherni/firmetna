@@ -3,7 +3,6 @@
 namespace App\Controller;
 
 use App\Entity\User;
-use App\Entity\Profile;
 use App\Form\RegistrationFormType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -39,7 +38,7 @@ class RegistrationController extends AbstractController
             );
 
             // Set role based on selection
-            $roleType = $form->get('roleType')->getData();
+            $roleType = $user->getRoleType();
             $roleMapping = [
                 'Agriculteur' => 'ROLE_AGRICULTEUR',
                 'Client' => 'ROLE_CLIENT',
@@ -47,14 +46,6 @@ class RegistrationController extends AbstractController
             ];
             $user->setRole($roleMapping[$roleType] ?? 'ROLE_USER');
 
-            // Handle Profile
-            $profile = new Profile();
-            $profile->setUser($user);
-            $profile->setNom($form->get('nom')->getData());
-            $profile->setPrenom($form->get('prenom')->getData());
-            $profile->setTelephone($form->get('telephone')->getData());
-            $profile->setRoleType($roleType);
-            
             // Handle File Upload
             $imageFile = $form->get('imageFile')->getData();
             if ($imageFile) {
@@ -67,22 +58,36 @@ class RegistrationController extends AbstractController
                         $this->getParameter('kernel.project_dir').'/public/uploads/profiles',
                         $newFilename
                     );
-                    $profile->setImageUrl('/uploads/profiles/'.$newFilename);
+                    $user->setImageUrl('/uploads/profiles/'.$newFilename);
                 } catch (FileException $e) {
                     $this->addFlash('error', 'Erreur lors de l\'upload de l\'image.');
                 }
             }
 
-            $profile->setDateInscription(new \DateTime());
-            $profile->setStatut('ACTIF');
+            $user->setDateInscription(new \DateTime());
+            $user->setStatut('Actif');
 
-            $entityManager->persist($user);
-            $entityManager->persist($profile);
-            $entityManager->flush();
+            try {
+                $entityManager->persist($user);
+                $entityManager->flush();
 
-            // Success redirect to login
-            $this->addFlash('success', 'Votre compte a été créé avec succès ! Connectez-vous maintenant.');
-            return $this->redirectToRoute('app_login');
+                // Success redirect to login
+                $this->addFlash('success', 'Votre compte a été créé avec succès ! Connectez-vous pour accéder à votre espace.');
+                return $this->redirectToRoute('app_login');
+            } catch (\Exception $e) {
+                $this->addFlash('danger', 'Erreur lors de la création du compte : ' . $e->getMessage());
+            }
+        }
+
+        // Display validation errors if form was submitted but invalid
+        if ($form->isSubmitted() && !$form->isValid()) {
+            $errors = [];
+            foreach ($form->getErrors(true) as $error) {
+                $errors[] = $error->getMessage();
+            }
+            if (!empty($errors)) {
+                $this->addFlash('danger', 'Erreurs de validation : ' . implode(', ', $errors));
+            }
         }
 
         return $this->render('registration/register.html.twig', [
