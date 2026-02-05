@@ -1,0 +1,87 @@
+{% extends 'admin_base.html.twig' %}
+
+{% block title %}Gestion des Lieux - FIRMETNA{% endblock %}
+
+{% block body %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-0">Gestion des Lieux</h2>
+        <p class="text-muted mb-0">Gérez tous les lieux disponibles pour les événements</p>
+    </div>
+    <a href="{{ path('app_admin_lieu_new') }}" class="btn btn-success px-4 py-2" style="background-color: #1a4d2e; border: none; border-radius: 8px;">
+        <i class="fas fa-plus me-2"></i> Ajouter un lieu
+    </a>
+</div>
+
+<div class="card border-0 shadow-sm mb-4" style="border-radius: 15px;">
+    <div class="card-body p-4">
+        <form method="get" action="{{ path('app_admin_lieu_index') }}" class="row g-3">
+            <div class="col-md-12">
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-0"><i class="fas fa-search text-muted"></i></span>
+                    <input type="text" name="q" value="{{ app.request.query.get('q') }}" class="form-control bg-light border-0" placeholder="Rechercher par ville ou adresse...">
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm" style="border-radius: 15px;">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4 py-3 border-0" style="width: 80px;">ID</th>
+                        <th class="py-3 border-0" style="width: 80px;">Image</th>
+                        <th class="py-3 border-0">Ville</th>
+                        <th class="py-3 border-0">Adresse</th>
+                        <th class="py-3 border-0">Capacité</th>
+                        <th class="py-3 border-0 pe-4 text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for lieu in lieux %}
+                    <tr>
+                        <td class="ps-4 fw-bold text-muted">#{{ lieu.id }}</td>
+                        <td>
+                            {% if lieu.image %}
+                                <img src="{{ asset(lieu.image) }}" alt="{{ lieu.ville }}" class="rounded" style="width: 50px; height: 50px; object-fit: cover;">
+                            {% else %}
+                                <span class="text-muted small">—</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="fw-600">{{ lieu.ville }}</span>
+                        </td>
+                        <td class="text-muted">{{ lieu.adresse }}</td>
+                        <td>
+                            {% if lieu.capacite %}
+                                <span class="badge bg-info-subtle text-info px-3 py-2 rounded-pill fw-bold" style="font-size: 0.75rem;">
+                                    {{ lieu.capacite }} personnes
+                                </span>
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td class="pe-4 text-end">
+                            <div class="d-flex justify-content-end gap-2">
+                                <a href="{{ path('app_admin_lieu_edit', {'id': lieu.id}) }}" class="btn btn-sm btn-light border" title="Modifier"><i class="fas fa-pen text-muted"></i></a>
+                                <form method="post" action="{{ path('app_admin_lieu_delete', {'id': lieu.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce lieu ?');" class="d-inline">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ lieu.id) }}">
+                                    <button class="btn btn-sm btn-light border" title="Supprimer"><i class="fas fa-trash text-danger"></i></button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5 text-muted">Aucun lieu trouvé</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

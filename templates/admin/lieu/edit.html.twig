@@ -1,0 +1,47 @@
+{% extends 'admin_base.html.twig' %}
+
+{% block title %}Modifier le lieu - Firmetna{% endblock %}
+
+{% block body %}
+<div class="mb-4">
+    <a href="{{ path('app_admin_lieu_index') }}" class="text-success text-decoration-none fw-600">
+        <i class="fas fa-arrow-left me-2"></i> Retour à la liste
+    </a>
+    <h2 class="fw-bold mt-2">Modifier le lieu #{{ lieu.id }}</h2>
+    <p class="text-muted">Mettez à jour les informations du lieu.</p>
+</div>
+
+<div class="card border-0 shadow-sm" style="border-radius: 15px; max-width: 800px;">
+    <div class="card-body p-4">
+        {{ form_start(form) }}
+            <div class="row g-4">
+                <div class="col-md-12">
+                    {{ form_row(form.ville) }}
+                </div>
+                <div class="col-md-12">
+                    {{ form_row(form.adresse) }}
+                </div>
+                <div class="col-md-12">
+                    {{ form_row(form.capacite) }}
+                </div>
+                <div class="col-md-12">
+                    {% if lieu.image %}
+                        <p class="mb-2"><strong>Image actuelle :</strong></p>
+                        <img src="{{ asset(lieu.image) }}" alt="{{ lieu.ville }}" class="rounded mb-3 d-block" style="max-width: 200px; max-height: 150px; object-fit: cover;">
+                    {% endif %}
+                    {{ form_row(form.imageFile) }}
+                </div>
+                <div class="col-12 mt-4">
+                    <hr class="opacity-10">
+                    <button type="submit" class="btn btn-success px-4 py-2" style="background-color: #1a4d2e; border: none; border-radius: 8px;">
+                        <i class="fas fa-check-circle me-2"></i> Mettre à jour
+                    </button>
+                    <a href="{{ path('app_admin_lieu_index') }}" class="btn btn-light border px-4 py-2 ms-2" style="border-radius: 8px;">
+                        Annuler
+                    </a>
+                </div>
+            </div>
+        {{ form_end(form) }}
+    </div>
+</div>
+{% endblock %}
