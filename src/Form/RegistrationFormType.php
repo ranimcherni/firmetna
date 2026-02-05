@@ -51,8 +51,8 @@ class RegistrationFormType extends AbstractType
                 'attr' => ['placeholder' => 'votre@email.com'],
             ])
             ->add('telephone', TextType::class, [
-                'label' => 'Téléphone (+217)',
-                'attr' => ['value' => '+217 '],
+                'label' => 'Téléphone',
+                'attr' => ['placeholder' => '+33 6 12 34 56 78'],
             ])
             ->add('roleType', ChoiceType::class, [
                 'label' => 'Type de compte',
