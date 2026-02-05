@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use App\Entity\Event;
+use App\Repository\EventRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -10,12 +12,21 @@ use Symfony\Component\Routing\Annotation\Route;
 class EventsController extends AbstractController
 {
     #[Route('/', name: 'app_events')]
-    public function index(): Response
+    public function index(EventRepository $eventRepository): Response
     {
-        return $this->render('front/placeholder.html.twig', [
-            'module' => 'Événements',
-            'icon' => 'fas fa-calendar-alt',
-            'description' => 'Participez à nos foires, ateliers et rencontres agricoles.'
+        $events = $eventRepository->findAllOrderByDate();
+
+        return $this->render('front/events/index.html.twig', [
+            'events' => $events,
         ]);
     }
+
+    #[Route('/{id}/participer', name: 'app_events_participer', methods: ['GET'])]
+    public function participer(Event $event): Response
+    {
+        $this->addFlash('success', 'Participation confirmée !');
+
+        return $this->redirectToRoute('app_events');
+    }
 }
+

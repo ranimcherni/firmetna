@@ -19,15 +19,7 @@ class PlaceholderController extends AbstractController
         ]);
     }
 
-    #[Route('/evenements', name: 'app_admin_evenements')]
-    #[Route('/evenement', name: 'app_admin_evenement')]
-    public function evenements(): Response
-    {
-        return $this->render('admin/placeholder.html.twig', [
-            'module' => 'Événements',
-            'icon' => 'fas fa-calendar-alt'
-        ]);
-    }
+
 
     #[Route('/forum', name: 'app_admin_forum')]
     public function forum(): Response

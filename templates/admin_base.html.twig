@@ -275,9 +275,15 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a href="{{ path('app_admin_evenements') }}" class="nav-link {% if app.request.get('_route') == 'app_admin_evenements' %}active{% endif %}">
+                <a href="{{ path('app_admin_event_index') }}" class="nav-link {% if 'admin_event' in app.request.get('_route') %}active{% endif %}">
                     <i class="fas fa-calendar-alt"></i>
                     <span>Événements</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ path('app_admin_lieu_index') }}" class="nav-link {% if 'admin_lieu' in app.request.get('_route') %}active{% endif %}">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>Lieux</span>
                 </a>
             </li>
             <li class="nav-item">
