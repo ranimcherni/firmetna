@@ -27,8 +27,8 @@
 
     .left-side {
         flex: 1.2;
-        background: linear-gradient(rgba(0, 50, 20, 0.2), rgba(0, 50, 20, 0.3)), 
-                    url('{{ asset('images/register-bg.png') }}') no-repeat center center;
+        background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.1)), 
+                    url('https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&q=80&w=2000') no-repeat center center;
         background-size: cover;
         display: flex;
         flex-direction: column;
@@ -86,7 +86,7 @@
     }
 
     .form-logo {
-        height: 85px;
+        height: 120px;
         width: auto;
     }
 
@@ -250,7 +250,7 @@
         <div class="register-box">
             <div class="register-header">
                 <div class="logo-form-container">
-                    <img src="{{ asset('images/logo_hand.png') }}" alt="FIRMETNA" class="form-logo">
+                    <img src="{{ asset('images/logo_new_v1.png') }}" alt="FIRMETNA" class="form-logo">
                 </div>
                 <h2>CRÉER UN COMPTE</h2>
                 <p>Bienvenue parmi nous !</p>
@@ -299,8 +299,8 @@
                         <div class="text-danger small">{{ form_errors(registrationForm.email) }}</div>
                     </div>
                     <div class="form-group">
-                        {{ form_label(registrationForm.telephone, 'Téléphone (+217)', {'label_attr': {'class': 'form-label'}}) }}
-                        {{ form_widget(registrationForm.telephone, {'attr': {'class': 'form-control', 'placeholder': '+217'}}) }}
+                        {{ form_label(registrationForm.telephone, 'Téléphone (+216)', {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(registrationForm.telephone, {'attr': {'class': 'form-control', 'id': 'phone-input'}}) }}
                         <div class="text-danger small">{{ form_errors(registrationForm.telephone) }}</div>
                     </div>
                     <div class="form-group">
@@ -344,5 +344,56 @@
             reader.readAsDataURL(input.files[0]);
         }
     }
+
+    // Phone prefix lock logic
+    document.addEventListener('DOMContentLoaded', function() {
+        const phoneInput = document.getElementById('phone-input');
+        const prefix = '+216';
+        
+        if (phoneInput) {
+            // Ensure prefix is present on load and no spaces
+            if (!phoneInput.value.startsWith(prefix)) {
+                phoneInput.value = prefix;
+            }
+            phoneInput.value = phoneInput.value.replace(/\s/g, '');
+
+            phoneInput.addEventListener('input', function(e) {
+                // Always start with prefix
+                if (!this.value.startsWith(prefix)) {
+                    this.value = prefix;
+                }
+                
+                // Keep the prefix, then allow spaces and digits but limit digits to 8
+                const currentVal = this.value;
+                const afterPrefix = currentVal.substring(prefix.length);
+                
+                // Count digits only
+                const digitsOnly = afterPrefix.replace(/[^0-9]/g, '');
+                if (digitsOnly.length > 8) {
+                    // Truncate if more than 8 digits
+                    const truncatedDigits = digitsOnly.substring(0, 8);
+                    // Rebuild value (this is a simple way, might lose specific space placement if they typed them)
+                    this.value = prefix + truncatedDigits;
+                }
+            });
+
+            phoneInput.addEventListener('keydown', function(e) {
+                // Prevent deleting the prefix
+                if (this.selectionStart <= prefix.length && (e.key === 'Backspace' || e.key === 'Delete')) {
+                    e.preventDefault();
+                }
+            });
+
+            // Prevent form submit if not exactly 8 digits
+            phoneInput.closest('form').addEventListener('submit', function(e) {
+                const digitsOnly = phoneInput.value.substring(prefix.length).replace(/[^0-9]/g, '');
+                if (digitsOnly.length !== 8) {
+                    e.preventDefault();
+                    alert('Le numéro de téléphone doit contenir exactement 8 chiffres.');
+                    phoneInput.focus();
+                }
+            });
+        }
+    });
 </script>
 {% endblock %}

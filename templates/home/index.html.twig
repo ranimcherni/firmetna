@@ -7,48 +7,61 @@
 <div class="position-relative vh-100 overflow-hidden d-flex flex-column align-items-center justify-content-center">
     <!-- Image de fond avec overlay -->
     <div class="position-absolute top-0 start-0 w-100 h-100">
-        <img src="{{ asset('images/hero_farmer.png') }}" 
+        <img src="https://images.unsplash.com/photo-1625246333195-78d9c38ad449?auto=format&fit=crop&q=80&w=2000" 
              alt="Agriculture tunisienne"
              class="w-100 h-100"
-             style="object-fit: cover; filter: brightness(0.6);">
-        <div class="position-absolute top-0 start-0 w-100 h-100" style="background: rgba(0,0,0,0.2);"></div>
+             style="object-fit: cover; filter: brightness(0.7);">
+        <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.5));"></div>
     </div>
     
-    <div class="container position-relative text-center text-white">
-        <h1 class="display-1 fw-bold mb-2" style="letter-spacing: 5px;">
+    <div class="container position-relative text-center text-white" style="z-index: 2;">
+        <h1 class="display-1 fw-bold mb-3" style="letter-spacing: 8px; font-family: 'Outfit', sans-serif; text-shadow: 2px 4px 15px rgba(0,0,0,0.5);">
             FIRMETNA
         </h1>
-        <p class="fs-3 fw-bold mb-1">Gérez votre exploitation agricole avec FIRMETNA</p>
-        <p class="h5 mb-5 opacity-75 italic text-warning">"De notre terre à votre table"</p>
+        <p class="fs-2 fw-bold mb-2" style="font-family: 'Outfit', sans-serif; text-shadow: 1px 2px 10px rgba(0,0,0,0.5);">
+            Cultivez votre passion, gérez votre succès
+        </p>
+        <p class="h4 mb-5 opacity-90 fw-semibold text-warning" style="letter-spacing: 2px; text-transform: uppercase;">"L'excellence de la terre à votre table"</p>
         
-        <div class="d-flex justify-content-center gap-3 mt-5">
-            <a href="{{ path('app_register') }}" class="btn btn-light btn-lg px-5 rounded-pill fw-bold py-3 shadow">
-                <i class="fas fa-play-circle me-2"></i>Commencer gratuitement
+        <div class="d-flex justify-content-center gap-4 mt-5">
+            <a href="{{ path('app_register') }}" class="btn btn-light btn-lg px-5 rounded-pill fw-bold py-3 shadow-lg hover-scale" style="font-size: 1.2rem;">
+                <i class="fas fa-seedling me-2 text-success"></i>Commencer gratuitement
             </a>
-            <a href="#modules" class="btn btn-outline-light btn-lg px-5 rounded-pill py-3">
-                Découvrir les modules
+            <a href="#modules" class="btn btn-outline-light btn-lg px-5 rounded-pill py-3 hover-blur" style="border-width: 2px; font-weight: 600;">
+                Explorer Firmetna
             </a>
         </div>
         
-        <!-- Statistiques stylisées (Glassmorphism) -->
-        <div class="row justify-content-center mt-5 g-3">
+        <!-- Statistiques stylisées (Advanced Glassmorphism) -->
+        <div class="row justify-content-center mt-5 pt-4 g-4 fadeIn">
             {% set stats = [
-                {val: '500+', label: 'Agriculteurs'},
-                {val: '2k+', label: 'Membres'},
-                {val: '200+', label: 'Événements'},
-                {val: '50k€', label: 'Dons'}
+                {val: '500+', label: 'Agriculteurs', icon: 'fa-wheat-awn'},
+                {val: '2k+', label: 'Membres', icon: 'fa-users'},
+                {val: '200+', label: 'Événements', icon: 'fa-calendar-check'},
+                {val: '50k€', label: 'Dons', icon: 'fa-hand-holding-heart'}
             ] %}
             {% for stat in stats %}
             <div class="col-6 col-md-2">
-                <div class="p-3 rounded-4 shadow-sm border border-white border-opacity-25" style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px);">
-                    <div class="h4 fw-bold mb-0 text-white">{{ stat.val }}</div>
-                    <div class="small text-white text-opacity-75 fw-bold">{{ stat.label }}</div>
+                <div class="p-4 rounded-4 shadow-lg border border-white border-opacity-10 h-100 transition-all" 
+                     style="background: rgba(255,255,255,0.08); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);">
+                    <i class="fas {{ stat.icon }} mb-2 text-warning fs-4"></i>
+                    <div class="h3 fw-bold mb-0 text-white">{{ stat.val }}</div>
+                    <div class="small text-white text-opacity-80 fw-bold" style="letter-spacing: 1px;">{{ stat.label }}</div>
                 </div>
             </div>
             {% endfor %}
         </div>
     </div>
 </div>
+
+<style>
+    .hover-scale { transition: all 0.3s; }
+    .hover-scale:hover { transform: scale(1.05); }
+    .hover-blur:hover { backdrop-filter: blur(5px); background: rgba(255,255,255,0.1); }
+    .transition-all { transition: all 0.4s ease; }
+    .transition-all:hover { transform: translateY(-10px); background: rgba(255,255,255,0.15) !important; }
+    .display-1 { font-size: calc(3rem + 4.5vw); }
+</style>
 <!-- ========== MODULES SECTION ========== -->
 <section id="modules" class="py-5 bg-light">
     <div class="container">
