@@ -158,3 +158,71 @@ html {
 .logo-transparent {
     display: none; /* Désactivé car problème */
 }
+
+/* ========== FORUM – Style commun FIRMETNA ========== */
+.forum-page {
+    background-color: #f8faf8;
+    min-height: 60vh;
+    padding-bottom: 3rem;
+}
+
+.forum-page .card {
+    border-left: 4px solid var(--vert-feuille);
+    transition: all 0.3s ease;
+}
+
+.forum-page .card:hover {
+    box-shadow: 0 4px 12px rgba(26, 77, 46, 0.15);
+}
+
+.forum-page .badge.bg-success {
+    background-color: var(--vert-feuille) !important;
+}
+
+.forum-page .btn-success {
+    background-color: var(--vert-feuille);
+    border-color: var(--vert-feuille);
+}
+
+.forum-page .btn-success:hover {
+    background-color: var(--vert-olive);
+    border-color: var(--vert-olive);
+}
+
+.forum-page .btn-outline-success:hover {
+    background-color: var(--vert-feuille);
+    border-color: var(--vert-feuille);
+    color: white;
+}
+
+.forum-page .breadcrumb-item a {
+    color: var(--vert-foret);
+    font-weight: 600;
+}
+
+.forum-page .breadcrumb-item a:hover {
+    color: var(--vert-olive);
+}
+
+.forum-page h1 i.text-success,
+.forum-page h2 i.text-success {
+    color: var(--vert-feuille) !important;
+}
+
+.forum-page .card a.text-dark:hover {
+    color: var(--vert-foret) !important;
+}
+
+.forum-page .pagination .page-link {
+    color: var(--vert-foret);
+}
+
+.forum-page .pagination .page-item.active .page-link {
+    background-color: var(--vert-feuille);
+    border-color: var(--vert-feuille);
+}
+
+.forum-page .pagination .page-link:hover {
+    color: var(--vert-olive);
+    background-color: var(--vert-clair);
+}

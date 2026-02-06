@@ -58,12 +58,12 @@
         
         <div class="row g-4">
             {% for module in [
-                { icon: 'fas fa-users', title: 'Gestion Utilisateur', desc: 'Inscription, connexion et gestion des rôles' },
-                { icon: 'fas fa-calendar', title: 'Événements', desc: 'Calendrier interactif et inscriptions' },
-                { icon: 'fas fa-comments', title: 'Forum', desc: 'Discussions et échanges communautaires' },
-                { icon: 'fas fa-handshake', title: 'Partenariats', desc: 'Gérez vos collaborations et partenariats' },
-                { icon: 'fas fa-heart', title: 'Dons', desc: 'Campagnes de collecte et soutien' },
-                { icon: 'fas fa-box', title: 'Produits', desc: 'Gérez votre inventaire et catalogue produits' }
+                { icon: 'fas fa-users', title: 'Gestion Utilisateur', desc: 'Inscription, connexion et gestion des rôles', path: '#' },
+                { icon: 'fas fa-calendar', title: 'Événements', desc: 'Calendrier interactif et inscriptions', path: '#' },
+                { icon: 'fas fa-comments', title: 'Forum', desc: 'Discussions et échanges communautaires', path: path('app_forum') },
+                { icon: 'fas fa-handshake', title: 'Partenariats', desc: 'Gérez vos collaborations et partenariats', path: '#' },
+                { icon: 'fas fa-heart', title: 'Dons', desc: 'Campagnes de collecte et soutien', path: '#' },
+                { icon: 'fas fa-box', title: 'Produits', desc: 'Gérez votre inventaire et catalogue produits', path: '#' }
             ] %}
             <div class="col-md-6 col-lg-4">
                 <div class="card h-100 border-0 shadow-sm hover-shadow">
@@ -71,7 +71,7 @@
                         <i class="{{ module.icon }} fa-3x text-success mb-3"></i>
                         <h5 class="card-title fw-bold">{{ module.title }}</h5>
                         <p class="card-text text-muted">{{ module.desc }}</p>
-                        <a href="#" class="btn btn-outline-success mt-2">Découvrir</a>
+                        <a href="{{ module.path }}" class="btn btn-outline-success mt-2">Découvrir</a>
                     </div>
                 </div>
             </div>

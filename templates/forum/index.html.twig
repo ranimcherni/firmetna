@@ -1,0 +1,80 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Forum - FIRMETNA{% endblock %}
+
+{% block body %}
+<div class="forum-page">
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+        <div>
+            <h1 class="h2 fw-bold text-dark mb-1"><i class="fas fa-comments text-success me-2"></i>Forum communautaire</h1>
+            <p class="text-muted mb-0">Partagez vos idées et posez vos problèmes avec la communauté.</p>
+        </div>
+        <a href="{{ path('app_forum_new') }}" class="btn btn-success rounded-pill px-4 shadow-sm">
+            <i class="fas fa-plus me-2"></i>Nouvelle publication
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            {% for publication in publications %}
+                <article class="card border-0 shadow-sm mb-3 rounded-3 overflow-hidden hover-shadow">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+                            {% if publication.imageFilename %}
+                                <div class="flex-shrink-0">
+                                    <a href="{{ path('app_forum_show', { id: publication.id }) }}">
+                                        <img src="{{ asset(publication.imageFilename) }}" alt="" class="rounded-2" style="width: 100px; height: 70px; object-fit: cover;">
+                                    </a>
+                                </div>
+                            {% endif %}
+                            <div class="flex-grow-1">
+                                <span class="badge {{ publication.type == 'idee' ? 'bg-success' : 'bg-warning text-dark' }} mb-2">
+                                    {{ publication.getTypeLabel() }}
+                                </span>
+                                <h2 class="h5 fw-bold mb-2">
+                                    <a href="{{ path('app_forum_show', { id: publication.id }) }}" class="text-dark text-decoration-none">
+                                        {{ publication.titre }}
+                                    </a>
+                                </h2>
+                                <p class="text-muted small mb-2">{{ publication.contenu|u.truncate(150) }}…</p>
+                                <div class="d-flex align-items-center text-muted small">
+                                    <i class="fas fa-user-circle me-1"></i>
+                                    {{ publication.auteur.nom ?? publication.auteur.email }}
+                                    <span class="mx-2">•</span>
+                                    <i class="fas fa-clock me-1"></i>
+                                    {{ publication.dateCreation|date('d/m/Y H:i') }}
+                                    <span class="mx-2">•</span>
+                                    <i class="fas fa-comment me-1"></i>
+                                    {{ publication.commentaires|length }} commentaire(s)
+                                </div>
+                            </div>
+                            <a href="{{ path('app_forum_show', { id: publication.id }) }}" class="btn btn-outline-success btn-sm rounded-pill">
+                                Lire
+                            </a>
+                        </div>
+                    </div>
+                </article>
+            {% else %}
+                <div class="card border-0 shadow-sm rounded-3 text-center py-5">
+                    <div class="card-body">
+                        <i class="fas fa-comments fa-4x text-muted mb-3"></i>
+                        <h3 class="h5 text-muted">Aucune publication pour le moment</h3>
+                        <p class="text-muted mb-4">Soyez le premier à partager une idée ou à poser un problème.</p>
+                        <a href="{{ path('app_forum_new') }}" class="btn btn-success rounded-pill px-4">
+                            <i class="fas fa-plus me-2"></i>Créer une publication
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    {% if publications is defined and publications.pageCount > 1 %}
+        <div class="d-flex justify-content-center mt-4">
+            {{ knp_pagination_render(publications) }}
+        </div>
+    {% endif %}
+</div>
+</div>
+{% endblock %}

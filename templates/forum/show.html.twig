@@ -1,0 +1,80 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ publication.titre }} - Forum FIRMETNA{% endblock %}
+
+{% block body %}
+<div class="forum-page">
+<div class="container py-5">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ path('app_forum') }}">Forum</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ publication.titre|u.truncate(40) }}</li>
+        </ol>
+    </nav>
+
+    <article class="card border-0 shadow-sm rounded-3 mb-4 overflow-hidden hover-shadow">
+        <div class="card-body p-4">
+            <span class="badge {{ publication.type == 'idee' ? 'bg-success' : 'bg-warning text-dark' }} mb-2">
+                {{ publication.getTypeLabel() }}
+            </span>
+            <h1 class="h3 fw-bold mb-3">{{ publication.titre }}</h1>
+            <div class="text-muted small mb-3">
+                <i class="fas fa-user-circle me-1"></i>
+                {{ publication.auteur.nom ?? publication.auteur.prenom ?? publication.auteur.email }}
+                <span class="mx-2">•</span>
+                <i class="fas fa-clock me-1"></i>
+                {{ publication.dateCreation|date('d/m/Y à H:i') }}
+            </div>
+            <div class="mb-4" style="white-space: pre-wrap;">{{ publication.contenu }}</div>
+
+            {% if publication.imageFilename %}
+                <div class="mb-4">
+                    <img src="{{ asset(publication.imageFilename) }}" alt="Image de la publication" class="img-fluid rounded-3 shadow-sm" style="max-height: 400px; object-fit: cover;">
+                </div>
+            {% endif %}
+
+            {% if publication.auteur == app.user or is_granted('ROLE_ADMIN') %}
+                <div class="d-flex gap-2 pt-2 border-top">
+                    <a href="{{ path('app_forum_edit', { id: publication.id }) }}" class="btn btn-outline-success btn-sm rounded-pill">
+                        <i class="fas fa-edit me-1"></i>Modifier
+                    </a>
+                    {{ include('forum/_delete_form.html.twig', { publication: publication }) }}
+                </div>
+            {% endif %}
+        </div>
+    </article>
+
+    <h2 class="h5 fw-bold mb-3"><i class="fas fa-comments text-success me-2"></i>Commentaires ({{ publication.commentaires|length }})</h2>
+
+    <div class="card border-0 shadow-sm rounded-3 mb-4">
+        <div class="card-body p-4">
+            <h3 class="h6 text-muted mb-3">Ajouter un commentaire</h3>
+            {{ form_start(form) }}
+            {{ form_row(form.contenu) }}
+            <button type="submit" class="btn btn-success rounded-pill mt-2">
+                <i class="fas fa-paper-plane me-1"></i>Publier
+            </button>
+            {{ form_end(form) }}
+        </div>
+    </div>
+
+    <div class="comment-list">
+        {% for commentaire in publication.commentaires %}
+            <div class="card border-0 shadow-sm rounded-3 mb-2">
+                <div class="card-body py-3">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="flex-grow-1">
+                            <strong class="text-dark">{{ commentaire.auteur.nom ?? commentaire.auteur.prenom ?? commentaire.auteur.email }}</strong>
+                            <span class="text-muted small ms-2">{{ commentaire.dateCreation|date('d/m/Y H:i') }}</span>
+                            <p class="mb-0 mt-1" style="white-space: pre-wrap;">{{ commentaire.contenu }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <p class="text-muted">Aucun commentaire. Soyez le premier à réagir !</p>
+        {% endfor %}
+    </div>
+</div>
+</div>
+{% endblock %}
