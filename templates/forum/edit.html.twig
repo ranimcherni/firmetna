@@ -1,0 +1,45 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier la publication - Forum FIRMETNA{% endblock %}
+
+{% block body %}
+<div class="forum-page">
+<div class="container py-5">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ path('app_forum') }}">Forum</a></li>
+            <li class="breadcrumb-item"><a href="{{ path('app_forum_show', { id: publication.id }) }}">{{ publication.titre|u.truncate(30) }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Modifier</li>
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-body p-4">
+                    <h1 class="h4 fw-bold mb-4"><i class="fas fa-edit text-success me-2"></i>Modifier la publication</h1>
+
+                    {{ form_start(form) }}
+                    {{ form_row(form.titre) }}
+                    {{ form_row(form.type) }}
+                    {{ form_row(form.contenu) }}
+                    {{ form_row(form.imageFile) }}
+                    {% if publication.imageFilename %}
+                        <p class="text-muted small mb-2">
+                            <i class="fas fa-image me-1"></i>Image actuelle : <img src="{{ asset(publication.imageFilename) }}" alt="Image" class="img-thumbnail ms-1" style="max-height: 60px;">
+                        </p>
+                    {% endif %}
+                    <div class="d-flex gap-2 mt-3">
+                        <button type="submit" class="btn btn-success rounded-pill px-4">
+                            <i class="fas fa-check me-1"></i>Enregistrer
+                        </button>
+                        <a href="{{ path('app_forum_show', { id: publication.id }) }}" class="btn btn-outline-success rounded-pill">Annuler</a>
+                    </div>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+{% endblock %}
