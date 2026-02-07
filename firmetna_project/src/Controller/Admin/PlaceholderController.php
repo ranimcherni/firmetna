@@ -1,0 +1,50 @@
+<?php
+
+namespace App\Controller\Admin;
+
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+
+#[Route('/admin')]
+class PlaceholderController extends AbstractController
+{
+    #[Route('/evenements', name: 'app_admin_evenements')]
+    #[Route('/evenement', name: 'app_admin_evenement')]
+    public function evenements(): Response
+    {
+        return $this->render('admin/placeholder.html.twig', [
+            'module' => 'Événements',
+            'icon' => 'fas fa-calendar-alt'
+        ]);
+    }
+
+    #[Route('/forum', name: 'app_admin_forum')]
+    public function forum(): Response
+    {
+        return $this->render('admin/placeholder.html.twig', [
+            'module' => 'Forum',
+            'icon' => 'fas fa-comments'
+        ]);
+    }
+
+    #[Route('/donations', name: 'app_admin_donations')]
+    #[Route('/donation', name: 'app_admin_donation')]
+    public function donations(): Response
+    {
+        return $this->render('admin/placeholder.html.twig', [
+            'module' => 'Donations',
+            'icon' => 'fas fa-heart'
+        ]);
+    }
+
+    #[Route('/partenariats', name: 'app_admin_partenariats')]
+    #[Route('/partenariat', name: 'app_admin_partenariat')]
+    public function partenariats(): Response
+    {
+        return $this->render('admin/placeholder.html.twig', [
+            'module' => 'Partenariats',
+            'icon' => 'fas fa-handshake'
+        ]);
+    }
+}

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}FIRMETNA - Agriculture Tunisienne{% endblock %}</title>
+    
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- CSS Personnalisé -->
+    <link rel="stylesheet" href="{{ asset('css/firmetna.css') }}">
+    
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary-green: #1a4d2e;
+            --dark-green: #007a3e;
+            --light-green: #e8f5e9;
+            --text-dark: #111827;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        
+        .navbar-custom { 
+            background: white !important; 
+            padding: 0.6rem 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+        }
+        
+        .navbar-brand img {
+            height: 70px;
+            width: auto;
+            margin-right: 12px;
+        }
+        
+        .brand-text {
+            color: var(--primary-green);
+            font-weight: 800;
+            font-size: 1.5rem;
+            letter-spacing: 1px;
+        }
+        
+        .nav-link {
+            font-weight: 600;
+            margin: 0 0.75rem;
+            color: var(--text-dark) !important;
+            transition: all 0.2s;
+        }
+        .nav-link:hover { color: var(--primary-green) !important; transform: translateY(-1px); }
+        
+        .btn-connexion {
+            background-color: var(--primary-green);
+            color: white !important;
+            border-radius: 50px;
+            padding: 8px 25px;
+            font-weight: 700;
+            transition: all 0.3s;
+            border: none;
+        }
+        .btn-connexion:hover {
+            background-color: #23613a;
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(26, 77, 46, 0.2);
+        }
+    </style>
+    {% block stylesheets %}{% endblock %}
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light navbar-custom sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="{{ path('app_home') }}">
+                <img src="{{ asset('images/logo_hand.png') }}" alt="FIRMETNA Logo">
+                <span class="brand-text">FIRMETNA</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item"><a class="nav-link" href="{{ path('app_home') }}"><i class="fas fa-home me-1"></i>Accueil</a></li>
+                    {% if app.user %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="produitsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-shopping-basket me-1"></i>Produits
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="produitsDropdown">
+                                <li><a class="dropdown-item" href="{{ path('app_products') }}"><i class="fas fa-store me-2"></i>Marketplace</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{{ path('app_products_vegetale') }}"><i class="fas fa-leaf me-2 text-success"></i>Produits Végétaux</a></li>
+                                <li><a class="dropdown-item" href="{{ path('app_products_animale') }}"><i class="fas fa-drumstick-bite me-2 text-danger"></i>Produits Animaux</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item"><a class="nav-link" href="{{ path('app_events') }}"><i class="fas fa-calendar-alt me-1"></i>Événements</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ path('app_forum') }}"><i class="fas fa-comments me-1"></i>Forum</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ path('app_donations') }}"><i class="fas fa-hand-holding-heart me-1"></i>Dons</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ path('app_partenariats') }}"><i class="fas fa-handshake me-1"></i>Partenariats</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ path('app_profil_me') }}"><i class="fas fa-user-circle"></i> Profil</a></li>
+                        <li class="nav-item ms-lg-2"><a class="btn btn-danger btn-sm px-4 rounded-pill" href="{{ path('app_logout') }}">Déconnexion</a></li>
+                    {% else %}
+                        <li class="nav-item"><a class="nav-link" href="#modules">Modules</a></li>
+                        <li class="nav-item ms-lg-2"><a class="btn btn-connexion" href="{{ path('app_login') }}">CONNEXION</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Messages Flash -->
+    <div class="container mt-3">
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+
+    <!-- Contenu principal -->
+    <main>
+        {% block body %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white text-center py-3 mt-5">
+        <p>&copy; 2026 FIRMETNA - Agriculture Durable</p>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    {% block javascripts %}{% endblock %}
+</body>
+</html>
