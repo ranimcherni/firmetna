@@ -1,0 +1,224 @@
+{% extends 'admin_base.html.twig' %}
+
+{% block title %}Tableau de bord - FIRMETNA{% endblock %}
+
+{% block body %}
+<div class="mb-4 d-flex justify-content-between align-items-center">
+    <div>
+        <h2 class="fw-bold fs-3 mb-1">Tableau de Bord Analytique</h2>
+        <p class="text-muted">Statistiques en temps réel et indicateurs de performance</p>
+    </div>
+    <div class="d-flex gap-2">
+        <button class="btn btn-white shadow-sm rounded-pill px-3 border"><i class="fas fa-download me-2"></i>Exporter PDF</button>
+        <button class="btn btn-success shadow-sm rounded-pill px-3 border-0" style="background-color: #1a4d2e;"><i class="fas fa-sync me-2"></i>Actualiser</button>
+    </div>
+</div>
+
+<!-- Rapports Graphiques Principaux -->
+<div class="row g-4 mb-4">
+    <!-- Graphique des ventes/activité -->
+    <div class="col-lg-12">
+        <div class="card border-0 shadow-sm" style="border-radius: 24px;">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="fw-bold mb-0">Évolution de l'Activité (Inscriptions & Ventes)</h5>
+                    <select class="form-select form-select-sm w-auto border-0 bg-light rounded-pill px-3">
+                        <option>7 derniers jours</option>
+                        <option selected>6 derniers mois</option>
+                    </select>
+                </div>
+                <div style="height: 300px;">
+                    <canvas id="mainActivityChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <!-- Distribution Utilisateurs -->
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100" style="border-radius: 24px;">
+            <div class="card-body p-4">
+                <h5 class="fw-bold mb-4">Distribution Utilisateurs</h5>
+                <div style="height: 250px;">
+                    <canvas id="userDistributionChart"></canvas>
+                </div>
+                <div class="mt-4 d-flex justify-content-center flex-wrap gap-3">
+                    <div class="small"><i class="fas fa-circle me-1" style="color: #1a4d2e;"></i>Agriculteurs: {{ agriculteursCount }}</div>
+                    <div class="small"><i class="fas fa-circle me-1" style="color: #d4a017;"></i>Clients: {{ clientsCount }}</div>
+                    <div class="small"><i class="fas fa-circle me-1" style="color: #43a047;"></i>Donateurs: {{ donateursCount }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Graphique circulaire Produits -->
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100" style="border-radius: 24px;">
+            <div class="card-body p-4 text-center">
+                <h5 class="fw-bold mb-4 text-start">Répartition Produits</h5>
+                <div style="height: 250px; margin: 0 auto;">
+                    <canvas id="productPieChart"></canvas>
+                </div>
+                <div class="mt-4 d-flex justify-content-center gap-4">
+                    <div class="small"><i class="fas fa-circle text-success me-1"></i>Végétal ({{ productDistribution.Vegetal }}%)</div>
+                    <div class="small"><i class="fas fa-circle text-warning me-1"></i>Animal ({{ productDistribution.Animal }}%)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Top Produits (Visuel) -->
+    <div class="col-lg-7">
+        <div class="card border-0 shadow-sm" style="border-radius: 24px;">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="fw-bold mb-0">Produits Phares (Plus Vendus)</h5>
+                    <a href="{{ path('app_admin_produits') }}" class="btn btn-link text-success text-decoration-none fw-bold p-0">Gérer l'inventaire <i class="fas fa-chevron-right ms-1"></i></a>
+                </div>
+                
+                <div class="row g-3">
+                    {% for product in topProducts %}
+                    <div class="col-12">
+                        <div class="p-3 border rounded-4 d-flex align-items-center card-hover bg-white transition-all">
+                            <img src="{{ product.image }}" class="rounded-3 me-3" style="width: 85px; height: 85px; object-fit: cover;">
+                            <div class="flex-grow-1">
+                                <h6 class="fw-bold mb-0">{{ product.name }}</h6>
+                                <span class="badge {% if product.category == 'Végétal' %}bg-success-subtle text-success{% else %}bg-warning-subtle text-warning{% endif %} rounded-pill px-2" style="font-size: 0.7rem;">{{ product.category }}</span>
+                            </div>
+                            <div class="text-end">
+                                <div class="fw-bold text-dark">{{ product.sales }} ventes</div>
+                                <div class="small text-success fw-bold">{{ product.growth }} <i class="fas fa-arrow-up ms-1"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Indicateurs rapides -->
+    <div class="col-lg-5">
+        <div class="card border-0 shadow-sm" style="border-radius: 24px;">
+            <div class="card-body p-4">
+                <h5 class="fw-bold mb-4">Objectifs & Indicateurs</h5>
+                
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="fw-bold small text-muted">OBJECTIF DONS MENSUEL</span>
+                        <span class="fw-bold small text-dark">{{ totalDonations }}€ / 5000€</span>
+                    </div>
+                    <div class="progress" style="height: 10px; border-radius: 10px; background-color: #f1f5f9;">
+                        <div class="progress-bar" role="progressbar" style="width: 52%; border-radius: 10px; background: linear-gradient(90deg, #1a4d2e, #4CAF50);"></div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="fw-bold small text-muted">UTILISATEURS ACTIFS</span>
+                        <span class="fw-bold small text-dark">{{ totalUsers }} / 100</span>
+                    </div>
+                    <div class="progress" style="height: 10px; border-radius: 10px; background-color: #f1f5f9;">
+                        <div class="progress-bar" role="progressbar" style="width: {{ totalUsers }}%; border-radius: 10px; background: linear-gradient(90deg, #1565c0, #03a9f4);"></div>
+                    </div>
+                </div>
+
+                <div class="p-4 rounded-4 bg-light mt-4" style="border: 2px dashed #e2e8f0;">
+                    <div class="text-center">
+                        <div class="rounded-circle bg-white shadow-sm p-3 d-inline-block mb-3">
+                            <i class="fas fa-plus-circle text-success fs-4"></i>
+                        </div>
+                        <h6 class="fw-bold mb-1">Nouveau Rapport</h6>
+                        <p class="small text-muted mb-3">Générez un rapport personnalisé pour vos partenaires</p>
+                        <a href="{{ path('app_admin_partenariats') }}" class="btn btn-success btn-sm rounded-pill px-4">Créer</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 1. Line Chart: Main Activity
+    const ctxMain = document.getElementById('mainActivityChart').getContext('2d');
+    new Chart(ctxMain, {
+        type: 'line',
+        data: {
+            labels: ['Jan', 'Féb', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil'],
+            datasets: [{
+                label: 'Volume d\'activité',
+                data: {{ monthlySales|json_encode|raw }},
+                borderColor: '#1a4d2e',
+                backgroundColor: 'rgba(26, 77, 46, 0.05)',
+                borderWidth: 3,
+                tension: 0.4,
+                fill: true,
+                pointBackgroundColor: '#fff',
+                pointBorderColor: '#1a4d2e',
+                pointBorderWidth: 2,
+                pointRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { grid: { display: true, drawBorder: false, color: '#f1f5f9' }, ticks: { color: '#64748b' } },
+                x: { grid: { display: false }, ticks: { color: '#64748b' } }
+            }
+        }
+    });
+
+    // 2. Pie Chart: User Distribution
+    const ctxUser = document.getElementById('userDistributionChart').getContext('2d');
+    new Chart(ctxUser, {
+        type: 'pie',
+        data: {
+            labels: ['Agriculteurs', 'Clients', 'Donateurs'],
+            datasets: [{
+                data: [{{ agriculteursCount }}, {{ clientsCount }}, {{ donateursCount }}],
+                backgroundColor: ['#1a4d2e', '#d4a017', '#43a047'],
+                borderWidth: 1,
+                borderColor: '#ffffff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+
+    // 3. Doughnut Chart: Product Distribution
+    const ctxPie = document.getElementById('productPieChart').getContext('2d');
+    new Chart(ctxPie, {
+        type: 'doughnut',
+        data: {
+            labels: ['Végétal', 'Animal'],
+            datasets: [{
+                data: [{{ productDistribution.Vegetal }}, {{ productDistribution.Animal }}],
+                backgroundColor: ['#1a4d2e', '#fbd38d'],
+                borderWidth: 0,
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '75%',
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}
