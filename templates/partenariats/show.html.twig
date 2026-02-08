@@ -1,0 +1,204 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ partner.name }} - Partenariats - FIRMETNA{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    :root {
+        --part-primary: #1a4d2e;
+        --part-primary-hover: #23613a;
+        --part-olive: #2d5f3f;
+        --part-feuille: #4f7942;
+        --part-light: #e8f5e9;
+        --part-text: #111827;
+        --part-muted: #6b7280;
+    }
+    .partenariats-page {
+        font-family: 'Inter', sans-serif;
+        background: linear-gradient(180deg, var(--part-light) 0%, rgba(232, 245, 233, 0.5) 40%, #f8fafc 100%);
+        background-attachment: fixed;
+        color: var(--part-text);
+        min-height: 80vh;
+    }
+    .partenariats-hero {
+        background: linear-gradient(135deg, var(--part-primary) 0%, var(--part-olive) 50%, var(--part-feuille) 100%);
+        color: white;
+        padding: 3rem 0;
+        margin-bottom: 2rem;
+        border-bottom: 4px solid rgba(255,255,255,0.15);
+    }
+    .partner-detail-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        border: 1px solid rgba(26, 77, 46, 0.08);
+        overflow: hidden;
+    }
+    .partner-detail-card .logo-placeholder {
+        width: 80px;
+        height: 80px;
+        border-radius: 16px;
+        background: linear-gradient(135deg, var(--part-light) 0%, rgba(79, 121, 66, 0.15) 100%);
+        color: var(--part-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+    }
+    .badge-type { background: rgba(26, 77, 46, 0.12); color: var(--part-primary); font-weight: 600; padding: 0.35rem 0.75rem; border-radius: 50px; font-size: 0.75rem; }
+    .badge-status-actif { background: rgba(34, 197, 94, 0.15); color: #15803d; }
+    .badge-status-inactif { background: #f1f5f9; color: #64748b; }
+    .badge-status-en-attente { background: rgba(234, 179, 8, 0.2); color: #a16207; }
+    .offer-card {
+        background: #f8fafc;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        transition: all 0.2s;
+    }
+    .offer-card:hover { border-color: rgba(26, 77, 46, 0.2); box-shadow: 0 4px 12px rgba(0,0,0,0.04); }
+    .btn-partner-primary {
+        background-color: var(--part-primary);
+        color: white !important;
+        border: none;
+        border-radius: 50px;
+        padding: 0.5rem 1.25rem;
+        font-weight: 700;
+        transition: all 0.25s ease;
+    }
+    .btn-partner-primary:hover { background-color: var(--part-primary-hover); color: white !important; transform: translateY(-2px); }
+    .btn-partner-outline {
+        background: transparent;
+        color: var(--part-primary) !important;
+        border: 2px solid var(--part-primary);
+        border-radius: 50px;
+        padding: 0.5rem 1.25rem;
+        font-weight: 600;
+        transition: all 0.25s ease;
+    }
+    .btn-partner-outline:hover { background-color: var(--part-primary); color: white !important; }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="partenariats-page">
+    <section class="partenariats-hero">
+        <div class="container">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0 opacity-90">
+                    <li class="breadcrumb-item"><a href="{{ path('app_home') }}" class="text-white text-decoration-none">Accueil</a></li>
+                    <li class="breadcrumb-item"><a href="{{ path('app_partenariats') }}" class="text-white text-decoration-none">Partenariats</a></li>
+                    <li class="breadcrumb-item active text-white" aria-current="page">{{ partner.name }}</li>
+                </ol>
+            </nav>
+            <h1 class="display-5 mt-3 mb-0">{{ partner.name }}</h1>
+            <p class="lead mb-0 opacity-90">
+                {% if partner.type %}{{ partner.type }}{% endif %}
+                {% if partner.type and partner.status %} · {% endif %}
+                {% if partner.status %}{{ partner.status }}{% endif %}
+            </p>
+        </div>
+    </section>
+
+    <div class="container pb-5">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="partner-detail-card p-4 mb-4">
+                    <div class="d-flex align-items-start gap-4 mb-4">
+                        {% if partner.logoUrl %}
+                            <img src="{{ partner.logoUrl }}" alt="{{ partner.name }}" class="rounded-3" style="width: 80px; height: 80px; object-fit: cover;">
+                        {% else %}
+                            <div class="logo-placeholder"><i class="fas fa-building"></i></div>
+                        {% endif %}
+                        <div class="flex-grow-1">
+                            <div class="d-flex flex-wrap gap-2 mb-2">
+                                {% if partner.type %}
+                                    <span class="badge-type">{{ partner.type }}</span>
+                                {% endif %}
+                                {% if partner.status %}
+                                    {% set status_class = 'badge-status-actif' %}
+                                    {% if partner.status == 'Inactif' %}{% set status_class = 'badge-status-inactif' %}{% endif %}
+                                    {% if partner.status == 'En attente' %}{% set status_class = 'badge-status-en-attente' %}{% endif %}
+                                    <span class="badge {{ status_class }}">{{ partner.status }}</span>
+                                {% endif %}
+                            </div>
+                            {% if partner.description %}
+                                <p class="text-muted mb-0">{{ partner.description }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row g-3">
+                        {% if partner.email %}
+                            <div class="col-sm-6">
+                                <strong class="text-muted small d-block mb-1">Email</strong>
+                                <a href="mailto:{{ partner.email }}" class="text-decoration-none">{{ partner.email }}</a>
+                            </div>
+                        {% endif %}
+                        {% if partner.phone %}
+                            <div class="col-sm-6">
+                                <strong class="text-muted small d-block mb-1">Téléphone</strong>
+                                <span>{{ partner.phone }}</span>
+                            </div>
+                        {% endif %}
+                        {% if partner.address %}
+                            <div class="col-sm-6">
+                                <strong class="text-muted small d-block mb-1">Adresse</strong>
+                                <span>{{ partner.address }}</span>
+                            </div>
+                        {% endif %}
+                        {% if partner.website %}
+                            <div class="col-sm-6">
+                                <strong class="text-muted small d-block mb-1">Site web</strong>
+                                <a href="{{ partner.website }}" target="_blank" rel="noopener" class="text-decoration-none">{{ partner.website }}</a>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="mt-4">
+                        {% if partner.email %}
+                            <a href="mailto:{{ partner.email }}" class="btn btn-partner-primary me-2">
+                                <i class="fas fa-envelope me-1"></i>Contacter
+                            </a>
+                        {% endif %}
+                        <a href="{{ path('app_partenariats') }}" class="btn btn-partner-outline">
+                            <i class="fas fa-arrow-left me-1"></i>Retour aux partenaires
+                        </a>
+                    </div>
+                </div>
+
+                {% if partner.offers|length > 0 %}
+                    <h3 class="h5 fw-bold mb-3">Offres & soutiens</h3>
+                    <div class="row g-3">
+                        {% for offer in partner.offers %}
+                            <div class="col-12">
+                                <div class="offer-card p-3">
+                                    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                                        <div>
+                                            <span class="badge bg-primary bg-opacity-25 text-primary me-2">{{ offer.type }}</span>
+                                            <strong>{{ offer.title }}</strong>
+                                            {% if offer.status %}
+                                                <span class="badge ms-2 {% if offer.status == 'En cours' %}bg-success{% elseif offer.status == 'Réalisé' %}bg-info{% elseif offer.status == 'Annulé' %}bg-secondary{% else %}bg-warning text-dark{% endif %}">{{ offer.status }}</span>
+                                            {% endif %}
+                                        </div>
+                                        {% if offer.amount is not null and offer.amount != '' %}
+                                            <span class="fw-600 text-success">{{ offer.amount }} €</span>
+                                        {% endif %}
+                                    </div>
+                                    {% if offer.offerDate %}
+                                        <small class="text-muted d-block mt-1"><i class="fas fa-calendar me-1"></i>{{ offer.offerDate|date('d/m/Y') }}</small>
+                                    {% endif %}
+                                    {% if offer.description %}
+                                        <p class="text-muted small mb-0 mt-2">{{ offer.description|length > 200 ? offer.description|slice(0, 200) ~ '…' : offer.description }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">Aucune offre enregistrée pour ce partenaire.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

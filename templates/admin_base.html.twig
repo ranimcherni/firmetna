@@ -293,9 +293,15 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a href="{{ path('app_admin_partenariats') }}" class="nav-link {% if app.request.get('_route') == 'app_admin_partenariats' %}active{% endif %}">
+                <a href="{{ path('app_admin_partenariats') }}" class="nav-link {% if app.request.get('_route') == 'app_admin_partenariats' or 'admin_partner' in app.request.get('_route') %}active{% endif %}">
                     <i class="fas fa-handshake"></i>
                     <span>Partenariats</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ path('app_admin_partner_offer_index') }}" class="nav-link {% if 'admin_partner_offer' in app.request.get('_route') %}active{% endif %}">
+                    <i class="fas fa-gift"></i>
+                    <span>Offres partenaires</span>
                 </a>
             </li>
         </ul>
