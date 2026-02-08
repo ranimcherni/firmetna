@@ -83,30 +83,37 @@
     <div class="marketplace-content">
         <!-- Header Message -->
         <div class="marketplace-header">
+            {% if app.user and app.user.roleType == 'Agriculteur' %}
+                <div class="mb-4">
+                    <a href="{{ path('app_products_sell') }}" class="btn btn-success btn-sm rounded-pill px-4 py-2 fw-bold shadow-lg">
+                        <i class="fas fa-plus me-2"></i> Ajouter un produit
+                    </a>
+                </div>
+            {% endif %}
             <h1>Marketplace FIRMETNA</h1>
             <p>Choisissez votre catégorie de produits</p>
         </div>
 
         <!-- Categories -->
         <!-- Buttons Container -->
-        <div class="d-flex flex-column flex-md-row justify-content-center gap-4 mt-5">
+        <div class="d-flex flex-column flex-md-row justify-content-center gap-3 mt-5">
             <!-- Produits Végétaux -->
-            <a href="{{ path('app_products_vegetale') }}" class="btn btn-success btn-lg rounded-pill px-5 py-4 fw-bold shadow-lg d-flex align-items-center justify-content-center hover-scale">
-                <i class="fas fa-leaf fa-2x me-3"></i>
-                <span class="fs-4">Produits Végétaux</span>
+            <a href="{{ path('app_products_vegetale') }}" class="btn btn-success rounded-pill px-4 py-3 fw-bold shadow-lg d-flex align-items-center justify-content-center hover-scale">
+                <i class="fas fa-leaf fa-lg me-2"></i>
+                <span class="fs-5">Produits Végétaux</span>
             </a>
 
             <!-- Produits Animaux -->
-            <a href="{{ path('app_products_animale') }}" class="btn btn-danger btn-lg rounded-pill px-5 py-4 fw-bold shadow-lg d-flex align-items-center justify-content-center hover-scale">
-                <i class="fas fa-drumstick-bite fa-2x me-3"></i>
-                <span class="fs-4">Produits Animaux</span>
+            <a href="{{ path('app_products_animale') }}" class="btn btn-success rounded-pill px-4 py-3 fw-bold shadow-lg d-flex align-items-center justify-content-center hover-scale">
+                <i class="fas fa-drumstick-bite fa-lg me-2"></i>
+                <span class="fs-5">Produits Animaux</span>
             </a>
         </div>
         
         <style>
             .hover-scale {
                 transition: transform 0.2s ease;
-                min-width: 300px;
+                min-width: 240px;
             }
             .hover-scale:hover {
                 transform: scale(1.05);
@@ -115,4 +122,3 @@
     </div>
 </div>
 {% endblock %}
-

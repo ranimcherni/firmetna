@@ -51,20 +51,8 @@ class RegistrationFormType extends AbstractType
                 'attr' => ['placeholder' => 'votre@email.com'],
             ])
             ->add('telephone', TextType::class, [
-                'label' => 'Téléphone (+216)',
-                'attr' => [
-                    'value' => '+216',
-                    'maxlength' => 14,
-                    'minlength' => 12,
-                    'placeholder' => '+216 12 345 678'
-                ],
-                'constraints' => [
-                    new NotBlank(['message' => 'Le numéro de téléphone est obligatoire']),
-                    new \Symfony\Component\Validator\Constraints\Regex([
-                        'pattern' => '/^\+216\s?[0-9]{8}$/',
-                        'message' => 'Le numéro doit contenir exactement 8 chiffres après le +216'
-                    ])
-                ]
+                'label' => 'Téléphone (+217)',
+                'attr' => ['value' => '+217 '],
             ])
             ->add('roleType', ChoiceType::class, [
                 'label' => 'Type de compte',

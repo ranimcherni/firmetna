@@ -1,43 +1,53 @@
 {% extends 'admin_base.html.twig' %}
 
-{% block title %}Ajouter un Lieu - Firmetna{% endblock %}
+{% block title %}Ajouter un Lieu - FIRMETNA{% endblock %}
 
 {% block body %}
 <div class="mb-4">
-    <a href="{{ path('app_admin_lieu_index') }}" class="text-success text-decoration-none fw-600">
-        <i class="fas fa-arrow-left me-2"></i> Retour à la liste
+    <a href="{{ path('app_admin_lieu_index') }}" class="text-decoration-none text-muted">
+        <i class="fas fa-arrow-left me-1"></i> Retour à la liste
     </a>
-    <h2 class="fw-bold mt-2">Création d'un lieu</h2>
-    <p class="text-muted">Remplissez les informations pour ajouter un nouveau lieu.</p>
 </div>
 
-<div class="card border-0 shadow-sm" style="border-radius: 15px; max-width: 800px;">
-    <div class="card-body p-4">
-        {{ form_start(form) }}
-            <div class="row g-4">
-                <div class="col-md-12">
-                    {{ form_row(form.ville) }}
-                </div>
-                <div class="col-md-12">
-                    {{ form_row(form.adresse) }}
-                </div>
-                <div class="col-md-12">
-                    {{ form_row(form.capacite) }}
-                </div>
-                <div class="col-md-12">
-                    {{ form_row(form.imageFile) }}
-                </div>
-                <div class="col-12 mt-4">
-                    <hr class="opacity-10">
-                    <button type="submit" class="btn btn-success px-4 py-2" style="background-color: #1a4d2e; border: none; border-radius: 8px;">
-                        <i class="fas fa-save me-2"></i> Créer le lieu
-                    </button>
-                    <a href="{{ path('app_admin_lieu_index') }}" class="btn btn-light border px-4 py-2 ms-2" style="border-radius: 8px;">
-                        Annuler
-                    </a>
-                </div>
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+            <div class="card-body p-4">
+                <h2 class="fw-bold mb-4">Ajouter un nouveau lieu</h2>
+                <p class="text-muted mb-4">Remplissez les informations ci-dessous pour créer un nouveau lieu d'évènement.</p>
+
+                {{ form_start(form) }}
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            {{ form_label(form.ville) }}
+                            {{ form_widget(form.ville, {'attr': {'placeholder': 'Ex: Tunis'}}) }}
+                            {{ form_errors(form.ville) }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form_label(form.adresse) }}
+                            {{ form_widget(form.adresse, {'attr': {'placeholder': 'Ex: Avenue Habib Bourguiba'}}) }}
+                            {{ form_errors(form.adresse) }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form_label(form.capacite) }}
+                            {{ form_widget(form.capacite, {'attr': {'placeholder': 'Ex: 100'}}) }}
+                            {{ form_errors(form.capacite) }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form_label(form.imageFile) }}
+                            {{ form_widget(form.imageFile) }}
+                            {{ form_errors(form.imageFile) }}
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-4 border-top">
+                        <button type="submit" class="btn btn-success px-5 py-2" style="background-color: #1a4d2e; border: none; border-radius: 8px;">
+                            <i class="fas fa-save me-2"></i> Enregistrer le lieu
+                        </button>
+                    </div>
+                {{ form_end(form) }}
             </div>
-        {{ form_end(form) }}
+        </div>
     </div>
 </div>
 {% endblock %}

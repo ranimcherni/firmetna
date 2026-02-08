@@ -18,7 +18,7 @@ class UserController extends AbstractController
     #[Route('/', name: 'app_user_index', methods: ['GET'])]
     public function index(UserRepository $userRepository, Request $request): Response
     {
-        // Récupérer les paramètres de filtrage
+        // R├®cup├®rer les param├¿tres de filtrage
         $search = $request->query->get('search');
         
         $queryBuilder = $userRepository->createQueryBuilder('u');
@@ -30,7 +30,7 @@ class UserController extends AbstractController
         
         $users = $queryBuilder->getQuery()->getResult();
         
-        // Statistiques (basées sur le roleType ou user role)
+        // Statistiques (bas├®es sur le roleType ou user role)
         $stats = [
             'agriculteurs' => $userRepository->count(['roleType' => 'AGRICULTEUR']),
             'consommateurs' => $userRepository->count(['roleType' => 'CLIENT']),

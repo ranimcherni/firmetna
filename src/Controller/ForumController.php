@@ -10,7 +10,6 @@ use App\Repository\PublicationRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -19,31 +18,25 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 #[Route('/forum')]
 class ForumController extends AbstractController
 {
-    #[Route('/', name: 'app_forum', methods: ['GET'])]
-    public function index(PublicationRepository $repo, PaginatorInterface $paginator, Request $request): Response
+    #[Route('/', name: 'app_forum')]
+    public function index(Request $request, PublicationRepository $publicationRepository, PaginatorInterface $paginator): Response
     {
-        $query = $repo->createQueryBuilder('p')
-            ->orderBy('p.dateCreation', 'DESC')
-            ->getQuery();
-
-        $publications = $paginator->paginate(
+        $query = $publicationRepository->findAllOrderByDateDescQuery();
+        $pagination = $paginator->paginate(
             $query,
             $request->query->getInt('page', 1),
-            10
+            6 // limit per page
         );
 
         return $this->render('forum/index.html.twig', [
-            'publications' => $publications,
+            'publications' => $pagination,
         ]);
     }
 
-    #[Route('/nouvelle', name: 'app_forum_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $em, SluggerInterface $slugger): Response
+    #[Route('/nouveau', name: 'app_forum_new', methods: ['GET', 'POST'])]
+    public function new(Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
     {
         $publication = new Publication();
-        $publication->setDateCreation(new \DateTimeImmutable());
-        $publication->setAuteur($this->getUser());
-
         $form = $this->createForm(PublicationType::class, $publication);
         $form->handleRequest($request);
 
@@ -52,66 +45,74 @@ class ForumController extends AbstractController
             if ($imageFile) {
                 $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
                 $safeFilename = $slugger->slug($originalFilename);
-                $newFilename = $safeFilename . '-' . uniqid() . '.' . $imageFile->guessExtension();
-
+                $newFilename = $safeFilename.'-'.uniqid().'.'.$imageFile->guessExtension();
                 try {
-                    $uploadDir = $this->getParameter('kernel.project_dir') . '/public/uploads/publications';
-                    if (!is_dir($uploadDir)) {
-                        mkdir($uploadDir, 0755, true);
-                    }
-                    $imageFile->move($uploadDir, $newFilename);
-                    $publication->setImageFilename('/uploads/publications/' . $newFilename);
-                } catch (FileException $e) {
-                    $this->addFlash('error', 'Erreur lors de l\'upload de l\'image.');
-                }
+                    $imageFile->move($this->getParameter('publications_directory'), $newFilename);
+                    $publication->setImageFilename($newFilename);
+                } catch (\Exception $e) {}
             }
 
-            $em->persist($publication);
-            $em->flush();
-            $this->addFlash('success', 'Votre publication a été créée.');
-            return $this->redirectToRoute('app_forum_show', ['id' => $publication->getId()]);
+            $publication->setDateCreation(new \DateTimeImmutable());
+            $publication->setAuteur($this->getUser());
+
+            $entityManager->persist($publication);
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Votre publication a été partagée !');
+            return $this->redirectToRoute('app_forum');
         }
 
         return $this->render('forum/new.html.twig', [
-            'publication' => $publication,
-            'form' => $form,
+            'form' => $form->createView(),
         ]);
     }
 
-    #[Route('/{id}', name: 'app_forum_show', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
-    public function show(int $id, PublicationRepository $repo, Request $request, EntityManagerInterface $em): Response
+    #[Route('/voir/{id}', name: 'app_forum_show', methods: ['GET', 'POST'])]
+    public function show(int $id, Request $request, PublicationRepository $publicationRepository, EntityManagerInterface $entityManager): Response
     {
-        $publication = $repo->findWithCommentaires($id);
+        $publication = $publicationRepository->findWithCommentaires($id);
+
         if (!$publication) {
-            throw $this->createNotFoundException('Publication introuvable.');
+            throw $this->createNotFoundException('La publication n\'existe pas.');
         }
 
         $commentaire = new Commentaire();
-        $commentaire->setPublication($publication);
-        $commentaire->setAuteur($this->getUser());
-        $commentaire->setDateCreation(new \DateTimeImmutable());
-
         $form = $this->createForm(CommentaireType::class, $commentaire);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $em->persist($commentaire);
-            $em->flush();
-            $this->addFlash('success', 'Votre commentaire a été ajouté.');
+            if (!$this->getUser()) {
+                $this->addFlash('danger', 'Vous devez être connecté pour commenter.');
+                return $this->redirectToRoute('app_login');
+            }
+
+            $commentaire->setAuteur($this->getUser());
+            $commentaire->setPublication($publication);
+            $commentaire->setDateCreation(new \DateTimeImmutable());
+
+            $entityManager->persist($commentaire);
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Votre commentaire a été ajouté !');
             return $this->redirectToRoute('app_forum_show', ['id' => $id]);
         }
 
         return $this->render('forum/show.html.twig', [
             'publication' => $publication,
-            'form' => $form,
+            'form' => $form->createView(),
         ]);
     }
-
-    #[Route('/{id}/modifier', name: 'app_forum_edit', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
-    public function edit(Request $request, Publication $publication, EntityManagerInterface $em, SluggerInterface $slugger): Response
+    #[Route('/modifier/{id}', name: 'app_forum_edit', methods: ['GET', 'POST'])]
+    public function edit(int $id, Request $request, PublicationRepository $publicationRepository, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
     {
+        $publication = $publicationRepository->find($id);
+
+        if (!$publication) {
+            throw $this->createNotFoundException('La publication n\'existe pas.');
+        }
+
         if ($publication->getAuteur() !== $this->getUser() && !$this->isGranted('ROLE_ADMIN')) {
-            throw $this->createAccessDeniedException('Vous ne pouvez modifier que vos propres publications.');
+            throw $this->createAccessDeniedException('Vous n\'êtes pas l\'auteur de cette publication.');
         }
 
         $form = $this->createForm(PublicationType::class, $publication);
@@ -120,63 +121,38 @@ class ForumController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $imageFile = $form->get('imageFile')->getData();
             if ($imageFile) {
-                $oldFilename = $publication->getImageFilename();
-                if ($oldFilename) {
-                    $oldPath = $this->getParameter('kernel.project_dir') . '/public' . $oldFilename;
-                    if (file_exists($oldPath)) {
-                        unlink($oldPath);
-                    }
-                }
-
                 $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
                 $safeFilename = $slugger->slug($originalFilename);
-                $newFilename = $safeFilename . '-' . uniqid() . '.' . $imageFile->guessExtension();
-
+                $newFilename = $safeFilename.'-'.uniqid().'.'.$imageFile->guessExtension();
                 try {
-                    $uploadDir = $this->getParameter('kernel.project_dir') . '/public/uploads/publications';
-                    if (!is_dir($uploadDir)) {
-                        mkdir($uploadDir, 0755, true);
-                    }
-                    $imageFile->move($uploadDir, $newFilename);
-                    $publication->setImageFilename('/uploads/publications/' . $newFilename);
-                } catch (FileException $e) {
-                    $this->addFlash('error', 'Erreur lors de l\'upload de l\'image.');
-                }
+                    $imageFile->move($this->getParameter('publications_directory'), $newFilename);
+                    $publication->setImageFilename($newFilename);
+                } catch (\Exception $e) {}
             }
 
-            $em->flush();
-            $this->addFlash('success', 'Publication mise à jour.');
-            return $this->redirectToRoute('app_forum_show', ['id' => $publication->getId()]);
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Votre publication a été mise à jour !');
+            return $this->redirectToRoute('app_forum_show', ['id' => $id]);
         }
 
         return $this->render('forum/edit.html.twig', [
             'publication' => $publication,
-            'form' => $form,
+            'form' => $form->createView(),
         ]);
     }
 
-    #[Route('/{id}/supprimer', name: 'app_forum_delete', requirements: ['id' => '\d+'], methods: ['POST'])]
-    public function delete(Request $request, Publication $publication, EntityManagerInterface $em): Response
+    #[Route('/supprimer/{id}', name: 'app_forum_delete', methods: ['POST'])]
+    public function delete(Request $request, Publication $publication, EntityManagerInterface $entityManager): Response
     {
-        if ($publication->getAuteur() !== $this->getUser() && !$this->isGranted('ROLE_ADMIN')) {
-            throw $this->createAccessDeniedException('Vous ne pouvez supprimer que vos propres publications.');
-        }
-
-        $token = $request->request->get('_token');
-        if ($this->isCsrfTokenValid('delete' . $publication->getId(), $token)) {
-            $imageFilename = $publication->getImageFilename();
-            if ($imageFilename) {
-                $imagePath = $this->getParameter('kernel.project_dir') . '/public' . $imageFilename;
-                if (file_exists($imagePath)) {
-                    unlink($imagePath);
-                }
+        if ($this->isCsrfTokenValid('delete'.$publication->getId(), $request->request->get('_token'))) {
+            if ($publication->getAuteur() !== $this->getUser() && !$this->isGranted('ROLE_ADMIN')) {
+                throw $this->createAccessDeniedException('Vous n\'êtes pas l\'auteur de cette publication.');
             }
-            foreach ($publication->getCommentaires() as $commentaire) {
-                $em->remove($commentaire);
-            }
-            $em->remove($publication);
-            $em->flush();
-            $this->addFlash('success', 'Publication et ses commentaires supprimés.');
+            
+            $entityManager->remove($publication);
+            $entityManager->flush();
+            $this->addFlash('success', 'Publication supprimée.');
         }
 
         return $this->redirectToRoute('app_forum');

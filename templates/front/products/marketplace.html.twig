@@ -1,4 +1,4 @@
-{% extends 'base.html.twig' %}
+﻿{% extends 'base.html.twig' %}
 
 {% block title %}{{ category }} - FIRMETNA{% endblock %}
 
@@ -192,297 +192,67 @@
                 <h1 class="fw-bold mb-2">{{ category }}</h1>
                 <p class="text-muted mb-0">Découvrez nos produits frais et de qualité</p>
             </div>
-            <div class="category-icon-header">
-                <i class="fas fa-{{ type == 'vegetale' ? 'leaf' : 'drumstick-bite' }} fa-2x text-white"></i>
+            <div class="d-flex align-items-center gap-3">
+                <div class="category-icon-header">
+                    <i class="fas fa-{{ type == 'vegetale' ? 'leaf' : 'drumstick-bite' }} fa-2x text-white"></i>
+                </div>
+                {% if app.user and app.user.roleType == 'Agriculteur' %}
+                    <a href="{{ path('app_products_sell') }}" class="btn btn-success btn-sm" style="border-radius: 30px; padding: 0.5rem 1.5rem; font-weight: 700; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);">
+                        <i class="fas fa-plus me-2"></i> Ajouter un produit
+                    </a>
+                {% endif %}
             </div>
         </div>
     </div>
 
-    <!-- Products Grid -->
+    <!-- Products Grid (donn├®es BDD) -->
     <div class="row g-4">
-        {% if type == 'vegetale' %}
-            <!-- Produits Végétaux -->
-            
-            <!-- Tomates -->
+        {% set unite_labels = { 'kilo': 'Par kilo', 'unite': "À l'unité", 'boite': 'Boîte', 'barquette': 'Barquette' } %}
+        {% set badge_css = { 'Bio': 'badge-bio', 'Nouveau': 'badge-nouveau', 'Promo': 'badge-promo', 'Frais': 'badge-bio', 'Fermier': 'badge-fermier', 'Économique': 'badge-economique', 'Productif': 'badge-productif', 'Vivant': 'badge-vivant' } %}
+        {% for produit in produits %}
             <div class="col-md-6 col-lg-4">
                 <div class="product-card">
                     <div class="product-image">
-                        <span class="product-badge badge-kilo">Par kilo</span>
-                        <i class="fas fa-seedling"></i>
+                        {% if produit.imageUrl %}
+                            <img src="{{ produit.imageUrl }}" alt="{{ produit.nom }}" style="width:100%;height:100%;object-fit:cover;">
+                        {% else %}
+                            <i class="fas fa-{{ type == 'vegetale' ? 'leaf' : 'drumstick-bite' }}"></i>
+                        {% endif %}
+                        <span class="product-badge badge-kilo">{{ unite_labels[produit.unite] ?? produit.unite }}</span>
                     </div>
                     <div class="product-body">
                         <div class="d-flex justify-content-between align-items-start mb-2">
-                            <h5 class="product-title">Tomates biologiques</h5>
-                            <span class="product-badge badge-bio">Bio</span>
+                            <h5 class="product-title">{{ produit.nom }}</h5>
+                            {% if produit.badge %}
+                                <span class="product-badge {{ badge_css[produit.badge] ?? 'badge-kilo' }}">{{ produit.badge }}</span>
+                            {% elseif produit.isBio %}
+                                <span class="product-badge badge-bio">Bio</span>
+                            {% endif %}
                         </div>
-                        <p class="product-description">Tomates fraîches du terroir, cultivées sans pesticides</p>
+                        <p class="product-description">{{ produit.description|default('Produit de qualité FIRMETNA.')|u.truncate(80) }}</p>
                         <div class="product-footer">
-                            <span class="product-price">4,99€</span>
-                            <button class="btn-commander">
-                                <i class="fas fa-shopping-bag"></i> Commander
-                            </button>
+                            <span class="product-price">{{ produit.prix }} €</span>
+                            {% if produit.stock <= 0 %}
+                                <span class="badge bg-secondary">Rupture</span>
+                            {% elseif app.user %}
+                                <a href="{{ path('app_products_order', {'id': produit.id}) }}" class="btn-commander text-decoration-none">
+                                    <i class="fas fa-shopping-bag"></i> Commander
+                                </a>
+                            {% else %}
+                                <a href="{{ path('app_login') }}" class="btn-commander text-decoration-none">
+                                    <i class="fas fa-shopping-bag"></i> Commander
+                                </a>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
             </div>
-
-            <!-- Carottes -->
-            <div class="col-md-6 col-lg-4">
-                <div class="product-card">
-                    <div class="product-image">
-                        <span class="product-badge badge-kilo">Par kilo</span>
-                        <i class="fas fa-carrot"></i>
-                    </div>
-                    <div class="product-body">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <h5 class="product-title">Carottes fraîches</h5>
-                            <span class="product-badge badge-nouveau">Nouveau</span>
-                        </div>
-                        <p class="product-description">Carottes croquantes et sucrées de nos champs</p>
-                        <div class="product-footer">
-                            <span class="product-price">3,50€</span>
-                            <button class="btn-commander">
-                                <i class="fas fa-shopping-bag"></i> Commander
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Pommes -->
-            <div class="col-md-6 col-lg-4">
-                <div class="product-card">
-                    <div class="product-image">
-                        <span class="product-badge badge-kilo">Par kilo</span>
-                        <i class="fas fa-apple-alt"></i>
-                    </div>
-                    <div class="product-body">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <h5 class="product-title">Pommes Golden</h5>
-                            <span class="product-badge badge-bio">Bio</span>
-                        </div>
-                        <p class="product-description">Pommes douces et juteuses, parfaites pour toute la famille</p>
-                        <div class="product-footer">
-                            <span class="product-price">5,20€</span>
-                            <button class="btn-commander">
-                                <i class="fas fa-shopping-bag"></i> Commander
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Laitue -->
-            <div class="col-md-6 col-lg-4">
-                <div class="product-card">
-                    <div class="product-image">
-                        <span class="product-badge badge-kilo">À l'unité</span>
-                        <i class="fas fa-leaf"></i>
-                    </div>
-                    <div class="product-body">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <h5 class="product-title">Laitue romaine</h5>
-                            <span class="product-badge badge-bio">Frais</span>
-                        </div>
-                        <p class="product-description">Laitue croquante du jour, idéale pour vos salades</p>
-                        <div class="product-footer">
-                            <span class="product-price">2,80€</span>
-                            <button class="btn-commander">
-                                <i class="fas fa-shopping-bag"></i> Commander
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Courgettes -->
-            <div class="col-md-6 col-lg-4">
-                <div class="product-card">
-                    <div class="product-image">
-                        <span class="product-badge badge-kilo">Par kilo</span>
-                        <i class="fas fa-seedling"></i>
-                    </div>
-                    <div class="product-body">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <h5 class="product-title">Courgettes vertes</h5>
-                            <span class="product-badge badge-bio">Bio</span>
-                        </div>
-                        <p class="product-description">Courgettes tendres et savoureuses de saison</p>
-                        <div class="product-footer">
-                            <span class="product-price">3,90€</span>
-                            <button class="btn-commander">
-                                <i class="fas fa-shopping-bag"></i> Commander
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Fraises -->
-            <div class="col-md-6 col-lg-4">
-                <div class="product-card">
-                    <div class="product-image">
-                        <span class="product-badge badge-kilo">Barquette 500g</span>
-                        <i class="fas fa-strawberry"></i>
-                    </div>
-                    <div class="product-body">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <h5 class="product-title">Fraises de saison</h5>
-                            <span class="product-badge badge-promo">Promo</span>
-                        </div>
-                        <p class="product-description">Fraises sucrées et parfumées, fraîchement cueillies</p>
-                        <div class="product-footer">
-                            <span class="product-price">6,50€</span>
-                            <button class="btn-commander">
-                                <i class="fas fa-shopping-bag"></i> Commander
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
         {% else %}
-            <!-- Produits Animaux -->
-            
-            <!-- Œufs 6 -->
-            <div class="col-md-6 col-lg-4">
-                <div class="product-card">
-                    <div class="product-image">
-                        <span class="product-badge badge-kilo">Boîte de 6</span>
-                        <i class="fas fa-egg"></i>
-                    </div>
-                    <div class="product-body">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <h5 class="product-title">6 œufs biologiques</h5>
-                            <span class="product-badge badge-bio">Bio</span>
-                        </div>
-                        <p class="product-description">Œufs frais de poules élevées en plein air</p>
-                        <div class="product-footer">
-                            <span class="product-price">4,99€</span>
-                            <button class="btn-commander">
-                                <i class="fas fa-shopping-bag"></i> Commander
-                            </button>
-                        </div>
-                    </div>
-                </div>
+            <div class="col-12 text-center py-5 text-muted">
+                <p>Aucun produit dans cette catégorie pour le moment.</p>
+                <a href="{{ path('app_products') }}" class="btn btn-success mt-2">Retour aux catégories</a>
             </div>
-
-            <!-- Œufs 12 -->
-            <div class="col-md-6 col-lg-4">
-                <div class="product-card">
-                    <div class="product-image">
-                        <span class="product-badge badge-kilo">Boîte de 12</span>
-                        <i class="fas fa-egg"></i>
-                    </div>
-                    <div class="product-body">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <h5 class="product-title">12 œufs biologiques</h5>
-                            <span class="product-badge badge-bio">Bio</span>
-                        </div>
-                        <p class="product-description">Boîte de 12 œufs fermiers de qualité</p>
-                        <div class="product-footer">
-                            <span class="product-price">9,99€</span>
-                            <button class="btn-commander">
-                                <i class="fas fa-shopping-bag"></i> Commander
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Œufs 24 -->
-            <div class="col-md-6 col-lg-4">
-                <div class="product-card">
-                    <div class="product-image">
-                        <span class="product-badge badge-kilo">Boîte de 24</span>
-                        <i class="fas fa-egg"></i>
-                    </div>
-                    <div class="product-body">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <h5 class="product-title">24 œufs biologiques</h5>
-                            <span class="product-badge badge-economique">Économique</span>
-                        </div>
-                        <p class="product-description">Grand format familial, meilleur rapport qualité-prix</p>
-                        <div class="product-footer">
-                            <span class="product-price">18,99€</span>
-                            <button class="btn-commander">
-                                <i class="fas fa-shopping-bag"></i> Commander
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Bébé poussin -->
-            <div class="col-md-6 col-lg-4">
-                <div class="product-card">
-                    <div class="product-image">
-                        <span class="product-badge badge-kilo">À l'unité</span>
-                        <i class="fas fa-kiwi-bird"></i>
-                    </div>
-                    <div class="product-body">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <h5 class="product-title">Bébé poussin</h5>
-                            <span class="product-badge badge-vivant">Vivant</span>
-                        </div>
-                        <p class="product-description">Poussin d'un jour, race locale et robuste</p>
-                        <div class="product-footer">
-                            <span class="product-price">9,99€</span>
-                            <button class="btn-commander">
-                                <i class="fas fa-shopping-bag"></i> Commander
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Poulets de chair -->
-            <div class="col-md-6 col-lg-4">
-                <div class="product-card">
-                    <div class="product-image">
-                        <span class="product-badge badge-kilo">Par kilo</span>
-                        <i class="fas fa-drumstick-bite"></i>
-                    </div>
-                    <div class="product-body">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <h5 class="product-title">Poulets de chair</h5>
-                            <span class="product-badge badge-fermier">Fermier</span>
-                        </div>
-                        <p class="product-description">Poulet blanc élevé en plein air, alimentation naturelle</p>
-                        <div class="product-footer">
-                            <span class="product-price">9,99€</span>
-                            <button class="btn-commander">
-                                <i class="fas fa-shopping-bag"></i> Commander
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Pondeuses -->
-            <div class="col-md-6 col-lg-4">
-                <div class="product-card">
-                    <div class="product-image">
-                        <span class="product-badge badge-kilo">À l'unité</span>
-                        <i class="fas fa-crow"></i>
-                    </div>
-                    <div class="product-body">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <h5 class="product-title">Pondeuses</h5>
-                            <span class="product-badge badge-productif">Productif</span>
-                        </div>
-                        <p class="product-description">Poule pondeuse rousse, excellente production d'œufs</p>
-                        <div class="product-footer">
-                            <span class="product-price">9,99€</span>
-                            <button class="btn-commander">
-                                <i class="fas fa-shopping-bag"></i> Commander
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        {% endif %}
+        {% endfor %}
     </div>
 </div>
 {% endblock %}

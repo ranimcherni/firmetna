@@ -21,10 +21,12 @@ class Commentaire
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
+    #[Assert\NotNull(message: 'L\'auteur est obligatoire.')]
     private ?User $auteur = null;
 
     #[ORM\ManyToOne(targetEntity: Publication::class, inversedBy: 'commentaires')]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
+    #[Assert\NotNull(message: 'La publication associée est obligatoire.')]
     private ?Publication $publication = null;
 
     #[ORM\Column(type: 'datetime_immutable')]

@@ -69,13 +69,13 @@ class UserController extends AbstractController
             $entityManager->persist($user);
             $entityManager->flush();
 
-            $this->addFlash('success', 'Utilisateur créé avec succès !');
+            $this->addFlash('success', 'Utilisateur cr├®├® avec succ├¿s !');
             return $this->redirectToRoute('app_admin_user_index');
         }
 
         // Display validation errors
         if ($form->isSubmitted() && !$form->isValid()) {
-            $this->addFlash('danger', 'Erreur de validation. Veuillez vérifier les champs du formulaire.');
+            $this->addFlash('danger', 'Erreur de validation. Veuillez v├®rifier les champs du formulaire.');
         }
 
         return $this->render('admin/user/new.html.twig', [
@@ -98,13 +98,13 @@ class UserController extends AbstractController
 
             $entityManager->flush();
 
-            $this->addFlash('success', 'Utilisateur modifié !');
+            $this->addFlash('success', 'Utilisateur modifi├® !');
             return $this->redirectToRoute('app_admin_user_index');
         }
 
         // Display validation errors
         if ($form->isSubmitted() && !$form->isValid()) {
-            $this->addFlash('danger', 'Erreur de validation. Veuillez vérifier les champs du formulaire.');
+            $this->addFlash('danger', 'Erreur de validation. Veuillez v├®rifier les champs du formulaire.');
         }
 
         return $this->render('admin/user/edit.html.twig', [
@@ -119,7 +119,7 @@ class UserController extends AbstractController
         if ($this->isCsrfTokenValid('delete'.$user->getId(), $request->request->get('_token'))) {
             $entityManager->remove($user);
             $entityManager->flush();
-            $this->addFlash('success', 'Utilisateur supprimé !');
+            $this->addFlash('success', 'Utilisateur supprim├® !');
         }
 
         return $this->redirectToRoute('app_admin_user_index');

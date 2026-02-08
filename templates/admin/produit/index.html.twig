@@ -1,0 +1,97 @@
+﻿{% extends 'admin_base.html.twig' %}
+
+{% block title %}Gestion Produits - FIRMETNA{% endblock %}
+
+{% block body %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-0">Gestion des Produits</h2>
+        <p class="text-muted mb-0">Produits végétaux et animaux – Marketplace</p>
+    </div>
+    <a href="{{ path('app_admin_produit_new') }}" class="btn btn-success px-4 py-2" style="background-color: #1a4d2e; border: none; border-radius: 8px;">
+        <i class="fas fa-plus me-2"></i> Nouveau produit
+    </a>
+</div>
+
+<div class="card border-0 shadow-sm mb-4" style="border-radius: 15px;">
+    <div class="card-body p-4">
+        <form method="get" action="{{ path('app_admin_produits') }}" class="row g-3">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-0"><i class="fas fa-search text-muted"></i></span>
+                    <input type="text" name="q" value="{{ app.request.query.get('q') }}" class="form-control bg-light border-0" placeholder="Rechercher un produit...">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <select name="type" class="form-select bg-light border-0" onchange="this.form.submit()">
+                    <option value="">Tous les types</option>
+                    <option value="vegetale" {% if app.request.query.get('type') == 'vegetale' %}selected{% endif %}>Végétal</option>
+                    <option value="animale" {% if app.request.query.get('type') == 'animale' %}selected{% endif %}>Animal</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-success w-100" style="background-color: #1a4d2e; border: none; border-radius: 8px;">Filtrer</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm" style="border-radius: 15px;">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4 py-3 border-0" style="width: 60px;">ID</th>
+                        <th class="py-3 border-0">Nom</th>
+                        <th class="py-3 border-0">Type</th>
+                        <th class="py-3 border-0">Prix</th>
+                        <th class="py-3 border-0">Unité</th>
+                        <th class="py-3 border-0">Stock</th>
+                        <th class="py-3 border-0">Badge</th>
+                        <th class="py-3 border-0 pe-4 text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for produit in produits %}
+                    <tr>
+                        <td class="ps-4 fw-bold text-muted">#{{ produit.id }}</td>
+                        <td>
+                            <span class="fw-600">{{ produit.nom }}</span>
+                            {% if produit.isBio %}<span class="badge bg-success-subtle text-success ms-1">Bio</span>{% endif %}
+                        </td>
+                        <td>
+                            {% if produit.type == 'vegetale' %}
+                                <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill"><i class="fas fa-leaf me-1"></i> Végétal</span>
+                            {% else %}
+                                <span class="badge bg-danger-subtle text-danger px-3 py-2 rounded-pill"><i class="fas fa-drumstick-bite me-1"></i> Animal</span>
+                            {% endif %}
+                        </td>
+                        <td class="fw-600">{{ produit.prix }} €</td>
+                        <td class="text-muted">{{ produit.unite }}</td>
+                        <td>
+                            <span class="badge {{ produit.stock > 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger' }} px-3 py-2 rounded-pill">{{ produit.stock }}</span>
+                        </td>
+                        <td>{% if produit.badge %}<span class="badge bg-secondary px-2 py-1">{{ produit.badge }}</span>{% else %}—{% endif %}</td>
+                        <td class="pe-4 text-end">
+                            <div class="d-flex justify-content-end gap-2">
+                                <a href="{{ path('app_admin_produit_show', {'id': produit.id}) }}" class="btn btn-sm btn-light border" title="Voir"><i class="fas fa-eye text-muted"></i></a>
+                                <a href="{{ path('app_admin_produit_edit', {'id': produit.id}) }}" class="btn btn-sm btn-light border" title="Modifier"><i class="fas fa-pen text-muted"></i></a>
+                                <form method="post" action="{{ path('app_admin_produit_delete', {'id': produit.id}) }}" onsubmit="return confirm('Supprimer ce produit ?');" class="d-inline">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ produit.id) }}">
+                                    <button class="btn btn-sm btn-light border" title="Supprimer"><i class="fas fa-trash text-danger"></i></button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center py-5 text-muted">Aucun produit. <a href="{{ path('app_admin_produit_new') }}">Créer un produit</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

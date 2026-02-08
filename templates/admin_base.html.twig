@@ -275,6 +275,12 @@
                 </a>
             </li>
             <li class="nav-item">
+                <a href="{{ path('app_admin_commandes') }}" class="nav-link {% if 'admin_commande' in app.request.get('_route') %}active{% endif %}">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Commandes</span>
+                </a>
+            </li>
+            <li class="nav-item">
                 <a href="{{ path('app_admin_event_index') }}" class="nav-link {% if 'admin_event' in app.request.get('_route') %}active{% endif %}">
                     <i class="fas fa-calendar-alt"></i>
                     <span>Événements</span>
@@ -287,15 +293,27 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a href="{{ path('app_admin_forum') }}" class="nav-link {% if app.request.get('_route') == 'app_admin_forum' %}active{% endif %}">
+                <a href="{{ path('app_admin_publication_index') }}" class="nav-link {% if 'admin_publication' in app.request.get('_route') %}active{% endif %}">
                     <i class="fas fa-comments"></i>
-                    <span>Forum</span>
+                    <span>Forum (Publications)</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ path('app_admin_commentaire_index') }}" class="nav-link {% if 'admin_commentaire' in app.request.get('_route') %}active{% endif %}">
+                    <i class="fas fa-comment-dots"></i>
+                    <span>Forum (Commentaires)</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a href="{{ path('app_admin_donations') }}" class="nav-link {% if app.request.get('_route') == 'app_admin_donations' %}active{% endif %}">
                     <i class="fas fa-heart"></i>
-                    <span>Donations</span>
+                    <span>Donations (Offres)</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ path('app_admin_donation_demandes') }}" class="nav-link {% if app.request.get('_route') == 'app_admin_donation_demandes' %}active{% endif %}">
+                    <i class="fas fa-hand-holding-heart"></i>
+                    <span>Donations (Demandes)</span>
                 </a>
             </li>
             <li class="nav-item">

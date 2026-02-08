@@ -35,6 +35,7 @@ class Publication
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
+    #[Assert\NotNull(message: 'L\'auteur est obligatoire.')]
     private ?User $auteur = null;
 
     #[ORM\Column(type: 'datetime_immutable')]

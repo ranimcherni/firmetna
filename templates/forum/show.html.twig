@@ -1,42 +1,179 @@
-{% extends 'base.html.twig' %}
+﻿{% extends 'base.html.twig' %}
 
 {% block title %}{{ publication.titre }} - Forum FIRMETNA{% endblock %}
 
 {% block body %}
-<div class="forum-page">
-<div class="container py-5">
-    <nav aria-label="breadcrumb" class="mb-4">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ path('app_forum') }}">Forum</a></li>
-            <li class="breadcrumb-item active" aria-current="page">{{ publication.titre|u.truncate(40) }}</li>
-        </ol>
-    </nav>
+<style>
+    body {
+        background-color: #f3f0ff !important;
+    }
 
-    <article class="card border-0 shadow-sm rounded-3 mb-4 overflow-hidden hover-shadow">
-        <div class="card-body p-4">
-            <span class="badge {{ publication.type == 'idee' ? 'bg-success' : 'bg-warning text-dark' }} mb-2">
+    .forum-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 2rem 0;
+    }
+
+    .back-btn {
+        color: #1a4d2e;
+        text-decoration: none;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 1.5rem;
+        transition: transform 0.2s;
+    }
+    .back-btn:hover {
+        transform: translateX(-5px);
+        color: #23613a;
+    }
+
+    .pub-card-detail {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 4px 25px rgba(0,0,0,0.08);
+        overflow: hidden;
+        border: none;
+    }
+
+    .pub-header {
+        padding: 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        border-bottom: 1px solid #f3f4f6;
+    }
+    .user-profile {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+    .avatar {
+        width: 50px;
+        height: 50px;
+        background: #1a4d2e;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.3rem;
+    }
+    .user-info .name {
+        font-weight: 700;
+        color: #1a1a1b;
+        margin: 0;
+        font-size: 1.1rem;
+    }
+    .user-info .meta {
+        font-size: 0.85rem;
+        color: #6b7280;
+        margin: 0;
+    }
+
+    .pub-body {
+        padding: 2rem 1.5rem;
+    }
+    .pub-title {
+        font-size: 1.75rem;
+        font-weight: 800;
+        color: #111827;
+        margin-bottom: 1.5rem;
+    }
+    .pub-content {
+        font-size: 1.05rem;
+        color: #374151;
+        line-height: 1.8;
+        white-space: pre-wrap;
+    }
+
+    .pub-image-full {
+        width: 100%;
+        border-radius: 10px;
+        margin-top: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    /* Comments Section */
+    .comments-section {
+        margin-top: 3rem;
+    }
+    .section-title {
+        font-weight: 700;
+        color: #111827;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .comment-form-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        margin-bottom: 2rem;
+    }
+
+    .comment-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+        border: 1px solid #f3f4f6;
+    }
+    .comment-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.75rem;
+    }
+    .commenter-name {
+        font-weight: 700;
+        color: #1a4d2e;
+        font-size: 0.95rem;
+    }
+    .comment-date {
+        font-size: 0.8rem;
+        color: #9ca3af;
+    }
+</style>
+
+<div class="container forum-container">
+    <a href="{{ path('app_forum') }}" class="back-btn">
+        <i class="fas fa-arrow-left"></i> Retour au forum
+    </a>
+
+    <article class="pub-card-detail">
+        <div class="pub-header">
+            <div class="user-profile">
+                <div class="avatar">
+                    {{ publication.auteur.nom|first|upper ?: publication.auteur.email|first|upper ?: 'U' }}
+                </div>
+                <div class="user-info">
+                    <p class="name">{{ publication.auteur.nom ?: publication.auteur.prenom ?: 'Utilisateur' }}</p>
+                    <p class="meta">{{ publication.dateCreation|date('d F Y ├á H:i') }}</p>
+                </div>
+            </div>
+            <span class="badge {{ publication.type == 'idee' ? 'bg-success' : 'bg-danger' }} rounded-pill px-3 py-2">
                 {{ publication.getTypeLabel() }}
             </span>
-            <h1 class="h3 fw-bold mb-3">{{ publication.titre }}</h1>
-            <div class="text-muted small mb-3">
-                <i class="fas fa-user-circle me-1"></i>
-                {{ publication.auteur.nom ?? publication.auteur.prenom ?? publication.auteur.email }}
-                <span class="mx-2">•</span>
-                <i class="fas fa-clock me-1"></i>
-                {{ publication.dateCreation|date('d/m/Y à H:i') }}
-            </div>
-            <div class="mb-4" style="white-space: pre-wrap;">{{ publication.contenu }}</div>
+        </div>
+
+        <div class="pub-body">
+            <h1 class="pub-title">{{ publication.titre }}</h1>
+            <div class="pub-content">{{ publication.contenu }}</div>
 
             {% if publication.imageFilename %}
-                <div class="mb-4">
-                    <img src="{{ asset(publication.imageFilename) }}" alt="Image de la publication" class="img-fluid rounded-3 shadow-sm" style="max-height: 400px; object-fit: cover;">
-                </div>
+                <img src="{{ asset(publication.imageFilename) }}" class="pub-image-full" alt="Illustration">
             {% endif %}
 
             {% if publication.auteur == app.user or is_granted('ROLE_ADMIN') %}
-                <div class="d-flex gap-2 pt-2 border-top">
-                    <a href="{{ path('app_forum_edit', { id: publication.id }) }}" class="btn btn-outline-success btn-sm rounded-pill">
-                        <i class="fas fa-edit me-1"></i>Modifier
+                <div class="mt-4 pt-4 border-top d-flex gap-3">
+                    <a href="{{ path('app_forum_edit', { id: publication.id }) }}" class="btn btn-outline-success rounded-pill px-4">
+                        <i class="fas fa-edit me-2"></i>Modifier
                     </a>
                     {{ include('forum/_delete_form.html.twig', { publication: publication }) }}
                 </div>
@@ -44,37 +181,44 @@
         </div>
     </article>
 
-    <h2 class="h5 fw-bold mb-3"><i class="fas fa-comments text-success me-2"></i>Commentaires ({{ publication.commentaires|length }})</h2>
+    <div class="comments-section" id="commentaires">
+        <h2 class="section-title">
+            <i class="fas fa-comments text-success"></i>
+            Commentaires ({{ publication.commentaires|length }})
+        </h2>
 
-    <div class="card border-0 shadow-sm rounded-3 mb-4">
-        <div class="card-body p-4">
-            <h3 class="h6 text-muted mb-3">Ajouter un commentaire</h3>
+        <div class="comment-form-card">
+            <h3 class="h6 fw-bold mb-3">Partager votre avis</h3>
             {{ form_start(form) }}
-            {{ form_row(form.contenu) }}
-            <button type="submit" class="btn btn-success rounded-pill mt-2">
-                <i class="fas fa-paper-plane me-1"></i>Publier
-            </button>
+                {{ form_widget(form.contenu, { 'attr': {'placeholder': 'Écrivez un commentaire...', 'rows': 3, 'class': 'form-control border-0 bg-light rounded-3 p-3'} }) }}
+                <div class="d-flex justify-content-end mt-3">
+                    <button type="submit" class="btn btn-success rounded-pill px-4 fw-bold">
+                        <i class="fas fa-paper-plane me-2"></i>Publier le commentaire
+                    </button>
+                </div>
             {{ form_end(form) }}
         </div>
-    </div>
 
-    <div class="comment-list">
-        {% for commentaire in publication.commentaires %}
-            <div class="card border-0 shadow-sm rounded-3 mb-2">
-                <div class="card-body py-3">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div class="flex-grow-1">
-                            <strong class="text-dark">{{ commentaire.auteur.nom ?? commentaire.auteur.prenom ?? commentaire.auteur.email }}</strong>
-                            <span class="text-muted small ms-2">{{ commentaire.dateCreation|date('d/m/Y H:i') }}</span>
-                            <p class="mb-0 mt-1" style="white-space: pre-wrap;">{{ commentaire.contenu }}</p>
-                        </div>
+        <div class="comment-list">
+            {% for commentaire in publication.commentaires %}
+                <div class="comment-card">
+                    <div class="comment-header">
+                        <span class="commenter-name">
+                            <i class="fas fa-user-circle me-1 opacity-50"></i>
+                            {{ commentaire.auteur.nom ?? commentaire.auteur.prenom ?? 'Anonyme' }}
+                        </span>
+                        <span class="comment-date">{{ commentaire.dateCreation|date('d/m/Y H:i') }}</span>
+                    </div>
+                    <div class="comment-body">
+                        {{ commentaire.contenu|nl2br }}
                     </div>
                 </div>
-            </div>
-        {% else %}
-            <p class="text-muted">Aucun commentaire. Soyez le premier à réagir !</p>
-        {% endfor %}
+            {% else %}
+                <div class="text-center py-5 bg-white rounded-3 shadow-sm opacity-75">
+                    <p class="text-muted mb-0">Aucun commentaire pour le moment. Soyez le premier ├á r├®agir !</p>
+                </div>
+            {% endfor %}
+        </div>
     </div>
-</div>
 </div>
 {% endblock %}

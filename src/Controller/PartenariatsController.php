@@ -15,7 +15,7 @@ class PartenariatsController extends AbstractController
         return $this->render('front/placeholder.html.twig', [
             'module' => 'Partenariats',
             'icon' => 'fas fa-handshake',
-            'description' => 'Créez des liens durables entre producteurs et partenaires économiques.'
+            'description' => 'Cr├®ez des liens durables entre producteurs et partenaires ├®conomiques.'
         ]);
     }
 }

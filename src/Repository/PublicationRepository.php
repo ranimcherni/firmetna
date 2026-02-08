@@ -25,6 +25,13 @@ class PublicationRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    public function findAllOrderByDateDescQuery(): \Doctrine\ORM\Query
+    {
+        return $this->createQueryBuilder('p')
+            ->orderBy('p.dateCreation', 'DESC')
+            ->getQuery();
+    }
+
     public function findWithCommentaires(int $id): ?Publication
     {
         return $this->createQueryBuilder('p')

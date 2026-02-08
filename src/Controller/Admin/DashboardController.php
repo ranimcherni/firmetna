@@ -10,22 +10,35 @@ use Symfony\Component\Routing\Annotation\Route;
 class DashboardController extends AbstractController
 {
     #[Route('/', name: 'app_admin_dashboard')]
-    public function index(\App\Repository\UserRepository $userRepository): Response
+    public function index(
+        \App\Repository\UserRepository $userRepository,
+        \App\Repository\ProduitRepository $produitRepository,
+        \App\Repository\EventRepository $eventRepository,
+        \App\Repository\PublicationRepository $publicationRepository,
+        \App\Repository\OffreRepository $offreRepository,
+        \App\Repository\CommandeRepository $commandeRepository
+    ): Response
     {
-        // Real user stats
+        // Real counts
         $usersCount = $userRepository->count([]);
         $agriculteurs = $userRepository->count(['roleType' => 'Agriculteur']);
         $clients = $userRepository->count(['roleType' => 'Client']);
         $donateurs = $userRepository->count(['roleType' => 'Donateur']);
 
-        // Mock data for graphs (since other entities aren't fully ready yet)
-        $monthlySales = [1200, 1500, 1100, 1800, 2200, 2500, 2100]; // 7 last months
+        $produitsCount = $produitRepository->count([]);
+        $eventsCount = $eventRepository->count([]);
+        $publicationsCount = $publicationRepository->count([]);
+        $offresCount = $offreRepository->count([]);
+        $commandesCount = $commandeRepository->count([]);
+
+        // Mock data for graphs
+        $monthlySales = [1200, 1500, 1100, 1800, 2200, 2500, 2100];
         $productDistribution = [
             'Vegetal' => 65,
             'Animal' => 35
         ];
 
-        // Top Products with visual info
+        // Top Products Mock (Keep for visual)
         $topProducts = [
             [
                 'name' => 'Fromage Artisanal',
@@ -35,25 +48,11 @@ class DashboardController extends AbstractController
                 'growth' => '+12%'
             ],
             [
-                'name' => 'Miel Bio de Montagne',
-                'category' => 'Animal',
-                'sales' => 112,
-                'image' => 'https://images.unsplash.com/photo-1589927986089-35812388d1f4?w=400&h=400&fit=crop',
-                'growth' => '+15%'
-            ],
-            [
-                'name' => 'Tomates Séchées au Soleil',
+                'name' => 'Tomates Séchées',
                 'category' => 'Végétal',
                 'sales' => 98,
                 'image' => 'https://images.unsplash.com/photo-1590779033100-9f60705a2f3b?w=400&h=400&fit=crop',
                 'growth' => '+8%'
-            ],
-            [
-                'name' => 'Myrtilles (Blueberries)',
-                'category' => 'Végétal',
-                'sales' => 85,
-                'image' => 'https://images.unsplash.com/photo-1498557850523-fd3d118b962e?w=400&h=400&fit=crop',
-                'growth' => '+22%'
             ]
         ];
 
@@ -62,10 +61,14 @@ class DashboardController extends AbstractController
             'agriculteursCount' => $agriculteurs,
             'clientsCount' => $clients,
             'donateursCount' => $donateurs,
+            'produitsCount' => $produitsCount,
+            'eventsCount' => $eventsCount,
+            'publicationsCount' => $publicationsCount,
+            'offresCount' => $offresCount,
+            'commandesCount' => $commandesCount,
             'monthlySales' => $monthlySales,
             'productDistribution' => $productDistribution,
-            'topProducts' => $topProducts,
-            'totalDonations' => '2,540'
+            'topProducts' => $topProducts
         ]);
     }
 }

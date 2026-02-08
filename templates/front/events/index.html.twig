@@ -1,37 +1,14 @@
-{% extends 'base.html.twig' %}
+﻿{% extends 'base.html.twig' %}
 
-{% block title %}Événements - FIRMETNA{% endblock %}
+{% block title %}Évènements - FIRMETNA{% endblock %}
 
 {% block body %}
 <style>
     body {
-        background-color: #f8fafc;
-        background-image: linear-gradient(rgba(248, 250, 252, 0.95), rgba(248, 250, 252, 0.95)), url('{{ asset('images/hero-bg.png') }}');
+        background-color: #f3f0ff;
+        background-image: linear-gradient(rgba(243, 240, 255, 0.9), rgba(243, 240, 255, 0.9)), url('https://images.unsplash.com/photo-1499002238440-d264edd596ec?auto=format&fit=crop&q=80&w=2000');
         background-size: cover;
         background-attachment: fixed;
-    }
-    .hero-lavender {
-        background: linear-gradient(rgba(107, 70, 193, 0.6), rgba(107, 70, 193, 0.4)), url('https://images.unsplash.com/photo-1499002238440-d264edd596ec?auto=format&fit=crop&q=80&w=2000') no-repeat center center;
-        background-size: cover;
-        margin-top: -56px;
-        min-height: 300px;
-        display: flex;
-        align-items: center;
-        color: white;
-    }
-    .white-slogan-section {
-        background: white;
-        padding: 60px 0;
-        text-align: center;
-        border-bottom: 1px solid #edf2f7;
-    }
-    .bottom-strawberries {
-        width: 100%;
-        height: 400px;
-        object-fit: cover;
-        border-radius: 20px;
-        margin-top: 50px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
     }
     .glass-card {
         background: rgba(255, 255, 255, 0.85) !important;
@@ -40,45 +17,48 @@
         border-radius: 20px;
     }
     .event-card {
-        background: rgba(255, 255, 255, 0.95);
-        border-radius: 24px;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 16px;
         overflow: hidden;
-        border-left: 8px solid #1a4d2e;
+        border-left: 5px solid #1a4d2e;
         transition: all 0.3s;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
     }
     .event-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 15px 40px rgba(0,0,0,0.18);
+        transform: translateY(-4px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.12);
     }
     .event-card-img {
         width: 100%;
-        height: 280px;
+        height: 180px;
         object-fit: cover;
         background: #e9ecef;
     }
 </style>
 
-<div class="container-fluid" style="min-height: 100vh; padding-top: 100px; background-image: linear-gradient(rgba(243, 240, 255, 0.9), rgba(243, 240, 255, 0.9)), url('https://images.unsplash.com/photo-1499002238440-d264edd596ec?auto=format&fit=crop&q=80&w=2000'); background-size: cover; background-attachment: fixed;">
+<div class="container-fluid" style="min-height: 100vh; padding-top: 100px;">
     <div class="container py-5">
         <div class="text-center mb-5">
-            <h1 class="display-3 fw-bold text-dark mb-2">Événements</h1>
-            <p class="fs-4 text-muted">Participez à nos foires, ateliers et rencontres agricoles.</p>
+            <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-primary bg-opacity-10 text-primary mb-3" style="width: 80px; height: 80px;">
+                <i class="fas fa-calendar-alt fa-2x"></i>
+            </div>
+            <h1 class="display-5 fw-bold text-dark mb-2">Évènements</h1>
+            <p class="lead text-muted">Participez à nos foires, ateliers et rencontres agricoles.</p>
         </div>
 
         {% if events is empty %}
             <div class="glass-card shadow-sm p-5 text-center">
                 <i class="fas fa-calendar-times fa-4x text-muted mb-3 opacity-50"></i>
-                <h3 class="fw-bold text-dark mb-2">Aucun événement pour le moment</h3>
-                <p class="text-muted mb-4">Les prochains événements seront affichés ici.</p>
+                <h3 class="fw-bold text-dark mb-2">Aucun ├®v├®nement pour le moment</h3>
+                <p class="text-muted mb-4">Les prochains ├®v├®nements seront affich├®s ici.</p>
                 <a href="{{ path('app_front_dashboard') }}" class="btn btn-primary rounded-pill px-4">
                     <i class="fas fa-arrow-left me-2"></i> Retour au tableau de bord
                 </a>
             </div>
         {% else %}
-            <div class="row g-5 justify-content-center">
+            <div class="row g-4">
                 {% for event in events %}
-                <div class="col-lg-6 col-xl-5">
+                <div class="col-md-6 col-lg-4">
                     <div class="event-card h-100 d-flex flex-column">
                         {% if event.lieu and event.lieu.image %}
                             <img src="{{ asset(event.lieu.image) }}" alt="{{ event.lieu.ville }}" class="event-card-img">
@@ -87,31 +67,31 @@
                                 <i class="fas fa-map-marker-alt fa-3x opacity-25"></i>
                             </div>
                         {% endif %}
-                        <div class="p-4 flex-grow-1 d-flex flex-column">
-                        <div class="d-flex justify-content-between align-items-start mb-3">
-                            <h3 class="fw-bold text-dark mb-0">{{ event.nom }}</h3>
-                            <span class="badge rounded-pill text-white px-3 py-2" style="background-color: #1a4d2e; font-size: 0.9rem;">
+                        <div class="p-3 flex-grow-1 d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="fw-bold text-dark mb-0">{{ event.nom }}</h5>
+                            <span class="badge rounded-pill text-white" style="background-color: #1a4d2e; font-size: 0.75rem;">
                                 {{ event.date|date('d/m/Y') }}
                             </span>
                         </div>
-                        <p class="fs-5 text-muted mb-3">
-                            <i class="fas fa-clock me-2"></i> {{ event.date|date('H:i') }}
+                        <p class="text-muted small mb-2">
+                            <i class="fas fa-clock me-1"></i> {{ event.date|date('H:i') }}
                         </p>
                         {% if event.lieu %}
-                            <p class="fs-6 text-muted mb-2">
-                                <i class="fas fa-map-marker-alt me-2"></i> {{ event.lieu.ville }} — {{ event.lieu.adresse }}
+                            <p class="text-muted small mb-1">
+                                <i class="fas fa-map-marker-alt me-1"></i> {{ event.lieu.ville }} ÔÇö {{ event.lieu.adresse }}
                             </p>
                         {% endif %}
                         {% if event.organisateur %}
-                            <p class="fs-6 text-muted mb-3">
-                                <i class="fas fa-user me-2"></i> {{ event.organisateur }}
+                            <p class="text-muted small mb-2">
+                                <i class="fas fa-user me-1"></i> {{ event.organisateur }}
                             </p>
                         {% endif %}
                         {% if event.description %}
-                            <p class="text-muted fs-6 mb-4">{{ event.description|slice(0, 150) }}{% if event.description|length > 150 %}...{% endif %}</p>
+                            <p class="text-muted small mb-3">{{ event.description|slice(0, 120) }}{% if event.description|length > 120 %}...{% endif %}</p>
                         {% endif %}
-                        <a href="{{ path('app_events_participer', { id: event.id }) }}" class="btn btn-success btn-lg rounded-pill px-5 mt-auto fw-bold">
-                            <i class="fas fa-check-circle me-2"></i> Participer
+                        <a href="{{ path('app_events_participer', { id: event.id }) }}" class="btn btn-success btn-sm rounded-pill px-3 mt-auto">
+                            <i class="fas fa-check-circle me-1"></i> Participer
                         </a>
                         </div>
                     </div>

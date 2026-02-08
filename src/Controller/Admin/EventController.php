@@ -45,12 +45,12 @@ class EventController extends AbstractController
             $entityManager->persist($event);
             $entityManager->flush();
 
-            $this->addFlash('success', 'Événement créé avec succès !');
+            $this->addFlash('success', '├ëv├®nement cr├®├® avec succ├¿s !');
             return $this->redirectToRoute('app_admin_event_index');
         }
 
         if ($form->isSubmitted() && !$form->isValid()) {
-            $this->addFlash('danger', 'Erreur de validation. Veuillez vérifier les champs du formulaire.');
+            $this->addFlash('danger', 'Erreur de validation. Veuillez v├®rifier les champs du formulaire.');
         }
 
         return $this->render('admin/event/new.html.twig', [
@@ -68,12 +68,12 @@ class EventController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
-            $this->addFlash('success', 'Événement modifié avec succès !');
+            $this->addFlash('success', '├ëv├®nement modifi├® avec succ├¿s !');
             return $this->redirectToRoute('app_admin_event_index');
         }
 
         if ($form->isSubmitted() && !$form->isValid()) {
-            $this->addFlash('danger', 'Erreur de validation. Veuillez vérifier les champs du formulaire.');
+            $this->addFlash('danger', 'Erreur de validation. Veuillez v├®rifier les champs du formulaire.');
         }
 
         return $this->render('admin/event/edit.html.twig', [
@@ -88,7 +88,7 @@ class EventController extends AbstractController
         if ($this->isCsrfTokenValid('delete'.$event->getId(), $request->request->get('_token'))) {
             $entityManager->remove($event);
             $entityManager->flush();
-            $this->addFlash('success', 'Événement supprimé avec succès !');
+            $this->addFlash('success', '├ëv├®nement supprim├® avec succ├¿s !');
         }
 
         return $this->redirectToRoute('app_admin_event_index');

@@ -27,8 +27,8 @@
 
     .left-side {
         flex: 1.2;
-        background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.1)), 
-                    url('https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&q=80&w=2000') no-repeat center center;
+        background: linear-gradient(rgba(0, 50, 20, 0.4), rgba(0, 50, 20, 0.5)), 
+                    url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1200&h=1600&fit=crop') no-repeat center center;
         background-size: cover;
         display: flex;
         flex-direction: column;
@@ -86,7 +86,7 @@
     }
 
     .form-logo {
-        height: 120px;
+        height: 85px;
         width: auto;
     }
 
@@ -250,7 +250,7 @@
         <div class="register-box">
             <div class="register-header">
                 <div class="logo-form-container">
-                    <img src="{{ asset('images/logo_new_v1.png') }}" alt="FIRMETNA" class="form-logo">
+                    <img src="{{ asset('images/logo_hand.png') }}" alt="FIRMETNA" class="form-logo">
                 </div>
                 <h2>CRÉER UN COMPTE</h2>
                 <p>Bienvenue parmi nous !</p>
@@ -300,7 +300,7 @@
                     </div>
                     <div class="form-group">
                         {{ form_label(registrationForm.telephone, 'Téléphone (+216)', {'label_attr': {'class': 'form-label'}}) }}
-                        {{ form_widget(registrationForm.telephone, {'attr': {'class': 'form-control', 'id': 'phone-input'}}) }}
+                        {{ form_widget(registrationForm.telephone, {'attr': {'class': 'form-control', 'placeholder': '+216 12345678', 'maxlength': '13'}}) }}
                         <div class="text-danger small">{{ form_errors(registrationForm.telephone) }}</div>
                     </div>
                     <div class="form-group">
@@ -345,55 +345,41 @@
         }
     }
 
-    // Phone prefix lock logic
-    document.addEventListener('DOMContentLoaded', function() {
-        const phoneInput = document.getElementById('phone-input');
-        const prefix = '+216';
-        
-        if (phoneInput) {
-            // Ensure prefix is present on load and no spaces
-            if (!phoneInput.value.startsWith(prefix)) {
-                phoneInput.value = prefix;
-            }
-            phoneInput.value = phoneInput.value.replace(/\s/g, '');
-
-            phoneInput.addEventListener('input', function(e) {
-                // Always start with prefix
-                if (!this.value.startsWith(prefix)) {
-                    this.value = prefix;
-                }
-                
-                // Keep the prefix, then allow spaces and digits but limit digits to 8
-                const currentVal = this.value;
-                const afterPrefix = currentVal.substring(prefix.length);
-                
-                // Count digits only
-                const digitsOnly = afterPrefix.replace(/[^0-9]/g, '');
-                if (digitsOnly.length > 8) {
-                    // Truncate if more than 8 digits
-                    const truncatedDigits = digitsOnly.substring(0, 8);
-                    // Rebuild value (this is a simple way, might lose specific space placement if they typed them)
-                    this.value = prefix + truncatedDigits;
-                }
-            });
-
-            phoneInput.addEventListener('keydown', function(e) {
-                // Prevent deleting the prefix
-                if (this.selectionStart <= prefix.length && (e.key === 'Backspace' || e.key === 'Delete')) {
-                    e.preventDefault();
-                }
-            });
-
-            // Prevent form submit if not exactly 8 digits
-            phoneInput.closest('form').addEventListener('submit', function(e) {
-                const digitsOnly = phoneInput.value.substring(prefix.length).replace(/[^0-9]/g, '');
-                if (digitsOnly.length !== 8) {
-                    e.preventDefault();
-                    alert('Le numéro de téléphone doit contenir exactement 8 chiffres.');
-                    phoneInput.focus();
-                }
-            });
+    // Phone number field logic
+    const phoneInput = document.querySelector('input[name*="telephone"]');
+    if (phoneInput) {
+        // Enforce +216 prefix
+        if (!phoneInput.value.startsWith('+216')) {
+            phoneInput.value = '+216 ';
         }
-    });
+
+        phoneInput.addEventListener('input', function(e) {
+            let val = e.target.value;
+            
+            // Ensure prefix remains
+            if (!val.startsWith('+216')) {
+                e.target.value = '+216 ';
+                return;
+            }
+
+            // Remove non-digits after prefix
+            let prefix = '+216 ';
+            let suffix = val.substring(prefix.length).replace(/\D/g, '');
+            
+            // Limit to 8 digits
+            if (suffix.length > 8) {
+                suffix = suffix.substring(0, 8);
+            }
+            
+            e.target.value = prefix + suffix;
+        });
+
+        // Prevent deleting prefix
+        phoneInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Backspace' && e.target.value.length <= 5) {
+                e.preventDefault();
+            }
+        });
+    }
 </script>
 {% endblock %}
