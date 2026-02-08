@@ -6,6 +6,7 @@ use App\Entity\Commande;
 use App\Entity\LigneCommande;
 use App\Entity\Produit;
 use App\Form\CommandeOrderType;
+use App\Form\ProduitType;
 use App\Repository\ProduitRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -112,4 +113,33 @@ class ProductsController extends AbstractController
             'unite_labels' => $unite_labels,
         ]);
     }
+
+    #[Route('/vendre/nouveau', name: 'app_products_sell', methods: ['GET', 'POST'])]
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
+    public function sell(Request $request, EntityManagerInterface $entityManager): Response
+    {
+        // Check if the user is an agriculteur
+        $user = $this->getUser();
+        if ($user->getRoleType() !== 'Agriculteur') {
+            $this->addFlash('error', 'Seul un agriculteur peut vendre un produit');
+            return $this->redirectToRoute('app_products');
+        }
+
+        $produit = new Produit();
+        $form = $this->createForm(ProduitType::class, $produit);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $produit->setUpdatedAt(new \DateTimeImmutable());
+            $entityManager->persist($produit);
+            $entityManager->flush();
+            $this->addFlash('success', 'Produit créé avec succès!');
+            return $this->redirectToRoute('app_products');
+        }
+
+        return $this->render('front/products/sell.html.twig', [
+            'form' => $form,
+        ]);
+    }
 }
+
