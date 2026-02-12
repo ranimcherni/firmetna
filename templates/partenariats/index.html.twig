@@ -1,0 +1,303 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Partenariats - FIRMETNA{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    /* ---------- Partenariats page: same palette as site ---------- */
+    :root {
+        --part-primary: #1a4d2e;
+        --part-primary-hover: #23613a;
+        --part-olive: #2d5f3f;
+        --part-feuille: #4f7942;
+        --part-light: #e8f5e9;
+        --part-text: #111827;
+        --part-muted: #6b7280;
+    }
+
+    .partenariats-page {
+        font-family: 'Inter', sans-serif;
+        background: linear-gradient(180deg, var(--part-light) 0%, rgba(232, 245, 233, 0.5) 40%, #f8fafc 100%);
+        background-attachment: fixed;
+        color: var(--part-text);
+        min-height: 80vh;
+    }
+
+    /* Hero */
+    .partenariats-hero {
+        background: linear-gradient(135deg, var(--part-primary) 0%, var(--part-olive) 50%, var(--part-feuille) 100%);
+        color: white;
+        padding: 4rem 0;
+        margin-bottom: 3rem;
+        border-bottom: 4px solid rgba(255,255,255,0.15);
+    }
+    .partenariats-hero .badge-hero {
+        background: rgba(255,255,255,0.2);
+        color: white;
+        border: 1px solid rgba(255,255,255,0.3);
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-weight: 600;
+    }
+    .partenariats-hero h1 { font-weight: 800; text-shadow: 0 2px 10px rgba(0,0,0,0.15); }
+    .partenariats-hero .lead { opacity: 0.95; }
+
+    /* ----- Reusable button classes for CRUD / actions (use these for forms later) ----- */
+    .btn-partner-primary {
+        background-color: var(--part-primary);
+        color: white !important;
+        border: none;
+        border-radius: 50px;
+        padding: 0.5rem 1.25rem;
+        font-weight: 700;
+        transition: all 0.25s ease;
+        font-size: 0.9rem;
+    }
+    .btn-partner-primary:hover {
+        background-color: var(--part-primary-hover);
+        color: white !important;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(26, 77, 46, 0.35);
+    }
+
+    .btn-partner-outline {
+        background: transparent;
+        color: var(--part-primary) !important;
+        border: 2px solid var(--part-primary);
+        border-radius: 50px;
+        padding: 0.5rem 1.25rem;
+        font-weight: 600;
+        transition: all 0.25s ease;
+        font-size: 0.9rem;
+    }
+    .btn-partner-outline:hover {
+        background-color: var(--part-primary);
+        color: white !important;
+        transform: translateY(-2px);
+    }
+
+    .btn-partner-ghost {
+        background: rgba(26, 77, 46, 0.08);
+        color: var(--part-primary) !important;
+        border: none;
+        border-radius: 50px;
+        padding: 0.5rem 1rem;
+        font-weight: 600;
+        transition: all 0.25s ease;
+        font-size: 0.85rem;
+    }
+    .btn-partner-ghost:hover {
+        background: rgba(26, 77, 46, 0.15);
+        color: var(--part-primary) !important;
+    }
+
+    /* Danger variant for delete, etc. */
+    .btn-partner-danger {
+        background-color: #dc3545;
+        color: white !important;
+        border: none;
+        border-radius: 50px;
+        padding: 0.5rem 1rem;
+        font-weight: 600;
+        transition: all 0.25s ease;
+        font-size: 0.85rem;
+    }
+    .btn-partner-danger:hover { color: white !important; opacity: 0.9; transform: translateY(-1px); }
+
+    /* Card */
+    .partner-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        border: 1px solid rgba(26, 77, 46, 0.08);
+        transition: all 0.3s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    .partner-card:hover {
+        box-shadow: 0 12px 32px rgba(26, 77, 46, 0.12);
+        transform: translateY(-4px);
+        border-color: rgba(26, 77, 46, 0.2);
+    }
+    .partner-card .card-logo {
+        width: 72px;
+        height: 72px;
+        border-radius: 16px;
+        object-fit: cover;
+        border: 2px solid var(--part-light);
+    }
+    .partner-card .logo-placeholder {
+        width: 72px;
+        height: 72px;
+        border-radius: 16px;
+        background: linear-gradient(135deg, var(--part-light) 0%, rgba(79, 121, 66, 0.15) 100%);
+        color: var(--part-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.75rem;
+        border: 2px solid rgba(26, 77, 46, 0.1);
+    }
+    .partner-card .badge-type {
+        background: rgba(26, 77, 46, 0.12);
+        color: var(--part-primary);
+        font-weight: 600;
+        padding: 0.35rem 0.75rem;
+        border-radius: 50px;
+        font-size: 0.75rem;
+    }
+    .partner-card .badge-status-actif { background: rgba(34, 197, 94, 0.15); color: #15803d; }
+    .partner-card .badge-status-inactif { background: #f1f5f9; color: #64748b; }
+    .partner-card .badge-status-en-attente { background: rgba(234, 179, 8, 0.2); color: #a16207; }
+    .partner-card .card-body { flex: 1; display: flex; flex-direction: column; }
+    .partner-card .card-actions { margin-top: auto; padding-top: 1rem; border-top: 1px solid #f1f5f9; }
+
+    /* Empty state */
+    .empty-state {
+        background: white;
+        border-radius: 24px;
+        padding: 4rem 2rem;
+        text-align: center;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+        border: 2px dashed rgba(26, 77, 46, 0.2);
+    }
+    .empty-state .icon-empty { font-size: 4rem; color: rgba(26, 77, 46, 0.35); }
+
+    /* CTA band (for "Devenir partenaire" / future form) */
+    .partenariats-cta-band {
+        background: linear-gradient(135deg, var(--part-primary) 0%, var(--part-olive) 100%);
+        color: white;
+        border-radius: 20px;
+        padding: 2.5rem;
+        margin-top: 4rem;
+    }
+    .partenariats-cta-band .btn-light {
+        border-radius: 50px;
+        font-weight: 700;
+        padding: 0.6rem 1.5rem;
+        color: var(--part-primary);
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="partenariats-page">
+<!-- Hero -->
+<section class="partenariats-hero">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <span class="badge-hero d-inline-flex align-items-center mb-3">
+                    <i class="fas fa-handshake me-2"></i>Partenariats
+                </span>
+                <h1 class="display-4 mb-3">Des liens durables pour l’agriculture</h1>
+                <p class="lead mb-0">
+                    Découvrez nos partenaires engagés : entreprises, coopératives, ONG et institutions qui soutiennent la filière agricole.
+                </p>
+            </div>
+            <div class="col-lg-4 text-lg-end mt-4 mt-lg-0">
+                {# CTA: link to contact or "Devenir partenaire" form (set path when ready) #}
+                <a href="{{ path('app_partenariats') }}" class="btn btn-light btn-lg rounded-pill px-4 py-3 fw-bold shadow-sm">
+                    <i class="fas fa-leaf me-2"></i>Voir les partenaires
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container pb-5">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+        <h2 class="h4 fw-bold text-dark mb-0">Nos partenaires</h2>
+        {% if is_granted('ROLE_ADMIN') %}
+            <a href="{{ path('app_admin_partenariats') }}" class="btn btn-partner-outline">
+                <i class="fas fa-cog me-2"></i>Gérer les partenariats
+            </a>
+            <a href="{{ path('app_admin_partner_new') }}" class="btn btn-partner-primary"><i class="fas fa-plus me-2"></i>Ajouter un partenaire</a>
+        {% endif %}
+    </div>
+
+    {% if partners is empty %}
+        <div class="empty-state">
+            <i class="fas fa-handshake icon-empty mb-3"></i>
+            <h3 class="h5 fw-bold text-dark mb-2">Aucun partenaire pour le moment</h3>
+            <p class="text-muted mb-4">Les partenariats seront bientôt mis en avant ici.</p>
+            {# Use btn-partner-primary for future "Proposer un partenariat" form #}
+            <a href="{{ path('app_home') }}" class="btn btn-partner-outline"><i class="fas fa-arrow-left me-2"></i>Retour à l'accueil</a>
+        </div>
+    {% else %}
+        <div class="row g-4">
+            {% for partner in partners %}
+                <div class="col-md-6 col-xl-4">
+                    <article class="partner-card">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-start gap-3 mb-3">
+                                {% if partner.logoUrl %}
+                                    <img src="{{ partner.logoUrl }}" alt="{{ partner.name }}" class="card-logo">
+                                {% else %}
+                                    <div class="logo-placeholder"><i class="fas fa-building"></i></div>
+                                {% endif %}
+                                <div class="flex-grow-1 min-w-0">
+                                    <h3 class="h6 fw-bold mb-1 text-truncate" title="{{ partner.name }}">{{ partner.name }}</h3>
+                                    <div class="d-flex flex-wrap gap-1">
+                                        {% if partner.type %}
+                                            <span class="badge-type">{{ partner.type }}</span>
+                                        {% endif %}
+                                        {% if partner.status %}
+                                            {% set status_class = 'badge-status-actif' %}
+                                            {% if partner.status == 'Inactif' %}{% set status_class = 'badge-status-inactif' %}{% endif %}
+                                            {% if partner.status == 'En attente' %}{% set status_class = 'badge-status-en-attente' %}{% endif %}
+                                            <span class="badge {{ status_class }}">{{ partner.status }}</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% if partner.description %}
+                                <p class="text-muted small mb-0">{{ partner.description|length > 120 ? partner.description|slice(0, 120) ~ '…' : partner.description }}</p>
+                            {% endif %}
+                            {% if partner.email or partner.website %}
+                                <ul class="list-unstyled small text-muted mt-2 mb-0">
+                                    {% if partner.email %}
+                                        <li><i class="fas fa-envelope me-1 text-success"></i>{{ partner.email }}</li>
+                                    {% endif %}
+                                    {% if partner.website %}
+                                        <li><i class="fas fa-globe me-1 text-success"></i><a href="{{ partner.website }}" target="_blank" rel="noopener" class="text-decoration-none text-muted">Site web</a></li>
+                                    {% endif %}
+                                </ul>
+                            {% endif %}
+
+                            <div class="card-actions d-flex flex-wrap gap-2">
+                                <a href="{{ path('app_partenariats_show', { id: partner.id }) }}" class="btn btn-partner-primary btn-sm">
+                                    <i class="fas fa-eye me-1"></i>Voir plus
+                                </a>
+                                {% if partner.email %}
+                                    <a href="mailto:{{ partner.email }}" class="btn btn-partner-outline btn-sm">
+                                        <i class="fas fa-envelope me-1"></i>Contacter
+                                    </a>
+                                {% endif %}
+                                {% if is_granted('ROLE_ADMIN') %}
+                                    <a href="{{ path('app_admin_partner_edit', { id: partner.id }) }}" class="btn btn-partner-ghost btn-sm"><i class="fas fa-pen me-1"></i>Modifier</a>
+                                    <form method="post" action="{{ path('app_admin_partner_delete', { id: partner.id }) }}" class="d-inline" onsubmit="return confirm('Supprimer ce partenaire ?');">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ partner.id) }}">
+                                        <button type="submit" class="btn btn-partner-danger btn-sm"><i class="fas fa-trash me-1"></i>Supprimer</button>
+                                    </form>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            {% endfor %}
+        </div>
+
+        {# CTA band: "Devenir partenaire" / contact (wire link when form is ready) #}
+        <div class="partenariats-cta-band text-center">
+            <h3 class="h5 fw-bold mb-2">Vous représentez une structure et souhaitez devenir partenaire ?</h3>
+            <p class="mb-3 opacity-90">Rejoignez le réseau FIRMETNA et soutenez l’agriculture durable.</p>
+            <a href="{{ path('app_home') }}#modules" class="btn btn-light">Nous contacter</a>
+        </div>
+    {% endif %}
+</div>
+</div>
+{% endblock %}

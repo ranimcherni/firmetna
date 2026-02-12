@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use App\Entity\Partner;
+use App\Repository\PartnerRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -10,12 +12,20 @@ use Symfony\Component\Routing\Annotation\Route;
 class PartenariatsController extends AbstractController
 {
     #[Route('/', name: 'app_partenariats')]
-    public function index(): Response
+    public function index(PartnerRepository $partnerRepository): Response
     {
-        return $this->render('front/placeholder.html.twig', [
-            'module' => 'Partenariats',
-            'icon' => 'fas fa-handshake',
-            'description' => 'Cr├®ez des liens durables entre producteurs et partenaires ├®conomiques.'
+        $partners = $partnerRepository->findAllOrderedByName();
+
+        return $this->render('partenariats/index.html.twig', [
+            'partners' => $partners,
+        ]);
+    }
+
+    #[Route('/{id}', name: 'app_partenariats_show', requirements: ['id' => '\d+'], methods: ['GET'])]
+    public function show(Partner $partner): Response
+    {
+        return $this->render('partenariats/show.html.twig', [
+            'partner' => $partner,
         ]);
     }
 }
