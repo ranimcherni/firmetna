@@ -19,32 +19,31 @@ class UserType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
+            ->add('prenom', TextType::class, [
+                'label' => 'Prénom',
+                'attr' => ['placeholder' => 'Votre prénom']
+            ])
+            ->add('nom', TextType::class, [
+                'label' => 'Nom',
+                'attr' => ['placeholder' => 'Votre nom']
+            ])
             ->add('email', EmailType::class, [
                 'label' => 'Email',
                 'attr' => ['placeholder' => 'votre@email.com']
             ])
-            ->add('password', PasswordType::class, [
-                'label' => 'Mot de passe',
-                'attr' => ['placeholder' => '••••••••']
-            ])
-            ->add('role', ChoiceType::class, [
+            ->add('roleType', ChoiceType::class, [
+                'label' => 'Rôle',
                 'choices' => [
-                    'Utilisateur' => 'ROLE_USER',
-                    'Administrateur' => 'ROLE_ADMIN',
+                    'Agriculteur' => 'Agriculteur',
+                    'Donateur' => 'Donateur',
+                    'Client' => 'Client',
                 ],
-                'data' => 'ROLE_USER',
-                'attr' => ['class' => 'd-none'] // Hidden in UI but present for Symfony
+                'attr' => ['class' => 'form-select rounded-pill']
             ])
-            ->add('nom')
-            ->add('prenom')
-            ->add('telephone')
-            ->add('adresse')
-            ->add('imageUrl')
-            ->add('statut')
-            ->add('roleType')
-            ->add('bio')
-            ->add('specialite')
-            ->add('localisation')
+            ->add('telephone', TelType::class, [
+                'label' => 'Téléphone (+216)',
+                'attr' => ['placeholder' => '22 123 456']
+            ])
         ;
     }
 

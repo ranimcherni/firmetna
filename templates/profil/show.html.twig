@@ -17,34 +17,41 @@
                 
                 <div class="card-body p-4">
                     <div class="row mb-4">
-                        <div class="col-sm-4 fw-bold text-muted">Statut</div>
-                        <div class="col-sm-8 text-success fw-bold"><i class="fas fa-check-circle me-1"></i> {{ user.statut|default('ACTIF') }}</div>
+                        <div class="col-sm-4 fw-bold text-muted">Prénom & Nom</div>
+                        <div class="col-sm-8 fw-bold">{{ user.prenom }} {{ user.nom }}</div>
                     </div>
                     
                     <div class="row mb-4">
-                        <div class="col-sm-4 fw-bold text-muted">Spécialité</div>
-                        <div class="col-sm-8">{{ user.specialite|default('Non spécifiée') }}</div>
+                        <div class="col-sm-4 fw-bold text-muted">Email</div>
+                        <div class="col-sm-8"><i class="fas fa-envelope text-muted me-1"></i> {{ user.email }}</div>
                     </div>
                     
                     <div class="row mb-4">
-                        <div class="col-sm-4 fw-bold text-muted">Localisation</div>
-                        <div class="col-sm-8"><i class="fas fa-map-marker-alt text-muted me-1"></i> {{ user.localisation|default('Non renseignée') }}</div>
+                        <div class="col-sm-4 fw-bold text-muted">Rôle</div>
+                        <div class="col-sm-8">
+                            <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3">
+                                {{ user.roleType|default('Utilisateur') }}
+                            </span>
+                        </div>
                     </div>
                     
                     <div class="row mb-4">
-                        <div class="col-sm-4 fw-bold text-muted">Bio</div>
-                        <div class="col-sm-8">{{ user.bio|default('Aucune bio disponible.') }}</div>
+                        <div class="col-sm-4 fw-bold text-muted">Téléphone</div>
+                        <div class="col-sm-8"><i class="fas fa-phone text-muted me-1"></i> {{ user.telephone|default('Non renseigné') }}</div>
                     </div>
-
-                    <hr class="my-4">
                     
-                    <div class="d-flex gap-2">
-                        <a href="{{ path('app_profil_edit', {'id': user.id}) }}" class="btn btn-success rounded-pill px-4">
-                            <i class="fas fa-edit me-1"></i> Modifier le profil
-                        </a>
-                        <a href="{{ path('app_home') }}" class="btn btn-outline-secondary rounded-pill px-4">
-                            Retour à l'accueil
-                        </a>
+                    <div class="d-flex flex-wrap justify-content-between align-items-center mt-4 pt-4 border-top gap-3">
+                        <div class="d-flex flex-wrap gap-2">
+                            <a href="{{ path('app_profil_edit', {'id': user.id}) }}" class="btn btn-success rounded-pill px-4">
+                                <i class="fas fa-edit me-1"></i> Modifier mes informations
+                            </a>
+                            <a href="{{ path('app_home') }}" class="btn btn-outline-secondary rounded-pill px-4">
+                                Retour à l'accueil
+                            </a>
+                        </div>
+                        <div class="ms-auto">
+                            {{ include('profil/_delete_form.html.twig') }}
+                        </div>
                     </div>
                 </div>
             </div>

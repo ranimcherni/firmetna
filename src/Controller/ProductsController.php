@@ -8,6 +8,7 @@ use App\Entity\Produit;
 use App\Form\CommandeOrderType;
 use App\Form\ProduitType;
 use App\Repository\ProduitRepository;
+use App\Service\CartService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -54,7 +55,7 @@ class ProductsController extends AbstractController
 
     #[Route('/{id}/commander', name: 'app_products_order', requirements: ['id' => '\d+'])]
     #[IsGranted('IS_AUTHENTICATED_FULLY')]
-    public function order(Produit $produit, Request $request, EntityManagerInterface $entityManager, ProduitRepository $produitRepository): Response
+    public function order(Produit $produit, Request $request, CartService $cartService): Response
     {
         $type = $produit->getType();
         $unite_labels = [
@@ -64,47 +65,25 @@ class ProductsController extends AbstractController
             'barquette' => 'Barquette'
         ];
 
-        // Create a new Commande for the form
+        // We use a dummy Commande object just to back the form
         $commande = new Commande();
         $commande->setClient($this->getUser());
-
-        // Create the form
         $form = $this->createForm(CommandeOrderType::class, $commande);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // Get the quantity from the unmapped form field
             $quantite = $form->get('quantite')->getData();
 
-            // Check stock availability
-            if ($quantite > $produit->getStock()) {
-                $this->addFlash('error', "Quantité insuffisante. Disponible: {$produit->getStock()} {$unite_labels[$produit->getUnite()]}");
-                return $this->redirectToRoute('app_products_order', ['id' => $produit->getId()]);
-            }
+            $cartService->add($produit->getId(), [
+                'quantity' => $quantite,
+                'address' => $commande->getAdresseLivraison(),
+                'comment' => $commande->getCommentaire()
+            ]);
 
-            // Create the line item (LigneCommande)
-            $ligneCommande = new LigneCommande();
-            $ligneCommande->setProduit($produit);
-            $ligneCommande->setQuantite($quantite);
-            $ligneCommande->setPrixUnitaire($produit->getPrix());
-            $ligneCommande->setCommande($commande);
-
-            // Add the line to the commande
-            $commande->addLigne($ligneCommande);
-
-            // Calculate total
-            $commande->recalculerTotal();
-
-            // Persist and flush
-            $entityManager->persist($commande);
-            $entityManager->persist($ligneCommande);
-            $entityManager->flush();
-
-            // Set success flash message
-            $this->addFlash('success', 'Commande créée avec succès!');
-
-            // Redirect to order details or dashboard
-            return $this->redirectToRoute('app_front_dashboard');
+            $this->addFlash('success', 'Produit ajouté au panier !');
+            
+            // Redirect back to the list instead of the cart
+            return $this->redirectToRoute($type === 'vegetale' ? 'app_products_vegetale' : 'app_products_animale');
         }
 
         return $this->render('front/products/order.html.twig', [

@@ -111,8 +111,30 @@
                         <li class="nav-item"><a class="nav-link" href="{{ path('app_forum') }}"><i class="fas fa-comments me-1"></i>Forum</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ path('app_donations') }}"><i class="fas fa-hand-holding-heart me-1"></i>Dons</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ path('app_partenariats') }}"><i class="fas fa-handshake me-1"></i>Partenariats</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{{ path('app_profil_me') }}"><i class="fas fa-user-circle"></i> Profil</a></li>
-                        <li class="nav-item ms-lg-2"><a class="btn btn-danger btn-sm px-4 rounded-pill" href="{{ path('app_logout') }}">Déconnexion</a></li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-user-circle"></i> Profil
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3 mt-2" aria-labelledby="profileDropdown">
+                                <li>
+                                    <a class="dropdown-item py-2" href="{{ path('app_profil_me') }}">
+                                        <i class="fas fa-user-cog me-2 text-success"></i> Mon Compte
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item py-2 d-flex justify-content-between align-items-center" href="{{ path('cart_index') }}">
+                                        <span><i class="fas fa-shopping-cart me-2 text-success"></i> Mon Panier</span>
+                                        <span class="badge bg-success rounded-pill ms-2">{{ cartService.itemsCount }}</span>
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item py-2 text-danger" href="{{ path('app_logout') }}">
+                                        <i class="fas fa-sign-out-alt me-2"></i> Déconnexion
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
                     {% else %}
                         <li class="nav-item"><a class="nav-link" href="#modules">Modules</a></li>
                         <li class="nav-item ms-lg-2"><a class="btn btn-connexion" href="{{ path('app_login') }}">CONNEXION</a></li>
