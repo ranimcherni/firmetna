@@ -1,0 +1,22 @@
+{% use "form_div_layout.html.twig" %}
+
+{# Erreurs en rouge, affichées au-dessus du champ #}
+{% block form_errors %}
+    {%- if errors|length > 0 -%}
+        <ul class="form-errors-list mb-1 mt-0" style="color: #dc3545; font-size: 0.875rem; list-style: none; padding-left: 0;">
+            {%- for error in errors -%}
+                <li><i class="fas fa-exclamation-circle me-1"></i>{{ error.message }}</li>
+            {%- endfor -%}
+        </ul>
+    {%- endif -%}
+{% endblock form_errors %}
+
+{# Label, puis erreurs au-dessus du champ, puis widget #}
+{% block form_row %}
+    <div class="mb-3">
+        {{- form_label(form) -}}
+        {{- form_errors(form) -}}
+        {{- form_widget(form) -}}
+        {{- form_help(form) -}}
+    </div>
+{% endblock form_row %}

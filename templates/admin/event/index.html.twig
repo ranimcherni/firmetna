@@ -1,0 +1,164 @@
+{% extends 'admin_base.html.twig' %}
+
+{% block title %}Gestion des Évènements - FIRMETNA{% endblock %}
+
+{% block body %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-0">Gestion des Évènements</h2>
+        <p class="text-muted mb-0">Gérez tous les évènements de la plateforme</p>
+    </div>
+    <a href="{{ path('app_admin_event_new') }}" class="btn btn-success px-4 py-2" style="background-color: #1a4d2e; border: none; border-radius: 8px;">
+        <i class="fas fa-plus me-2"></i> Ajouter un évènement
+    </a>
+</div>
+
+<div class="card border-0 shadow-sm mb-4" style="border-radius: 15px;">
+    <div class="card-body p-4">
+        <form method="get" action="{{ path('app_admin_event_index') }}" class="row g-3">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-0"><i class="fas fa-search text-muted"></i></span>
+                    <input type="text" name="q" value="{{ app.request.query.get('q') }}" class="form-control bg-light border-0" placeholder="Rechercher par nom ou organisateur...">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label mb-1 small text-muted">Du</label>
+                <input type="date" name="from" value="{{ from ?? app.request.query.get('from') }}" class="form-control bg-light border-0">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label mb-1 small text-muted">Au</label>
+                <input type="date" name="to" value="{{ to ?? app.request.query.get('to') }}" class="form-control bg-light border-0">
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm" style="border-radius: 15px;">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4 py-3 border-0" style="width: 80px;">ID</th>
+                        <th class="py-3 border-0">Nom</th>
+                        <th class="py-3 border-0">Date</th>
+                        <th class="py-3 border-0">Organisateur</th>
+                        <th class="py-3 border-0">Lieu</th>
+                        <th class="py-3 border-0">Participations</th>
+                        <th class="py-3 border-0 pe-4 text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for event in events %}
+                    <tr>
+                        <td class="ps-4 fw-bold text-muted">#{{ event.id }}</td>
+                        <td>
+                            <span class="fw-600">{{ event.nom }}</span>
+                        </td>
+                        <td>
+                            <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill fw-bold" style="font-size: 0.75rem;">
+                                {{ event.date|date('d/m/Y H:i') }}
+                            </span>
+                        </td>
+                        <td class="text-muted">
+                            {{ event.organisateur ?: '-' }}
+                        </td>
+                        <td>
+                            {% if event.lieu %}
+                                <span class="text-muted">{{ event.lieu.ville }}</span>
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill fw-bold" style="font-size: 0.75rem;">
+                                {{ event.participations|length }} participant(s)
+                            </span>
+                        </td>
+                        <td class="pe-4 text-end">
+                            <div class="d-flex justify-content-end gap-2">
+                                <button type="button" class="btn btn-sm btn-light border" title="Détails & QR Code" data-bs-toggle="modal" data-bs-target="#detailModal{{ event.id }}">
+                                    <i class="fas fa-qrcode text-primary"></i>
+                                </button>
+                                <a href="{{ path('app_admin_event_participations', {'id': event.id}) }}" class="btn btn-sm btn-light border" title="Voir les participations">
+                                    <i class="fas fa-users text-success"></i>
+                                </a>
+                                <a href="{{ path('app_admin_event_edit', {'id': event.id}) }}" class="btn btn-sm btn-light border" title="Modifier"><i class="fas fa-pen text-muted"></i></a>
+                                <form method="post" action="{{ path('app_admin_event_delete', {'id': event.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet évènement ?');" class="d-inline">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ event.id) }}">
+                                    <button class="btn btn-sm btn-light border" title="Supprimer"><i class="fas fa-trash text-danger"></i></button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center py-5 text-muted">Aucun évènement trouvé</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{# Modals Détails + QR Code pour chaque événement #}
+{% for event in events %}
+<div class="modal fade" id="detailModal{{ event.id }}" tabindex="-1" aria-labelledby="detailModalLabel{{ event.id }}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow" style="border-radius: 16px;">
+            <div class="modal-header border-0 pb-0" style="background: linear-gradient(135deg, #1a4d2e, #2d7a4a); border-radius: 16px 16px 0 0;">
+                <h5 class="modal-title text-white fw-bold" id="detailModalLabel{{ event.id }}">
+                    <i class="fas fa-calendar-alt me-2"></i>{{ event.nom }}
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="row">
+                    <div class="col-md-7">
+                        <ul class="list-unstyled mb-0">
+                            <li class="mb-2">
+                                <i class="fas fa-clock text-primary me-2"></i>
+                                <strong>Date :</strong> {{ event.date|date('d/m/Y à H:i') }}
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-user text-success me-2"></i>
+                                <strong>Organisateur :</strong> {{ event.organisateur ?: 'Non défini' }}
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-map-marker-alt text-danger me-2"></i>
+                                <strong>Lieu :</strong>
+                                {% if event.lieu %}
+                                    {{ event.lieu.ville }} — {{ event.lieu.adresse }}
+                                {% else %}
+                                    Non défini
+                                {% endif %}
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-users text-info me-2"></i>
+                                <strong>Participants :</strong> {{ event.participations|length }}
+                            </li>
+                        </ul>
+                        {% if event.description %}
+                            <hr>
+                            <h6 class="fw-bold"><i class="fas fa-align-left me-2"></i>Description</h6>
+                            <p class="text-muted small">{{ event.description }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-5 text-center">
+                        <p class="fw-semibold mb-2"><i class="fas fa-qrcode me-1"></i> QR Code</p>
+                        <img src="{{ path('app_admin_event_qrcode', {'id': event.id}) }}" alt="QR Code" class="img-fluid" style="max-width: 200px; border-radius: 8px; border: 2px solid #e9ecef;">
+                        <p class="text-muted small mt-2">Scannez pour voir les infos</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+{% endblock %}

@@ -1,0 +1,124 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Produits - FIRMETNA{% endblock %}
+
+{% block body %}
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+    }
+    .marketplace-hero {
+        min-height: 100vh;
+        background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), 
+                    url('https://images.unsplash.com/photo-1488459716781-31db52582fe9?auto=format&fit=crop&q=80&w=2000') no-repeat center center;
+        background-size: cover;
+        background-attachment: fixed;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+    }
+    .marketplace-content {
+        max-width: 1200px;
+        width: 100%;
+    }
+    .marketplace-header {
+        text-align: center;
+        color: white;
+        margin-bottom: 4rem;
+    }
+    .marketplace-header h1 {
+        font-size: 3.5rem;
+        font-weight: 800;
+        margin-bottom: 1rem;
+        text-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    }
+    .marketplace-header p {
+        font-size: 1.5rem;
+        font-weight: 300;
+        text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    }
+    .category-card {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 20px;
+        padding: 3rem 2rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    }
+    .category-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    }
+    .category-icon {
+        width: 100px;
+        height: 100px;
+        background: linear-gradient(135deg, #6b46c1, #9333ea);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+    }
+    .category-badge {
+        display: inline-block;
+        padding: 0.5rem 1.2rem;
+        border-radius: 25px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin: 0.3rem;
+    }
+    @media (max-width: 768px) {
+        .marketplace-header h1 {
+            font-size: 2.5rem;
+        }
+        .marketplace-header p {
+            font-size: 1.2rem;
+        }
+    }
+</style>
+
+<div class="marketplace-hero">
+    <div class="marketplace-content">
+        <!-- Header Message -->
+        <div class="marketplace-header">
+            {% if app.user and app.user.roleType == 'Agriculteur' %}
+                <div class="mb-4">
+                    <a href="{{ path('app_products_sell') }}" class="btn btn-success btn-sm rounded-pill px-4 py-2 fw-bold shadow-lg">
+                        <i class="fas fa-plus me-2"></i> Ajouter un produit
+                    </a>
+                </div>
+            {% endif %}
+            <h1>Marketplace FIRMETNA</h1>
+            <p>Choisissez votre catégorie de produits</p>
+        </div>
+
+        <!-- Categories -->
+        <!-- Buttons Container -->
+        <div class="d-flex flex-column flex-md-row justify-content-center gap-3 mt-5">
+            <!-- Produits Végétaux -->
+            <a href="{{ path('app_products_vegetale') }}" class="btn btn-success rounded-pill px-4 py-3 fw-bold shadow-lg d-flex align-items-center justify-content-center hover-scale">
+                <i class="fas fa-leaf fa-lg me-2"></i>
+                <span class="fs-5">Produits Végétaux</span>
+            </a>
+
+            <!-- Produits Animaux -->
+            <a href="{{ path('app_products_animale') }}" class="btn btn-success rounded-pill px-4 py-3 fw-bold shadow-lg d-flex align-items-center justify-content-center hover-scale">
+                <i class="fas fa-drumstick-bite fa-lg me-2"></i>
+                <span class="fs-5">Produits Animaux</span>
+            </a>
+        </div>
+        
+        <style>
+            .hover-scale {
+                transition: transform 0.2s ease;
+                min-width: 240px;
+            }
+            .hover-scale:hover {
+                transform: scale(1.05);
+            }
+        </style>
+    </div>
+</div>
+{% endblock %}

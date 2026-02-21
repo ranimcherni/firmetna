@@ -1,0 +1,47 @@
+{% extends 'admin_base.html.twig' %}
+
+{% block title %}Modifier la demande de don - Administration{% endblock %}
+
+{% block body %}
+<div class="mb-4">
+    <a href="{{ path('app_admin_donation_demandes') }}" class="text-decoration-none text-muted">
+        <i class="fas fa-arrow-left me-1"></i> Retour à la liste
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+            <div class="card-body p-4">
+                <h2 class="fw-bold mb-4">Modifier la demande #{{ demande.id }}</h2>
+
+                {{ form_start(form) }}
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            {{ form_label(form.offre) }}
+                            {{ form_widget(form.offre) }}
+                            {{ form_errors(form.offre) }}
+                        </div>
+                        <div class="col-md-12">
+                            {{ form_label(form.demandeur) }}
+                            {{ form_widget(form.demandeur) }}
+                            {{ form_errors(form.demandeur) }}
+                        </div>
+                        <div class="col-md-12">
+                            {{ form_label(form.statut) }}
+                            {{ form_widget(form.statut) }}
+                            {{ form_errors(form.statut) }}
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-4 border-top">
+                        <button type="submit" class="btn btn-success px-5 py-2" style="background-color: #1a4d2e; border: none; border-radius: 8px;">
+                            <i class="fas fa-save me-2"></i> Mettre à jour la demande
+                        </button>
+                    </div>
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

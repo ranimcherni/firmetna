@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #333; background: #f5f5f5; margin: 0; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); overflow: hidden; }
+        .header { background: #1a4d2e; color: white; padding: 24px; text-align: center; }
+        .header h1 { margin: 0; font-size: 1.5rem; }
+        .content { padding: 32px 24px; }
+        .event-name { font-size: 1.25rem; font-weight: bold; color: #1a4d2e; margin-bottom: 8px; }
+        .event-date { color: #666; font-size: 0.95rem; }
+        .footer { background: #f8fafc; padding: 20px 24px; text-align: center; font-size: 0.85rem; color: #64748b; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>FIRMETNA</h1>
+            <p style="margin: 0; opacity: 0.9;">Notification d'annulation</p>
+        </div>
+        <div class="content">
+            <p>Bonjour,</p>
+            <p>Nous vous informons que l'événement suivant a été <strong>annulé</strong> par l'administrateur :</p>
+            <div class="event-name">{{ event.nom }}</div>
+            {% if event.date %}
+                <div class="event-date">Date prévue : {{ event.date|date('d/m/Y à H:i') }}</div>
+            {% endif %}
+            {% if event.lieu %}
+                <div class="event-date">Lieu : {{ event.lieu.ville }} - {{ event.lieu.adresse }}</div>
+            {% endif %}
+            <p style="margin-top: 24px;">Nous vous remercions pour votre intérêt et vous invitons à consulter les autres événements disponibles sur la plateforme FIRMETNA.</p>
+            <p>Cordialement,<br>L'équipe FIRMETNA</p>
+        </div>
+        <div class="footer">
+            &copy; {{ "now"|date("Y") }} FIRMETNA - Agriculture Tunisienne
+        </div>
+    </div>
+</body>
+</html>

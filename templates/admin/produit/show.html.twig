@@ -1,0 +1,71 @@
+﻿{% extends 'admin_base.html.twig' %}
+
+{% block title %}{{ produit.nom }} - FIRMETNA{% endblock %}
+
+{% block body %}
+<div class="mb-4">
+    <a href="{{ path('app_admin_produits') }}" class="text-success text-decoration-none fw-600">
+        <i class="fas fa-arrow-left me-2"></i> Retour ├á la liste
+    </a>
+    <h2 class="fw-bold mt-2">{{ produit.nom }}</h2>
+    <p class="text-muted">D├®tail du produit #{{ produit.id }}</p>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm mb-4" style="border-radius: 15px;">
+            <div class="card-body p-4">
+                <dl class="row mb-0">
+                    <dt class="col-sm-3 text-muted">Description</dt>
+                    <dd class="col-sm-9">{{ produit.description ?: 'ÔÇö' }}</dd>
+
+                    <dt class="col-sm-3 text-muted">Type</dt>
+                    <dd class="col-sm-9">
+                        {% if produit.type == 'vegetale' %}
+                            <span class="badge bg-success-subtle text-success"><i class="fas fa-leaf me-1"></i> V├®g├®tal</span>
+                        {% else %}
+                            <span class="badge bg-danger-subtle text-danger"><i class="fas fa-drumstick-bite me-1"></i> Animal</span>
+                        {% endif %}
+                    </dd>
+
+                    <dt class="col-sm-3 text-muted">Prix</dt>
+                    <dd class="col-sm-9 fw-600">{{ produit.prix }} Ôé¼</dd>
+
+                    <dt class="col-sm-3 text-muted">Unit├®</dt>
+                    <dd class="col-sm-9">{{ produit.unite }}</dd>
+
+                    <dt class="col-sm-3 text-muted">Stock</dt>
+                    <dd class="col-sm-9">
+                        <span class="badge {{ produit.stock > 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger' }} px-3 py-2">{{ produit.stock }}</span>
+                    </dd>
+
+                    <dt class="col-sm-3 text-muted">Bio</dt>
+                    <dd class="col-sm-9">{{ produit.isBio ? 'Oui' : 'Non' }}</dd>
+
+                    <dt class="col-sm-3 text-muted">Badge</dt>
+                    <dd class="col-sm-9">{{ produit.badge ?: 'ÔÇö' }}</dd>
+
+                    <dt class="col-sm-3 text-muted">Image URL</dt>
+                    <dd class="col-sm-9">{{ produit.imageUrl ?: 'ÔÇö' }}</dd>
+
+                    <dt class="col-sm-3 text-muted">Cr├®├® le</dt>
+                    <dd class="col-sm-9">{{ produit.createdAt ? produit.createdAt|date('d/m/Y H:i') : 'ÔÇö' }}</dd>
+
+                    <dt class="col-sm-3 text-muted">Modifi├® le</dt>
+                    <dd class="col-sm-9">{{ produit.updatedAt ? produit.updatedAt|date('d/m/Y H:i') : 'ÔÇö' }}</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm" style="border-radius: 15px;">
+            <div class="card-body p-4">
+                <a href="{{ path('app_admin_produit_edit', {'id': produit.id}) }}" class="btn btn-success w-100 mb-2" style="background-color: #1a4d2e; border: none; border-radius: 8px;">
+                    <i class="fas fa-pen me-2"></i> Modifier
+                </a>
+                {{ include('admin/produit/_delete_form.html.twig') }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

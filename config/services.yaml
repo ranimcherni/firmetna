@@ -1,0 +1,41 @@
+# This file is the entry point to configure your own services.
+# Files in the packages/ subdirectory configure your dependencies.
+
+# Put parameters here that don't need to change on each machine where the app is deployed
+# https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
+parameters:
+    publications_directory: '%kernel.project_dir%/public/uploads/publications'
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Entity/'
+            - '../src/Kernel.php'
+
+    App\Service\PhpMailerService:
+        arguments:
+            $mailerHost: '%env(MAILER_HOST)%'
+            $mailerPort: '%env(MAILER_PORT)%'
+            $mailerUser: '%env(MAILER_USER)%'
+            $mailerPassword: '%env(MAILER_PASSWORD)%'
+            $mailerFromEmail: '%env(MAILER_FROM_EMAIL)%'
+            $mailerFromName: '%env(MAILER_FROM_NAME)%'
+
+    App\Service\PhpMailerEventService:
+        arguments:
+            $mailerHost: '%env(MAILER_HOST)%'
+            $mailerPort: '%env(MAILER_PORT)%'
+            $mailerUser: '%env(MAILER_USER)%'
+            $mailerPassword: '%env(MAILER_PASSWORD)%'
+            $mailerFromEmail: '%env(MAILER_FROM_EMAIL)%'
+            $mailerFromName: '%env(MAILER_FROM_NAME)%'
+
+    App\Service\HuggingFaceService:
+        arguments:
+            $huggingfaceApiKey: '%env(HUGGINGFACE_API_KEY)%'

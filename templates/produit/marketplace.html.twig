@@ -1,0 +1,258 @@
+﻿{% extends 'base.html.twig' %}
+
+{% block title %}{{ category }} - FIRMETNA{% endblock %}
+
+{% block body %}
+<style>
+    body {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 100vh;
+    }
+    .page-header {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+    .back-button {
+        display: inline-flex;
+        align-items: center;
+        color: #6c757d;
+        text-decoration: none;
+        font-weight: 500;
+        margin-bottom: 1rem;
+        transition: all 0.3s;
+        padding: 0.5rem 1rem;
+        border-radius: 10px;
+    }
+    .back-button:hover {
+        color: #495057;
+        background: #f8f9fa;
+    }
+    .category-icon-header {
+        width: 70px;
+        height: 70px;
+        background: linear-gradient(135deg, {{ type == 'vegetale' ? '#10b981, #059669' : '#ef4444, #dc2626' }});
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 15px {{ type == 'vegetale' ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)' }};
+    }
+    .product-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        border: 2px solid #f0f0f0;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 2px 15px rgba(0,0,0,0.06);
+    }
+    .product-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        border-color: #e0e0e0;
+    }
+    .product-image {
+        width: 100%;
+        height: 220px;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+    }
+    .product-image i {
+        font-size: 4rem;
+        color: #adb5bd;
+        transition: all 0.3s;
+    }
+    .product-card:hover .product-image i {
+        transform: scale(1.1);
+        color: #6c757d;
+    }
+    .product-badge {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        padding: 0.4rem 0.9rem;
+        border-radius: 25px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    .badge-bio {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+    }
+    .badge-nouveau {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: white;
+    }
+    .badge-promo {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        color: white;
+    }
+    .badge-kilo {
+        background: rgba(0,0,0,0.85);
+        color: white;
+    }
+    .badge-vivant {
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
+        color: white;
+    }
+    .badge-fermier {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+    }
+    .badge-economique {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: white;
+    }
+    .badge-productif {
+        background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+        color: white;
+    }
+    .product-body {
+        padding: 1.5rem;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    .product-title {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 0.5rem;
+    }
+    .product-description {
+        font-size: 0.875rem;
+        color: #6b7280;
+        margin-bottom: 1.25rem;
+        flex-grow: 1;
+        line-height: 1.5;
+    }
+    .product-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: auto;
+        padding-top: 1rem;
+        border-top: 1px solid #f3f4f6;
+    }
+    .product-price {
+        font-size: 1.75rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    .btn-commander {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+        border: none;
+        padding: 0.65rem 1.5rem;
+        border-radius: 30px;
+        font-weight: 700;
+        font-size: 0.875rem;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .btn-commander:hover {
+        background: linear-gradient(135deg, #059669, #047857);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+    }
+    .btn-commander i {
+        font-size: 1rem;
+    }
+</style>
+
+<div class="container py-4" style="min-height: 100vh;">
+    <!-- Header -->
+    <div class="page-header">
+        <a href="{{ path('app_products') }}" class="back-button">
+            <i class="fas fa-arrow-left me-2"></i> Retour aux cat├®gories
+        </a>
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="fw-bold mb-2">{{ category }}</h1>
+                <p class="text-muted mb-0">D├®couvrez nos produits frais et de qualit├®</p>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <div class="category-icon-header">
+                    <i class="fas fa-{{ type == 'vegetale' ? 'leaf' : 'drumstick-bite' }} fa-2x text-white"></i>
+                </div>
+                {% if app.user and app.user.roleType == 'Agriculteur' %}
+                    <a href="{{ path('app_products_sell') }}" class="btn btn-success btn-lg" style="border-radius: 30px; padding: 0.75rem 2rem; font-weight: 700; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);">
+                        <i class="fas fa-plus me-2"></i> Vendre un produit
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Products Grid (donn├®es BDD) -->
+    <div class="row g-4">
+        {% set unite_labels = { 'kilo': 'Par kilo', 'unite': "├Ç l'unit├®", 'boite': 'Bo├«te', 'barquette': 'Barquette' } %}
+        {% set badge_css = { 'Bio': 'badge-bio', 'Nouveau': 'badge-nouveau', 'Promo': 'badge-promo', 'Frais': 'badge-bio', 'Fermier': 'badge-fermier', '├ëconomique': 'badge-economique', 'Productif': 'badge-productif', 'Vivant': 'badge-vivant' } %}
+        {% for produit in produits %}
+            <div class="col-md-6 col-lg-4">
+                <div class="product-card">
+                    <div class="product-image">
+                        {% if produit.imageUrl %}
+                            <img src="{{ produit.imageUrl }}" alt="{{ produit.nom }}" style="width:100%;height:100%;object-fit:cover;">
+                        {% else %}
+                            <i class="fas fa-{{ type == 'vegetale' ? 'leaf' : 'drumstick-bite' }}"></i>
+                        {% endif %}
+                        <span class="product-badge badge-kilo">{{ unite_labels[produit.unite] ?? produit.unite }}</span>
+                    </div>
+                    <div class="product-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="product-title">{{ produit.nom }}</h5>
+                            {% if produit.badge %}
+                                <span class="product-badge {{ badge_css[produit.badge] ?? 'badge-kilo' }}">{{ produit.badge }}</span>
+                            {% elseif produit.isBio %}
+                                <span class="product-badge badge-bio">Bio</span>
+                            {% endif %}
+                        </div>
+                        <p class="product-description">{{ produit.description|default('Produit de qualit├® FIRMETNA.')|u.truncate(80) }}</p>
+                        <div class="product-footer">
+                            <span class="product-price">{{ produit.prix }} Ôé¼</span>
+                            {% if produit.stock <= 0 %}
+                                <span class="badge bg-secondary">Rupture</span>
+                            {% elseif app.user %}
+                                <a href="{{ path('app_products_order', {'id': produit.id}) }}" class="btn-commander text-decoration-none">
+                                    <i class="fas fa-shopping-bag"></i> Commander
+                                </a>
+                            {% else %}
+                                <a href="{{ path('app_login') }}" class="btn-commander text-decoration-none">
+                                    <i class="fas fa-shopping-bag"></i> Commander
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="col-12 text-center py-5 text-muted">
+                <p>Aucun produit dans cette cat├®gorie pour le moment.</p>
+                <a href="{{ path('app_products') }}" class="btn btn-success mt-2">Retour aux cat├®gories</a>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
