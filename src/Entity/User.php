@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -132,6 +134,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     )]
     private ?string $roleType = null;
 
+    /** @var Collection<int, \App\Entity\Notification> */
+    #[ORM\OneToMany(targetEntity: \App\Entity\Notification::class, mappedBy: 'destinataire', cascade: ['remove'], orphanRemoval: true)]
+    private Collection $notifications;
+
+    public function __construct()
+    {
+        $this->notifications = new ArrayCollection();
+    }
+
     public function getId(): ?int { return $this->id; }
 
     public function getEmail(): ?string { return $this->email; }
@@ -183,4 +194,29 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getRoleType(): ?string { return $this->roleType; }
     public function setRoleType(?string $roleType): static { $this->roleType = $roleType; return $this; }
+
+    /** @return Collection<int, \App\Entity\Notification> */
+    public function getNotifications(): Collection
+    {
+        return $this->notifications;
+    }
+
+    public function addNotification(\App\Entity\Notification $notification): static
+    {
+        if (!$this->notifications->contains($notification)) {
+            $this->notifications->add($notification);
+            $notification->setDestinataire($this);
+        }
+        return $this;
+    }
+
+    public function removeNotification(\App\Entity\Notification $notification): static
+    {
+        if ($this->notifications->removeElement($notification)) {
+            if ($notification->getDestinataire() === $this) {
+                $notification->setDestinataire(null);
+            }
+        }
+        return $this;
+    }
 }

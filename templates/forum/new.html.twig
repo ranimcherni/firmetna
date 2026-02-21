@@ -1,4 +1,4 @@
-﻿{% extends 'base.html.twig' %}
+{% extends 'base.html.twig' %}
 
 {% block title %}Nouvelle publication - Forum FIRMETNA{% endblock %}
 
@@ -22,9 +22,21 @@
             <div class="card border-0 shadow-sm rounded-3">
                 <div class="card-body p-4">
                     <h1 class="h4 fw-bold mb-4"><i class="fas fa-plus-circle text-success me-2"></i>Nouvelle publication</h1>
-                    <p class="text-muted mb-4">Partagez une id├®e ou d├®crivez un probl├¿me avec la communaut├®.</p>
+                    <p class="text-muted mb-4">Partagez une idée ou décrivez un problème avec la communauté.</p>
 
-                    {{ form_start(form) }}
+                    {{ form_start(form, {'attr': {'enctype': 'multipart/form-data'}}) }}
+                    
+                    {% if not form.vars.valid %}
+                        <div class="alert alert-danger">
+                            <strong>Erreurs de validation :</strong>
+                            {{ form_errors(form) }}
+                            {{ form_errors(form.titre) }}
+                            {{ form_errors(form.contenu) }}
+                            {{ form_errors(form.type) }}
+                            {{ form_errors(form.imageFile) }}
+                        </div>
+                    {% endif %}
+                    
                     {{ form_row(form.titre) }}
                     {{ form_row(form.type) }}
                     {{ form_row(form.contenu) }}
