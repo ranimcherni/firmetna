@@ -18,10 +18,7 @@ class Offre
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 150)]
-    #[Assert\NotBlank(message: 'Le nom est obligatoire.')]
-    #[Assert\Length(max: 150)]
-    private ?string $nom = null;
+
 
     #[ORM\Column(length: 25)]
     #[Assert\NotBlank(message: 'Le numéro de téléphone est obligatoire.')]
@@ -77,16 +74,7 @@ class Offre
         return $this->id;
     }
 
-    public function getNom(): ?string
-    {
-        return $this->nom;
-    }
 
-    public function setNom(string $nom): static
-    {
-        $this->nom = $nom;
-        return $this;
-    }
 
     public function getTelephone(): ?string
     {

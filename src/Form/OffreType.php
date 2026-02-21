@@ -12,21 +12,23 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Regex;
 
 class OffreType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('nom', TextType::class, [
-                'label' => 'Votre nom',
-                'attr' => ['placeholder' => 'Ex: Ben Ali'],
-                'constraints' => [new NotBlank(['message' => 'Le nom est obligatoire.'])],
-            ])
             ->add('telephone', TextType::class, [
                 'label' => 'Numéro de téléphone',
-                'attr' => ['placeholder' => 'Ex: +216 12 345 678'],
-                'constraints' => [new NotBlank(['message' => 'Le téléphone est obligatoire.'])],
+                'attr' => ['placeholder' => 'Ex: 12345678'],
+                'constraints' => [
+                    new NotBlank(['message' => 'Le téléphone est obligatoire.']),
+                    new Regex([
+                        'pattern' => '/^\d{8}$/',
+                        'message' => 'Le numéro doit contenir exactement 8 chiffres.',
+                    ]),
+                ],
             ])
             ->add('categorie', ChoiceType::class, [
                 'label' => 'Catégorie du produit',
@@ -40,17 +42,27 @@ class OffreType extends AbstractType
                     'Outillage' => 'Outillage',
                     'Autre' => 'Autre',
                 ],
-                'constraints' => [new NotBlank(['message' => 'La catégorie est obligatoire.'])],
+                'constraints' => [
+                    new NotBlank(['message' => 'La catégorie est obligatoire.']),
+                ],
             ])
             ->add('description', TextareaType::class, [
                 'label' => 'Description',
                 'attr' => ['rows' => 4, 'placeholder' => 'Décrivez le produit ou l\'offre...'],
-                'constraints' => [new NotBlank(['message' => 'La description est obligatoire.'])],
+                'constraints' => [
+                    new NotBlank(['message' => 'La description est obligatoire.']),
+                ],
             ])
             ->add('quantite', TextType::class, [
                 'label' => 'Quantité ou précision (optionnel)',
                 'required' => false,
-                'attr' => ['placeholder' => 'Ex: 50 kg, 1 unité, 10 sacs'],
+                'attr' => ['placeholder' => 'Ex: 50'],
+                'constraints' => [
+                    new Regex([
+                        'pattern' => '/^\d+$/',
+                        'message' => 'La quantité doit être un nombre.',
+                    ]),
+                ],
             ])
             ->add('photoFile', FileType::class, [
                 'label' => 'Photo du produit',

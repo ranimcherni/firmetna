@@ -1,0 +1,225 @@
+{% extends 'admin_base.html.twig' %}
+
+{% block title %}Analytique Dons - FIRMETNA{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4" style="background-color: #f8fafc; min-height: 100vh;">
+    {# Header avec Groupe de Boutons #}
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h1 class="h3 fw-bold text-dark mb-1">Tableau de Bord Analytique</h1>
+            <p class="text-muted mb-0">Identification des donateurs clés et répartition des stocks.</p>
+        </div>
+        
+        <div class="d-flex gap-2">
+            <a href="{{ path('app_admin_donations_stats_pdf') }}" class="btn btn-success shadow-sm rounded-3 px-3">
+                <i class="fas fa-file-pdf me-2"></i>Télécharger PDF
+            </a>
+            
+            <a href="{{ path('app_admin_donations') }}" class="btn btn-white border shadow-sm rounded-3 px-3">
+                <i class="fas fa-arrow-left me-2"></i>Retour
+            </a>
+        </div>
+    </div>
+
+    {# Graphiques #}
+    <div class="row g-4 mb-5">
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+                <h6 class="fw-bold mb-4 text-dark"><i class="fas fa-chart-bar text-success me-2"></i>Top 5 Donateurs (Activité)</h6>
+                <canvas id="chartFrequency"></canvas>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+                <h6 class="fw-bold mb-4 text-dark"><i class="fas fa-chart-pie text-primary me-2"></i>Répartition par Catégorie</h6>
+                <div style="max-height: 300px;">
+                    <canvas id="chartCategory"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Tableau Récapitulatif #}
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+        <div class="card-header bg-white py-4 px-4 border-0 d-flex justify-content-between align-items-center">
+            <h5 class="fw-bold mb-0 text-dark">Classement détaillé des donateurs</h5>
+            <span class="badge bg-light text-muted border px-3">Mise à jour en temps réel</span>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4 py-3 text-muted small text-uppercase">Téléphone</th>
+                        <th class="py-3 text-muted small text-uppercase text-center">Nombre d'offres</th>
+                        <th class="py-3 text-muted small text-uppercase text-center">Quantité Totale</th>
+                        <th class="pe-4 py-3 text-muted small text-uppercase text-end">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for donor in topQuantity %}
+                    <tr>
+                        <td class="ps-4 fw-bold text-dark">{{ donor.telephone }}</td>
+                        <td class="text-center">
+                            <span class="badge bg-primary-subtle text-primary rounded-pill px-3">
+                                {{ donor.nombreOffres }}
+                            </span>
+                        </td>
+                        <td class="text-center fw-bold text-success">{{ donor.totalQuantite }}</td>
+                        <td class="pe-4 text-end">
+                            <button class="btn btn-sm btn-outline-primary rounded-pill px-3 btn-sms-trigger" 
+                                    data-phone="{{ donor.telephone }}"
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#smsModal">
+                                <i class="fas fa-paper-plane me-1"></i> SMS
+                            </button>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center py-5 text-muted">Aucune donnée disponible.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{# MODAL SMS DESIGN #}
+<div class="modal fade" id="smsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header bg-primary text-white border-0 py-3">
+                <h5 class="modal-title fw-bold"><i class="fas fa-comment-alt me-2"></i>Envoyer un SMS Twilio</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="mb-3">
+                    <label class="form-label small fw-bold text-muted">DESTINATAIRE</label>
+                    <input type="text" id="smsRecipient" class="form-control bg-light border-0 fw-bold" readonly>
+                </div>
+                <div class="mb-3">
+                    <label for="smsMessage" class="form-label small fw-bold text-muted">MESSAGE</label>
+                    <textarea class="form-control border-light shadow-sm" id="smsMessage" rows="4" placeholder="Écrire votre message ici..."></textarea>
+                </div>
+                <div id="smsStatus" class="alert d-none py-2 small"></div>
+            </div>
+            <div class="modal-footer border-0 pb-4">
+                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" id="btnSendSms" class="btn btn-primary rounded-pill px-4 shadow-sm">
+                    Confirmer l'envoi
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-primary-subtle { background-color: #e0f2fe !important; color: #0369a1 !important; }
+    .btn-white { background: white; color: #334155; }
+    .rounded-4 { border-radius: 1rem !important; }
+    .table thead th { border-bottom: none; font-size: 0.75rem; letter-spacing: 0.5px; }
+    .modal-content { border: none; }
+</style>
+{% endblock %}
+
+{% block javascripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    // --- GRAPHIQUE 1 (Bars) ---
+    const ctxFreq = document.getElementById('chartFrequency').getContext('2d');
+    new Chart(ctxFreq, {
+        type: 'bar',
+        data: {
+            labels: [{% for d in topFrequency %}"{{ d.telephone }}",{% endfor %}],
+            datasets: [{
+                label: 'Offres',
+                data: [{% for d in topFrequency %}{{ d.nombreOffres }},{% endfor %}],
+                backgroundColor: '#2d6a4f',
+                borderRadius: 8
+            }]
+        },
+        options: { 
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, grid: { display: false } }, x: { grid: { display: false } } }
+        }
+    });
+
+    // --- GRAPHIQUE 2 (Doughnut) ---
+    const ctxCat = document.getElementById('chartCategory').getContext('2d');
+    new Chart(ctxCat, {
+        type: 'doughnut',
+        data: {
+            labels: [{% for c in statsCategory %}"{{ c.categorie }}",{% endfor %}],
+            datasets: [{
+                data: [{% for c in statsCategory %}{{ c.count }},{% endfor %}],
+                backgroundColor: ['#1a4d2e', '#40916c', '#74c69d', '#b7e4c7'],
+                borderWidth: 0
+            }]
+        },
+        options: { 
+            cutout: '70%',
+            plugins: { legend: { position: 'right', labels: { usePointStyle: true, padding: 20 } } }
+        }
+    });
+
+    // --- LOGIQUE SMS ---
+    const recipientInput = document.getElementById('smsRecipient');
+    const messageInput = document.getElementById('smsMessage');
+    const statusDiv = document.getElementById('smsStatus');
+    const sendBtn = document.getElementById('btnSendSms');
+
+    document.querySelectorAll('.btn-sms-trigger').forEach(btn => {
+        btn.addEventListener('click', function () {
+            recipientInput.value = this.dataset.phone;
+            statusDiv.classList.add('d-none');
+            statusDiv.classList.remove('alert-success', 'alert-danger');
+            messageInput.value = "";
+        });
+    });
+
+    sendBtn.addEventListener('click', async function () {
+        const phone = recipientInput.value;
+        const message = messageInput.value;
+
+        if (!message) {
+            alert("Veuillez écrire un message.");
+            return;
+        }
+
+        sendBtn.disabled = true;
+        sendBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Envoi...';
+
+        try {
+            const response = await fetch("{{ path('admin_send_sms') }}", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ phone: phone, message: message })
+            });
+
+            const result = await response.json();
+            statusDiv.classList.remove('d-none');
+
+            if (response.ok) {
+                statusDiv.className = 'alert alert-success mt-3';
+                statusDiv.innerHTML = '<i class="fas fa-check-circle me-2"></i>' + result.success;
+                setTimeout(() => { bootstrap.Modal.getInstance(document.getElementById('smsModal')).hide(); }, 2000);
+            } else {
+                statusDiv.className = 'alert alert-danger mt-3';
+                statusDiv.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i>' + (result.error || "Erreur lors de l'envoi");
+            }
+        } catch (e) {
+            statusDiv.className = 'alert alert-danger mt-3';
+            statusDiv.innerHTML = "Erreur de connexion au serveur.";
+        } finally {
+            sendBtn.disabled = false;
+            sendBtn.innerHTML = "Confirmer l'envoi";
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,154 @@
+{# templates/admin/donation/stats_pdf.html.twig #}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @page { margin: 0px; }
+        body { 
+            font-family: 'Helvetica', 'Arial', sans-serif; 
+            color: #2d3436; 
+            margin: 0; 
+            padding: 0;
+            background-color: #ffffff;
+        }
+        
+        /* Sidebar décorative sur le côté */
+        .sidebar {
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 15px;
+            background: #1a4d2e;
+        }
+
+        .content { margin-left: 40px; margin-right: 40px; padding-top: 50px; }
+
+        /* Header style "Rapport Annuel" */
+        .header { 
+            border-bottom: 1px solid #eee; 
+            padding-bottom: 30px; 
+            margin-bottom: 40px; 
+        }
+        .title { color: #1a4d2e; font-size: 28px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; }
+        .subtitle { color: #7f8c8d; font-size: 14px; margin-top: 5px; }
+
+        /* Cartes de statistiques rapides */
+        .kpi-container { margin-bottom: 40px; width: 100%; }
+        .kpi-box { 
+            display: inline-block; 
+            width: 30%; 
+            background: #f8fbf9; 
+            padding: 15px; 
+            border-radius: 10px; 
+            text-align: center;
+            border: 1px solid #e8f0eb;
+        }
+
+        /* Graphique en barres CSS pour les catégories */
+        .chart-container { margin-top: 30px; }
+        .category-row { margin-bottom: 15px; }
+        .category-label { font-size: 12px; margin-bottom: 5px; font-weight: bold; }
+        .bar-bg { background: #f1f1f1; height: 12px; border-radius: 6px; width: 100%; }
+        .bar-fill { background: #40916c; height: 12px; border-radius: 6px; }
+
+        /* Tableau stylisé */
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th { 
+            text-align: left; 
+            font-size: 11px; 
+            text-transform: uppercase; 
+            color: #95a5a6; 
+            padding: 10px; 
+            border-bottom: 2px solid #1a4d2e;
+        }
+        td { padding: 15px 10px; border-bottom: 1px solid #eee; font-size: 13px; }
+        
+        .rank-circle {
+            background: #1a4d2e;
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: inline-block;
+            text-align: center;
+            font-size: 11px;
+            line-height: 20px;
+        }
+
+        .footer { 
+            position: fixed; 
+            bottom: 30px; 
+            width: 100%; 
+            text-align: center; 
+            font-size: 10px; 
+            color: #bdc3c7; 
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar"></div>
+    
+    <div class="content">
+        <div class="header">
+            <div class="title">Impact Report</div>
+            <div class="subtitle">FIRMETNA | Dashboard des dons au {{ date|date('d/m/Y') }}</div>
+        </div>
+
+        <div class="kpi-container">
+            <div class="kpi-box">
+                <div style="font-size: 10px; color: #1a4d2e; font-weight: bold;">TOTAL GÉNÉROSITÉ</div>
+                <div style="font-size: 20px; font-weight: bold;">{{ topQuantity|length }} Donateurs</div>
+            </div>
+            {# Calcul simple de la somme totale si disponible #}
+            <div class="kpi-box" style="margin-left: 3%;">
+                <div style="font-size: 10px; color: #1a4d2e; font-weight: bold;">STATUT SYSTÈME</div>
+                <div style="font-size: 20px; font-weight: bold; color: #40916c;">OPTIMAL</div>
+            </div>
+        </div>
+
+        <h3 style="color: #1a4d2e; border-left: 4px solid #1a4d2e; padding-left: 10px;">Répartition par Catégorie</h3>
+        <div class="chart-container">
+            {% set maxCount = 0 %}
+            {% for cat in statsCategory %}
+                {% if cat.count > maxCount %}{% set maxCount = cat.count %}{% endif %}
+            {% endfor %}
+
+            {% for cat in statsCategory %}
+                {% set width = (cat.count / maxCount) * 100 %}
+                <div class="category-row">
+                    <div class="category-label">{{ cat.categorie|upper }} ({{ cat.count }})</div>
+                    <div class="bar-bg">
+                        <div class="bar-fill" style="width: {{ width }}%;"></div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <h3 style="color: #1a4d2e; margin-top: 40px; border-left: 4px solid #1a4d2e; padding-left: 10px;">Top Donateurs (Volume)</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Rang</th>
+                    <th>Identifiant Donateur</th>
+                    <th>Fréquence</th>
+                    <th style="text-align: right;">Quantité Cumulée</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for donor in topQuantity %}
+                <tr>
+                    <td><span class="rank-circle">{{ loop.index }}</span></td>
+                    <td><strong>{{ donor.telephone }}</strong></td>
+                    <td>{{ donor.nombreOffres }} dons effectués</td>
+                    <td style="text-align: right; font-weight: bold; color: #1a4d2e;">{{ donor.totalQuantite }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="footer">
+        Document confidentiel généré par le système FIRMETNA Admin &bull; 2026
+    </div>
+</body>
+</html>

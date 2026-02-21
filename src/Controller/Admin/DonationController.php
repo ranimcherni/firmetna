@@ -15,6 +15,10 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\String\Slugger\SluggerInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use App\Service\TwilioService;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 
 #[Route('/admin')]
 class DonationController extends AbstractController
@@ -176,4 +180,70 @@ class DonationController extends AbstractController
         $photoFile->move($uploadDir, $newFilename);
         $offre->setPhoto('/uploads/dons/' . $newFilename);
     }
+#[Route('/donations/stats', name: 'app_admin_donations_stats')]
+public function statistics(OffreRepository $offreRepo, DemandeRepository $demandeRepo): Response
+{
+    return $this->render('admin/donation/stats.html.twig', [
+        'totalOffres' => $offreRepo->count([]),
+        'totalDemandes' => $demandeRepo->count([]),
+        'topFrequency' => $offreRepo->findTopDonorsByFrequency(5),
+        'topQuantity' => $offreRepo->findTopDonorsByQuantity(5),
+        'statsCategory' => $offreRepo->getStatsByCategory(),
+    ]);
+}
+
+
+
+#[Route('/donations/stats/pdf', name: 'app_admin_donations_stats_pdf')]
+public function downloadPdf(OffreRepository $offreRepo): Response
+{
+    // 1. Récupération des données identiques aux stats
+    $topQuantity = $offreRepo->findTopDonorsByQuantity(5);
+    $statsCategory = $offreRepo->getStatsByCategory();
+
+    // 2. Configuration de Dompdf
+    $pdfOptions = new Options();
+    $pdfOptions->set('defaultFont', 'Arial');
+    $pdfOptions->set('isRemoteEnabled', true); // Important pour charger les images/styles
+
+    $dompdf = new Dompdf($pdfOptions);
+
+    // 3. Génération du HTML via Twig
+    $html = $this->renderView('admin/donation/stats_pdf.html.twig', [
+        'topQuantity' => $topQuantity,
+        'statsCategory' => $statsCategory,
+        'date' => new \DateTime(),
+    ]);
+
+    $dompdf->loadHtml($html);
+    $dompdf->setPaper('A4', 'portrait');
+    $dompdf->render();
+
+    // 4. Envoi du fichier au navigateur
+    return new Response($dompdf->output(), 200, [
+        'Content-Type' => 'application/pdf',
+        'Content-Disposition' => 'attachment; filename="statistiques-firmetna.pdf"'
+    ]);
+}
+#[Route('/send-sms', name: 'admin_send_sms', methods: ['POST'])]
+public function sendSms(
+    Request $request,
+    TwilioService $twilio
+): JsonResponse {
+
+    $data = json_decode($request->getContent(), true);
+
+    if (!$data || empty($data['phone']) || empty($data['message'])) {
+        return new JsonResponse(['error' => 'Données invalides'], 400);
+    }
+
+    try {
+        $twilio->sendSms($data['phone'], $data['message']);
+        return new JsonResponse(['success' => 'SMS envoyé avec succès !']);
+    } catch (\Exception $e) {
+        return new JsonResponse([
+            'error' => 'Erreur Twilio: ' . $e->getMessage()
+        ], 500);
+    }
+}
 }
