@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Bon de Donation #{{ demande.id }}</title>
+    <style>
+        @page { margin: 0cm; }
+        body { font-family: 'Helvetica', sans-serif; margin: 0; padding: 0; color: #333; }
+        .container { padding: 40px; }
+        .header { background-color: #1a4d2e; color: white; padding: 30px; text-align: center; }
+        .header h1 { margin: 0; font-size: 28px; text-transform: uppercase; letter-spacing: 2px; }
+        .header p { margin: 5px 0 0; opacity: 0.8; }
+        
+        .content { margin-top: 40px; }
+        .info-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+        .info-table td { padding: 12px; border-bottom: 1px solid #eee; }
+        .label { font-weight: bold; color: #1a4d2e; width: 35%; }
+        
+        .box { background-color: #f8fdf9; border: 1px solid #e1efe5; padding: 25px; border-radius: 15px; margin-top: 20px; }
+        .box h3 { color: #1a4d2e; margin-top: 0; border-bottom: 2px solid #1a4d2e; display: inline-block; padding-bottom: 5px; }
+        
+        .contact-zone { text-align: center; margin-top: 40px; border: 2px dashed #1a4d2e; padding: 20px; border-radius: 10px; }
+        .phone { font-size: 24px; font-weight: bold; color: #1a4d2e; }
+        
+        .footer { position: absolute; bottom: 30px; width: 100%; text-align: center; font-size: 11px; color: #777; border-top: 1px solid #eee; padding-top: 20px; }
+        .stamp { position: absolute; top: 150px; right: 50px; border: 3px solid #c62828; color: #c62828; padding: 10px; transform: rotate(15deg); font-weight: bold; font-size: 14px; opacity: 0.7; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>BON DE DONATION</h1>
+        <p>Généré par Firmetna - Entraide Agricole</p>
+    </div>
+
+    <div class="stamp">RÉSERVÉ / VALIDÉ</div>
+
+    <div class="container">
+        <div class="content">
+            <table class="info-table">
+                <tr>
+                    <td class="label">Référence du Bon :</td>
+                    <td><strong>#DON-{{ demande.id }}-2026</strong></td>
+                </tr>
+                <tr>
+                    <td class="label">Bénéficiaire :</td>
+                    <td>{{ demande.demandeur.nom|upper }} {{ demande.demandeur.prenom }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Date d'émission :</td>
+                    <td>{{ "now"|date('d/m/Y à H:i') }}</td>
+                </tr>
+            </table>
+
+            <div class="box">
+                <h3>Détails du Don</h3>
+                <p><strong>Catégorie :</strong> {{ demande.offre.categorie }}</p>
+                <p><strong>Quantité attribuée :</strong> {{ demande.quantiteDemandee }} unité(s)</p>
+                <p><strong>Description :</strong> {{ demande.offre.description }}</p>
+            </div>
+
+            <div class="contact-zone">
+                <p style="margin-bottom: 10px;">Veuillez contacter le donateur pour retirer votre don :</p>
+                <div class="phone">📞 {{ demande.offre.telephone }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Ce bon est strictement personnel et justifie votre réservation sur la plateforme.<br>
+        Firmetna &copy; 2026 - Vers une agriculture plus solidaire.</p>
+    </div>
+</body>
+</html>

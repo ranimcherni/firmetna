@@ -30,9 +30,15 @@ class Demande
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     private ?\DateTimeImmutable $createdAt = null;
 
-    #[ORM\Column(length: 30, options: ['default' => 'en_attente'])]
+    #[ORM\Column(length: 30, options: ['default' => self::STATUT_EN_ATTENTE])]
     private string $statut = self::STATUT_EN_ATTENTE;
 
+    #[ORM\Column]
+    private ?int $quantiteDemandee = null;
+
+    // -------------------
+    // Lifecycle Callback
+    // -------------------
     #[ORM\PrePersist]
     public function setCreatedAtValue(): void
     {
@@ -41,6 +47,9 @@ class Demande
         }
     }
 
+    // -------------------
+    // Getters & Setters
+    // -------------------
     public function getId(): ?int
     {
         return $this->id;
@@ -87,6 +96,17 @@ class Demande
     public function setStatut(string $statut): static
     {
         $this->statut = $statut;
+        return $this;
+    }
+
+    public function getQuantiteDemandee(): ?int
+    {
+        return $this->quantiteDemandee;
+    }
+
+    public function setQuantiteDemandee(?int $quantiteDemandee): static
+    {
+        $this->quantiteDemandee = $quantiteDemandee;
         return $this;
     }
 }

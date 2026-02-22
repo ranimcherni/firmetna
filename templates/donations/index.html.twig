@@ -4,264 +4,364 @@
 
 {% block body %}
 <style>
+    /* Design Global */
     .dons-hero {
         background: linear-gradient(rgba(26, 77, 46, 0.85), rgba(26, 77, 46, 0.85)), url('{{ asset('images/vert.png') }}');
-        background-size: cover;
-        background-position: center;
-        color: white;
-        padding: 4rem 0;
-        border-radius: 0 0 2rem 2rem;
-        margin-bottom: 2rem;
+        background-size: cover; background-position: center; color: white; padding: 4rem 0; border-radius: 0 0 2rem 2rem; margin-bottom: 2rem;
     }
-    .form-card {
-        background: white;
-        border-radius: 1.25rem;
-        box-shadow: 0 10px 40px rgba(26, 77, 46, 0.08);
-        border: 1px solid rgba(26, 77, 46, 0.1);
-        overflow: hidden;
-    }
-    .btn-publier {
-        background: #1a4d2e;
-        color: white !important;
-        border: none;
-        padding: 0.85rem 2.5rem;
-        font-weight: 700;
-        border-radius: 50px;
-        font-size: 1.05rem;
-        transition: all 0.3s;
-    }
-    .btn-publier:hover {
-        background: #23613a;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(26, 77, 46, 0.35);
-        color: white !important;
-    }
-    .section-title {
-        color: #1a4d2e;
-        font-weight: 800;
-        margin-bottom: 1.5rem;
-        padding-bottom: 0.5rem;
-        border-bottom: 3px solid #1a4d2e;
-        display: inline-block;
-    }
-    .produit-card {
-        background: white;
-        border-radius: 1rem;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-        border: 1px solid #e8f5e9;
-        overflow: hidden;
-        transition: all 0.3s;
-        height: 100%;
-    }
-    .produit-card:hover {
-        box-shadow: 0 12px 30px rgba(26, 77, 46, 0.12);
-        transform: translateY(-4px);
-    }
-    .produit-card .img-wrap {
-        height: 180px;
-        background: linear-gradient(145deg, #e8f5e9, #c8e6c9);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
-    }
-    .produit-card .img-wrap img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
+
+    /* Style des erreurs */
+    .error-msg { color: #dc3545; font-size: 0.8rem; margin-top: 4px; display: none; font-weight: 500; }
+    .is-invalid { border-color: #dc3545 !important; box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.1) !important; }
+
+    /* Cartes */
+    .form-card { background: white; border-radius: 1.25rem; box-shadow: 0 10px 40px rgba(26,77,46,0.08); border: 1px solid rgba(26,77,46,0.1); position: sticky; top: 20px; }
+    .produit-card { background: white; border-radius: 1rem; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #e8f5e9; overflow: hidden; transition: all 0.3s; height: 100%; }
+    .produit-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(26,77,46,0.12); }
+    .img-wrap { height: 180px; background: #f1f8f1; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    .img-wrap img { width: 100%; height: 100%; object-fit: cover; }
+    
+    .btn-publier, .btn-demander { background: #1a4d2e; color: white !important; border: none; padding: 0.8rem; font-weight: 700; border-radius: 50px; transition: all 0.3s; }
+    .btn-publier:hover { background: #23613a; }
     .badge-dispo { background: #2e7d32; color: white; }
     .badge-non-dispo { background: #c62828; color: white; }
-    .btn-demander {
-        background: #1a4d2e;
-        color: white !important;
-        border: none;
-        padding: 0.5rem 1.25rem;
-        font-weight: 600;
-        border-radius: 50px;
-        font-size: 0.9rem;
-        transition: all 0.3s;
-    }
-    .btn-demander:hover {
-        background: #23613a;
-        color: white !important;
-        transform: scale(1.03);
-    }
-    .btn-demander:disabled, .btn-demander.disabled {
-        background: #9e9e9e;
-        cursor: not-allowed;
-        transform: none;
-    }
-    .form-control:focus, .form-select:focus {
-        border-color: #1a4d2e;
-        box-shadow: 0 0 0 0.2rem rgba(26, 77, 46, 0.2);
-    }
-    .produit-dispo-card-dons {
-        border-radius: 1rem;
-        border: 1px solid #e8f5e9;
-        transition: all 0.3s;
-    }
-    .produit-dispo-card-dons:hover {
-        box-shadow: 0 12px 30px rgba(26, 77, 46, 0.12) !important;
-        transform: translateY(-4px);
-    }
 </style>
 
-<div class="dons-hero">
-    <div class="container text-center">
+<div class="dons-hero text-center">
+    <div class="container">
         <h1 class="display-5 fw-bold mb-2"><i class="fas fa-hand-holding-heart me-2"></i>Dons & Aide</h1>
-        <p class="lead mb-0 opacity-90">Publiez une offre ou demandez un produit pour soutenir les agriculteurs.</p>
+        <p class="lead mb-0">Partagez vos ressources avec la communauté agricole.</p>
     </div>
 </div>
 
 <div class="container pb-5">
-    <div class="row g-4">
-        {# ----- Gauche : Offres des donateurs ----- #}
-        <div class="col-lg-8 order-2 order-lg-1">
-            <h2 class="section-title mt-0" id="produits-liste"><i class="fas fa-list me-2"></i>Offres des donateurs</h2>
-            <p class="text-muted mb-4">Offres publiées par les donateurs. Cliquez sur « Demander » si vous êtes un agriculteur dans le besoin.</p>
+    {# Affichage des messages Flash #}
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ label }} alert-dismissible fade show rounded-pill shadow-sm mb-4">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endfor %}
 
-            {% if offres|length == 0 %}
-                <div class="alert alert-light border text-center py-5">
-                    <i class="fas fa-info-circle fa-3x text-muted mb-3"></i>
-                    <p class="mb-0 text-muted">Aucune offre pour le moment. Soyez le premier à publier une offre de don.</p>
-                </div>
-            {% else %}
-                <div class="row g-4">
-                    {% for offre in offres %}
-                        <div class="col-sm-6 col-xl-4">
-                            <div class="produit-card card h-100 border-0">
-                                <div class="img-wrap">
-                                    {% if offre.photo %}
-                                        <img src="{{ asset(offre.photo) }}" alt="{{ offre.categorie }}">
-                                    {% else %}
-                                        <i class="fas fa-seedling fa-4x text-success opacity-50"></i>
+    <div class="row g-4">
+        {# ----- SECTION GAUCHE : LISTE DES OFFRES ----- #}
+        <div class="col-lg-8 order-2 order-lg-1">
+            <h2 class="h4 fw-bold text-success mb-4 border-bottom pb-2">Offres disponibles</h2>
+            
+            {# ----- BARRE DE RECHERCHE ET FILTRES ----- #}
+            <div class="card border-0 shadow-sm mb-4 p-3 rounded-4 bg-light">
+                <form action="{{ path('app_donations') }}" method="GET" class="row g-2 align-items-center">
+                    <div class="col-md-6">
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0 rounded-start-pill">
+                                <i class="fas fa-search text-muted"></i>
+                            </span>
+                            <input type="text" name="q" value="{{ q }}" 
+                                   class="form-control border-start-0 rounded-end-pill" 
+                                   placeholder="Rechercher une catégorie ou un mot-clé...">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <select name="sort" class="form-select rounded-pill" onchange="this.form.submit()">
+                            <option value="recent" {{ sort == 'recent' ? 'selected' : '' }}>Plus récent</option>
+                            <option value="oldest" {{ sort == 'oldest' ? 'selected' : '' }}>Plus ancien</option>
+                            <option value="qty_desc" {{ sort == 'qty_desc' ? 'selected' : '' }}>Quantité (Décroissant)</option>
+                            <option value="qty_asc" {{ sort == 'qty_asc' ? 'selected' : '' }}>Quantité (Croissant)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-success w-100 rounded-pill">Filtrer</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="row g-4">
+                {% for offre in offres %}
+                    <div class="col-md-6 col-xl-4">
+                        <div class="produit-card card border-0">
+                            <div class="img-wrap">
+                                {% if offre.photo %}
+                                    <img src="{{ asset(offre.photo) }}" alt="photo">
+                                {% else %}
+                                    <i class="fas fa-seedling fa-4x text-success opacity-25"></i>
+                                {% endif %}
+                            </div>
+                            <div class="card-body">
+                                <span class="badge rounded-pill mb-2 {{ offre.disponible ? 'badge-dispo' : 'badge-non-dispo' }}">
+                                    {{ offre.disponible ? 'Disponible' : 'Indisponible' }}
+                                </span>
+                                <h5 class="card-title fw-bold mb-1">{{ offre.categorie }}</h5>
+                                <p class="text-muted small mb-2"><i class="fas fa-layer-group me-1"></i>Stock: <span class="fw-bold">{{ offre.quantite }}Kg</span></p>
+                                <p class="card-text small text-secondary mb-3">{{ offre.description|u.truncate(55, '...') }}</p>
+                                
+                                <div class="d-grid gap-2">
+                                    {% if offre.disponible %}
+                                        <button class="btn btn-demander demander-button" 
+                                                data-bs-toggle="modal" data-bs-target="#demandeModal"
+                                                data-id="{{ offre.id }}" data-categorie="{{ offre.categorie }}"
+                                                data-max="{{ offre.quantite }}" data-description="{{ offre.description }}">
+                                            <i class="fas fa-cart-plus me-1"></i>Demander
+                                        </button>
                                     {% endif %}
-                                </div>
-                                <div class="card-body">
-                                    <span class="badge rounded-pill mb-2 {{ offre.disponible ? 'badge-dispo' : 'badge-non-dispo' }}">
-                                        {{ offre.disponible ? 'Disponible' : 'Non disponible' }}
-                                    </span>
-                                    <h5 class="card-title fw-bold text-dark mb-1">{{ offre.categorie }}</h5>
-                                    {% if offre.quantite %}
-                                        <p class="text-muted small mb-2">{{ offre.quantite }}</p>
-                                    {% endif %}
-                                    <p class="card-text small text-secondary mb-3 line-clamp-2">{{ offre.description|u.truncate(80) }}</p>
-                                    {% if offre.disponible and app.user %}
-                                        {% if demandesByOffre[offre.id] ?? false %}
-                                            <button type="button" class="btn btn-demander disabled w-100" disabled>
-                                                <i class="fas fa-check me-1"></i>Déjà demandé
-                                            </button>
-                                        {% else %}
-                                            <form action="{{ path('app_donations_demander', { id: offre.id }) }}" method="post" class="d-inline">
-                                                <input type="hidden" name="_token" value="{{ csrf_token('demander_' ~ offre.id) }}">
-                                                <button type="submit" class="btn btn-demander w-100">
-                                                    <i class="fas fa-hand-holding-heart me-1"></i>Demander
-                                                </button>
-                                            </form>
-                                        {% endif %}
-                                    {% elseif offre.disponible and not app.user %}
-                                        <a href="{{ path('app_login') }}" class="btn btn-demander w-100">
-                                            <i class="fas fa-sign-in-alt me-1"></i>Se connecter pour demander
-                                        </a>
-                                    {% endif %}
+
+                                    <button class="btn btn-outline-warning rounded-pill edit-button btn-sm" 
+                                            data-bs-toggle="modal" data-bs-target="#editModal"
+                                            data-id="{{ offre.id }}" data-categorie="{{ offre.categorie }}"
+                                            data-description="{{ offre.description }}" data-quantite="{{ offre.quantite }}"
+                                            data-telephone="{{ offre.telephone }}">
+                                        <i class="fas fa-edit"></i> Modifier l'offre
+                                    </button>
                                 </div>
                             </div>
                         </div>
-                    {% endfor %}
-                </div>
-            {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
         </div>
 
-        {# ----- Droite : Formulaire Publier une offre ----- #}
+        {# ----- SECTION DROITE : FORMULAIRE D'AJOUT ----- #}
         <div class="col-lg-4 order-1 order-lg-2">
             <div class="form-card p-4">
-                <h2 class="h5 fw-bold text-dark mb-4">
-                    <i class="fas fa-gift text-success me-2"></i>Publier une offre de don
-                </h2>
-                {{ form_start(form, { 'attr': { 'class': 'row g-3' } }) }}
-                    <div class="col-12">
-                        {{ form_row(form.nom, { 'label_attr': { 'class': 'fw-semibold' }, 'attr': { 'class': 'form-control' } }) }}
+                <h2 class="h5 fw-bold text-dark mb-4"><i class="fas fa-plus-circle text-success me-2"></i>Publier un don</h2>
+                {{ form_start(form, { 'attr': {'id': 'addForm', 'novalidate': 'novalidate'} }) }}
+                    <div class="mb-3">
+                        <label class="fw-semibold small">Téléphone</label>
+                        {{ form_widget(form.telephone, {'attr': {'class': 'form-control rounded-pill validate-tel'}}) }}
+                        <div class="error-msg">Doit contenir exactement 8 chiffres.</div>
                     </div>
-                    <div class="col-12">
-                        {{ form_row(form.telephone, { 'label_attr': { 'class': 'fw-semibold' }, 'attr': { 'class': 'form-control' } }) }}
+                    <div class="mb-3">
+                        <label class="fw-semibold small">Catégorie</label>
+                        {{ form_widget(form.categorie, {'attr': {'class': 'form-select rounded-pill validate-req'}}) }}
+                        <div class="error-msg">Ce champ est requis.</div>
                     </div>
-                    <div class="col-12">
-                        {{ form_row(form.categorie, { 'label_attr': { 'class': 'fw-semibold' }, 'attr': { 'class': 'form-select' } }) }}
+                    <div class="mb-3">
+                        <label class="fw-semibold small">Description</label>
+                        {{ form_widget(form.description, {'attr': {'class': 'form-control validate-req', 'rows': '3'}}) }}
+                        <div class="error-msg">La description est requise.</div>
                     </div>
-                    <div class="col-12">
-                        {{ form_row(form.description, { 'label_attr': { 'class': 'fw-semibold' }, 'attr': { 'class': 'form-control', 'rows': '3' } }) }}
+                    <div class="mb-3">
+                        <label class="fw-semibold small">Quantité totale</label>
+                        {{ form_widget(form.quantite, {'attr': {'class': 'form-control rounded-pill validate-num'}}) }}
+                        <div class="error-msg">Entrez un nombre valide.</div>
                     </div>
-                    <div class="col-12">
-                        {{ form_row(form.quantite, { 'label_attr': { 'class': 'fw-semibold' }, 'attr': { 'class': 'form-control' } }) }}
+                    <div class="mb-3">
+                        <label class="fw-semibold small">Image (Optionnel)</label>
+                        {{ form_widget(form.photoFile, {'attr': {'class': 'form-control rounded-pill'}}) }}
                     </div>
-                    <div class="col-12">
-                        {{ form_row(form.photoFile, { 'label_attr': { 'class': 'fw-semibold' } }) }}
-                    </div>
-                    <div class="col-12 pt-2">
-                        <button type="submit" class="btn btn-publier w-100">
-                            <i class="fas fa-check-circle me-2"></i>PUBLIER L'OFFRE
-                        </button>
-                    </div>
+                    <button type="submit" class="btn btn-publier w-100 mt-2">PUBLIER MAINTENANT</button>
                 {{ form_end(form) }}
             </div>
         </div>
     </div>
+</div>
 
-    <hr class="my-5 opacity-10">
-
-    {# ----- Bas : Produits disponibles ----- #}
-    <h2 class="section-title"><i class="fas fa-box-open me-2"></i>Produits disponibles</h2>
-    <p class="text-muted mb-4">Exemples de produits en stock. Cliquez sur « Demander » pour faire une demande.</p>
-    <div class="row g-4">
-        <div class="col-sm-6 col-lg-3">
-            <div class="produit-dispo-card-dons card h-100 border-0 shadow-sm">
-                <div class="card-icon-dons rounded-circle mx-auto mt-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px; background: linear-gradient(135deg, #22c55e, #16a34a);">
-                    <i class="fas fa-carrot fa-2x text-white"></i>
-                </div>
-                <div class="card-body text-center">
-                    <h5 class="card-title fw-bold text-dark mb-2">Légumes</h5>
-                    <p class="text-muted small mb-3">Disponible 15 kg tomates maintenant</p>
-                    <a href="{{ path('app_donations_produit', { type: 'legumes' }) }}" class="btn btn-demander w-100"><i class="fas fa-hand-holding-heart me-1"></i> Demander</a>
-                </div>
+{# ----- MODAL 1 : MODIFICATION ----- #}
+<div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 1.5rem;">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold text-success">Modifier mon offre</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-        </div>
-        <div class="col-sm-6 col-lg-3">
-            <div class="produit-dispo-card-dons card h-100 border-0 shadow-sm">
-                <div class="card-icon-dons rounded-circle mx-auto mt-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px; background: linear-gradient(135deg, #eab308, #ca8a04);">
-                    <i class="fas fa-apple-alt fa-2x text-white"></i>
+            <form id="editForm" method="POST" enctype="multipart/form-data" novalidate>
+                <div class="modal-body pt-0">
+                    <div class="mb-3">
+                        <label class="small fw-bold">Catégorie</label>
+                        <select name="offre[categorie]" id="edit-categorie" class="form-select rounded-pill validate-req">
+                            <option value="Légumes">Légumes</option>
+                            <option value="Fruits">Fruits</option>
+                            <option value="Engrais">Engrais</option>
+                            <option value="Semences">Semences</option>
+                        </select>
+                        <div class="error-msg">Requis.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="small fw-bold">Description</label>
+                        <textarea name="offre[description]" id="edit-description" class="form-control validate-req" rows="3"></textarea>
+                        <div class="error-msg">La description est requise.</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="small fw-bold">Quantité</label>
+                            <input type="text" name="offre[quantite]" id="edit-quantite" class="form-control rounded-pill validate-num">
+                            <div class="error-msg">Invalide.</div>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="small fw-bold">Téléphone</label>
+                            <input type="text" name="offre[telephone]" id="edit-telephone" class="form-control rounded-pill validate-tel">
+                            <div class="error-msg">8 chiffres.</div>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body text-center">
-                    <h5 class="card-title fw-bold text-dark mb-2">Fruits</h5>
-                    <p class="text-muted small mb-3">Disponible 10 kilos pommes maintenant</p>
-                    <a href="{{ path('app_donations_produit', { type: 'fruits' }) }}" class="btn btn-demander w-100"><i class="fas fa-hand-holding-heart me-1"></i> Demander</a>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-light rounded-pill" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-success rounded-pill px-4">Sauvegarder</button>
                 </div>
-            </div>
-        </div>
-        <div class="col-sm-6 col-lg-3">
-            <div class="produit-dispo-card-dons card h-100 border-0 shadow-sm">
-                <div class="card-icon-dons rounded-circle mx-auto mt-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px; background: linear-gradient(135deg, #1a4d2e, #23613a);">
-                    <i class="fas fa-vial fa-2x text-white"></i>
-                </div>
-                <div class="card-body text-center">
-                    <h5 class="card-title fw-bold text-dark mb-2">Engrais</h5>
-                    <p class="text-muted small mb-3">Disponible 5 sacs engrais organique maintenant</p>
-                    <a href="{{ path('app_donations_produit', { type: 'engrais' }) }}" class="btn btn-demander w-100"><i class="fas fa-hand-holding-heart me-1"></i> Demander</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-6 col-lg-3">
-            <div class="produit-dispo-card-dons card h-100 border-0 shadow-sm">
-                <div class="card-icon-dons rounded-circle mx-auto mt-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px; background: linear-gradient(135deg, #0d9488, #0f766e);">
-                    <i class="fas fa-seedling fa-2x text-white"></i>
-                </div>
-                <div class="card-body text-center">
-                    <h5 class="card-title fw-bold text-dark mb-2">Semences</h5>
-                    <p class="text-muted small mb-3">Disponible semences blé et orge maintenant</p>
-                    <a href="{{ path('app_donations_produit', { type: 'semences' }) }}" class="btn btn-demander w-100"><i class="fas fa-hand-holding-heart me-1"></i> Demander</a>
-                </div>
-            </div>
+            </form>
         </div>
     </div>
 </div>
+
+{# ----- MODAL 2 : DEMANDE ----- #}
+<div class="modal fade" id="demandeModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 1.5rem;">
+            <div class="modal-header bg-success text-white border-0" style="border-radius: 1.5rem 1.5rem 0 0;">
+                <h5 class="modal-title fw-bold"><i class="fas fa-check-circle me-2"></i>Confirmer la demande</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="demandeForm" method="POST" novalidate>
+                <div class="modal-body">
+                    <p class="mb-1 small">Offre : <strong id="demand-cat" class="text-success"></strong></p>
+                    <div class="p-2 bg-light rounded mb-3 small" id="demand-desc"></div>
+                    
+                    <div class="mb-3">
+                        <label class="fw-bold small">Quantité demandée (Stock max: <span id="demand-stock-max"></span>)</label>
+                        <input type="number" name="quantite_demandee" id="demand-qty-input" class="form-control rounded-pill">
+                        <div class="error-msg" id="error-demand-qty">La quantité dépasse le stock disponible !</div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-light rounded-pill" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-success rounded-pill px-4">Envoyer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{# ----- CATEGORIES RAPIDES ----- #}
+<hr class="my-5 opacity-10">
+<h2 class="section-title"><i class="fas fa-th-large me-2"></i>Besoin rapide ?</h2>
+<div class="row g-4 mb-5">
+    {% set categories = [
+        {'name': 'Légumes', 'icon': 'fa-carrot', 'color': 'linear-gradient(135deg, #22c55e, #16a34a)', 'type': 'legumes'},
+        {'name': 'Fruits', 'icon': 'fa-apple-alt', 'color': 'linear-gradient(135deg, #eab308, #ca8a04)', 'type': 'fruits'},
+        {'name': 'Engrais', 'icon': 'fa-vial', 'color': 'linear-gradient(135deg, #1a4d2e, #23613a)', 'type': 'engrais'},
+        {'name': 'Semences', 'icon': 'fa-seedling', 'color': 'linear-gradient(135deg, #0d9488, #0f766e)', 'type': 'semences'}
+    ] %}
+
+    {% for cat in categories %}
+        <div class="col-sm-6 col-lg-3">
+            <div class="card h-100 border-0 shadow-sm text-center p-3 rounded-4">
+                <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" 
+                     style="width: 60px; height: 60px; background: {{ cat.color }}; color: white;">
+                    <i class="fas {{ cat.icon }} fa-2x"></i>
+                </div>
+                <h5 class="fw-bold">{{ cat.name }}</h5>
+                <a href="{{ path('app_donations_produit', { type: cat.type }) }}" 
+                   class="btn btn-outline-dark btn-sm rounded-pill mt-2">Voir tout</a>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // --- 1. FONCTIONS DE VALIDATION ---
+    const validateField = (field) => {
+        let isValid = true;
+        const value = field.value.trim();
+        const error = field.nextElementSibling;
+
+        if (field.classList.contains('validate-req') && value === "") isValid = false;
+        if (field.classList.contains('validate-num') && (isNaN(value) || value === "" || parseInt(value) < 0)) isValid = false;
+        if (field.classList.contains('validate-tel') && !/^\d{8}$/.test(value)) isValid = false;
+
+        if (!isValid) {
+            field.classList.add('is-invalid');
+            if (error && error.classList.contains('error-msg')) error.style.display = 'block';
+        } else {
+            field.classList.remove('is-invalid');
+            if (error && error.classList.contains('error-msg')) error.style.display = 'none';
+        }
+        return isValid;
+    };
+
+    // --- 2. GESTION DES INPUTS ---
+    document.querySelectorAll('input, textarea, select').forEach(el => {
+        el.addEventListener('input', function() {
+            this.classList.remove('is-invalid');
+            const error = this.nextElementSibling;
+            if (error && error.classList.contains('error-msg')) error.style.display = 'none';
+        });
+    });
+
+    // --- 3. SOUMISSION DES FORMULAIRES ---
+    const validateForm = (formId) => {
+        const form = document.getElementById(formId);
+        if(!form) return;
+        form.addEventListener('submit', function(e) {
+            const fields = this.querySelectorAll('.validate-req, .validate-num, .validate-tel');
+            let isFormValid = true;
+            fields.forEach(f => { if(!validateField(f)) isFormValid = false; });
+            if (!isFormValid) e.preventDefault();
+        });
+    };
+    validateForm('addForm');
+    validateForm('editForm');
+
+    // --- 4. LOGIQUE MODAL MODIFICATION ---
+    document.querySelectorAll('.edit-button').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const f = document.getElementById('editForm');
+            f.action = "/donations/edit/" + this.dataset.id;
+            document.getElementById('edit-categorie').value = this.dataset.categorie;
+            document.getElementById('edit-description').value = this.dataset.description;
+            document.getElementById('edit-quantite').value = this.dataset.quantite;
+            document.getElementById('edit-telephone').value = this.dataset.telephone;
+        });
+    });
+
+    // --- 5. LOGIQUE MODAL DEMANDE ---
+    document.querySelectorAll('.demander-button').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const f = document.getElementById('demandeForm');
+            const max = parseInt(this.dataset.max);
+            f.action = "/donations/demander/" + this.dataset.id;
+            document.getElementById('demand-cat').textContent = this.dataset.categorie;
+            document.getElementById('demand-desc').textContent = this.dataset.description;
+            document.getElementById('demand-stock-max').textContent = max;
+            
+            const input = document.getElementById('demand-qty-input');
+            input.value = 1;
+            input.classList.remove('is-invalid');
+            document.getElementById('error-demand-qty').style.display = 'none';
+        });
+    });
+
+    document.getElementById('demand-qty-input').addEventListener('input', function() {
+        const max = parseInt(document.getElementById('demand-stock-max').textContent);
+        const val = parseInt(this.value);
+        const error = document.getElementById('error-demand-qty');
+
+        if (val > max || val <= 0 || isNaN(val)) {
+            this.classList.add('is-invalid');
+            error.style.display = 'block';
+            error.textContent = val <= 0 ? "Minimum 1 requis" : "Stock insuffisant (Max: " + max + ")";
+        } else {
+            this.classList.remove('is-invalid');
+            error.style.display = 'none';
+        }
+    });
+
+    document.getElementById('demandeForm').addEventListener('submit', function(e) {
+        const input = document.getElementById('demand-qty-input');
+        if (input.classList.contains('is-invalid') || input.value === "") e.preventDefault();
+    });
+
+    // --- 6. TÉLÉCHARGEMENT AUTOMATIQUE DU PDF ---
+    {% if app.session.get('download_pdf') %}
+        const pdfId = "{{ app.session.get('download_pdf') }}";
+        // On redirige vers la route de téléchargement
+        window.location.href = "{{ path('app_donations_pdf_download', {'id': 'ID_TMP'}) }}".replace('ID_TMP', pdfId);
+        
+        {# On vide la variable de session côté client pour éviter les boucles au refresh #}
+        {{ app.session.remove('download_pdf') }}
+    {% endif %}
+});
+</script>
 {% endblock %}
