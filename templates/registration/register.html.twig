@@ -524,54 +524,55 @@
             }
 
             detectionsActive = true;
-            iaStatus.textContent = "IA EN SCAN (ULTRA-SENSIBLE)...";
+            iaStatus.textContent = "IA ACTIVE - ANALYSE...";
             iaStatus.className = "text-primary fw-bold mb-2 text-center";
             
             overlay.style.zIndex = "100";
+            overlay.style.display = "block";
             const ctx = overlay.getContext('2d');
 
             recognitionInterval = setInterval(async () => {
                 if (!detectionsActive || video.paused || video.ended) return;
 
                 try {
-                    // HEARTBEAT: Blinks pink to prove scanning is happening
+                    // BLINKING HEARTBEAT (Always Visible)
                     ctx.clearRect(0, 0, overlay.width, overlay.height);
                     if (Math.floor(Date.now() / 400) % 2 === 0) {
                         ctx.fillStyle = '#FF007F'; 
-                        ctx.beginPath(); ctx.arc(15, 15, 6, 0, 2*Math.PI); ctx.fill();
+                        ctx.beginPath(); ctx.arc(20, 20, 6, 0, 2*Math.PI); ctx.fill();
                     }
 
-                    // SSD ULTRA-ROBUST: Detect even in very low light (0.05)
-                    const detection = await faceapi.detectSingleFace(video, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.05 }))
+                    // SSD DETECTION - Use standard options
+                    const result = await faceapi.detectSingleFace(video, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.1 }))
                         .withFaceLandmarks();
 
-                    if (detection) {
-                        const videoRect = video.getBoundingClientRect();
-                        if (overlay.width !== videoRect.width) {
-                            overlay.width = videoRect.width;
-                            overlay.height = videoRect.height;
-                            faceapi.matchDimensions(overlay, { width: videoRect.width, height: videoRect.height });
+                    if (result && result.detection) {
+                        const displaySize = { width: video.offsetWidth, height: video.offsetHeight };
+                        if (overlay.width !== displaySize.width) {
+                            overlay.width = displaySize.width;
+                            overlay.height = displaySize.height;
+                            faceapi.matchDimensions(overlay, displaySize);
                         }
                         
-                        const resizedResult = faceapi.resizeResults(detection, { width: videoRect.width, height: videoRect.height });
+                        const resizedResult = faceapi.resizeResults(result, displaySize);
                         
-                        // LARGE NEON PINK DOTS
+                        // DRAW LANDMARKS CORRECTLY
                         const points = resizedResult.landmarks.positions;
                         ctx.fillStyle = '#FF007F'; 
                         points.forEach(p => {
                             ctx.beginPath();
-                            ctx.arc(p.x, p.y, 7, 0, 2 * Math.PI); 
+                            ctx.arc(p.x, p.y, 6, 0, 2 * Math.PI); 
                             ctx.fill();
                         });
 
-                        const score = Math.round(detection.score * 100);
+                        const score = Math.round(result.detection.score * 100);
                         iaStatus.textContent = `VISAGE TROUVÉ (${score}%)`;
                         iaStatus.className = "text-success fw-bold mb-2 text-center";
                         btnCaptureFace.disabled = false;
                         btnCaptureFace.classList.add('btn-pulse', 'btn-success');
                         btnCaptureFace.classList.remove('btn-outline-success');
                     } else {
-                        iaStatus.textContent = "RECH. VISAGE (Points Roses)";
+                        iaStatus.textContent = "CHARGEMENT DES POINTS ROSES...";
                         iaStatus.className = "text-muted small mb-2 text-center";
                         btnCaptureFace.disabled = true;
                         btnCaptureFace.classList.remove('btn-pulse', 'btn-success');
@@ -580,7 +581,7 @@
                 } catch (err) {
                     console.error("AI Loop Error:", err);
                 }
-            }, 100); // Faster scan
+            }, 150); 
         }
 
         switchFace.addEventListener('change', async (e) => {

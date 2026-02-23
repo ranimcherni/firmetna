@@ -424,53 +424,53 @@
             if (loginMode !== 'facial' || verificationInProgress || video.paused) return;
             
             try {
-                // HEARTBEAT: Confirms scan is active
+                // HEARTBEAT
                 ctx.clearRect(0, 0, overlay.width, overlay.height);
                 if (Math.floor(Date.now() / 400) % 2 === 0) {
                     ctx.fillStyle = '#FF007F';
-                    ctx.beginPath(); ctx.arc(15, 15, 6, 0, 2*Math.PI); ctx.fill();
+                    ctx.beginPath(); ctx.arc(20, 20, 6, 0, 2*Math.PI); ctx.fill();
                 }
 
-                // ULTRA-SENSITIVE SSD
-                const detection = await faceapi.detectSingleFace(video, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.15 }))
+                // DETECTION
+                const result = await faceapi.detectSingleFace(video, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.1 }))
                     .withFaceLandmarks();
 
-                if (detection) {
-                    const videoRect = video.getBoundingClientRect();
-                    if (overlay.width !== videoRect.width) {
-                        overlay.width = videoRect.width;
-                        overlay.height = videoRect.height;
-                        faceapi.matchDimensions(overlay, { width: videoRect.width, height: videoRect.height });
+                if (result && result.detection) {
+                    const displaySize = { width: video.offsetWidth, height: video.offsetHeight };
+                    if (overlay.width !== displaySize.width) {
+                        overlay.width = displaySize.width;
+                        overlay.height = displaySize.height;
+                        faceapi.matchDimensions(overlay, displaySize);
                     }
 
-                    const resizedResult = faceapi.resizeResults(detection, { width: videoRect.width, height: videoRect.height });
+                    const resizedResult = faceapi.resizeResults(result, displaySize);
                     
-                    // NEON PINK LANDMARKS (7px)
+                    // NEON PINK DOTS
                     const points = resizedResult.landmarks.positions;
                     ctx.fillStyle = '#FF007F';
                     points.forEach(p => {
-                        ctx.beginPath(); ctx.arc(p.x, p.y, 7, 0, 2 * Math.PI); ctx.fill();
+                        ctx.beginPath(); ctx.arc(p.x, p.y, 6, 0, 2 * Math.PI); ctx.fill();
                     });
 
                     // LIVENESS
-                    const nose = detection.landmarks.getNose()[0];
+                    const nose = result.landmarks.getNose()[0];
                     if (lastNosePos) {
                         const movement = Math.hypot(nose.x - lastNosePos.x, nose.y - lastNosePos.y);
-                        if (movement > 1.5 && movement < 30) livenessScore += 15;
+                        if (movement > 2 && movement < 30) livenessScore += 15;
                     }
                     lastNosePos = nose;
 
                     if (livenessScore < 100) {
                         faceStatus.className = "alert alert-warning p-2 mt-2 small text-center d-block";
-                        faceStatus.innerHTML = `<i class="fas fa-arrows-alt me-2"></i>VIVACITÉ : BOUGEZ LÉGÈREMENT LA TÊTE (${livenessScore}%)`;
+                        faceStatus.innerHTML = `<i class="fas fa-arrows-alt me-2"></i>VIVACITÉ : BOUGEZ LA TÊTE (${livenessScore}%)`;
                     } else if (!livenessVerified) {
                         livenessVerified = true;
                         faceStatus.className = "alert alert-success p-2 mt-2 small text-center d-block";
-                        faceStatus.innerHTML = '<i class="fas fa-check-circle me-2"></i>ANALYSE EN COURS...';
+                        faceStatus.innerHTML = '<i class="fas fa-check-circle me-2"></i>DÉTECTION RÉUSSIE - SCAN...';
                     }
 
                     if (livenessVerified && !verificationInProgress) {
-                        const fullDetection = await faceapi.detectSingleFace(video, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.3 }))
+                        const fullDetection = await faceapi.detectSingleFace(video, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.4 }))
                             .withFaceLandmarks().withFaceDescriptor();
 
                         if (fullDetection && fullDetection.descriptor) {
@@ -479,7 +479,7 @@
                     }
                 } else {
                     faceStatus.className = "alert alert-primary p-2 mt-2 small text-center d-block";
-                    faceStatus.innerHTML = '<i class="fas fa-user-clock me-2"></i>RECHERCHE (POINTS ROSES)...';
+                    faceStatus.innerHTML = '<i class="fas fa-user-clock me-2"></i>SCAN EN COURS...';
                 }
             } catch (err) {
                 console.error("AI Login Error:", err);
