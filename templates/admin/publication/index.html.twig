@@ -1,0 +1,105 @@
+{% extends 'admin_base.html.twig' %}
+
+{% block title %}Gestion du Forum - FIRMETNA{% endblock %}
+
+{% block body %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-0">Gestion du Forum</h2>
+        <p class="text-muted mb-0">Gérez les publications communautaires</p>
+    </div>
+    <a href="{{ path('app_admin_publication_new') }}" class="btn btn-success px-4 py-2" style="background-color: #1a4d2e; border: none; border-radius: 8px;">
+        <i class="fas fa-plus me-2"></i> Nouvelle publication
+    </a>
+</div>
+
+<div class="card border-0 shadow-sm mb-4" style="border-radius: 15px;">
+    <div class="card-body p-4">
+        <form method="get" action="{{ path('app_admin_publication_index') }}" class="row g-3">
+            <div class="col-md-12">
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-0"><i class="fas fa-search text-muted"></i></span>
+                    <input type="text" name="q" value="{{ app.request.query.get('q') }}" class="form-control bg-light border-0" placeholder="Rechercher par titre, contenu ou auteur...">
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm" style="border-radius: 15px;">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4 py-3 border-0" style="width: 80px;">ID</th>
+                        <th class="py-3 border-0">Image</th>
+                        <th class="py-3 border-0">Titre</th>
+                        <th class="py-3 border-0">Type</th>
+                        <th class="py-3 border-0">Auteur</th>
+                        <th class="py-3 border-0">Date</th>
+                        <th class="py-3 border-0">Commentaires</th>
+                        <th class="py-3 border-0 pe-4 text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for publication in publications %}
+                    <tr>
+                        <td class="ps-4 fw-bold text-muted">#{{ publication.id }}</td>
+                        <td>
+                            {% if publication.imageFilename %}
+                                <img src="{{ asset('uploads/publications/' ~ publication.imageFilename) }}" alt="" style="width: 45px; height: 45px; object-fit: cover; border-radius: 8px;">
+                            {% else %}
+                                <div class="bg-light rounded d-flex align-items-center justify-content-center text-muted" style="width: 45px; height: 45px;">
+                                    <i class="fas fa-image"></i>
+                                </div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="fw-bold d-block">{{ publication.titre }}</span>
+                            <small class="text-muted d-block text-truncate" style="max-width: 250px;">{{ publication.contenu|striptags }}</small>
+                        </td>
+                        <td>
+                            {% if publication.type == 'idee' %}
+                                <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill fw-bold" style="font-size: 0.75rem;">Idée</span>
+                            {% else %}
+                                <span class="badge bg-warning-subtle text-warning px-3 py-2 rounded-pill fw-bold" style="font-size: 0.75rem;">Problème</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if publication.auteur %}
+                                <span class="text-dark fw-600">{{ publication.auteur.nom }} {{ publication.auteur.prenom }}</span>
+                                <br><small class="text-muted">{{ publication.auteur.email }}</small>
+                            {% else %}
+                                <span class="text-muted">Anonyme</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-muted">
+                            {{ publication.dateCreation|date('d/m/Y') }}
+                        </td>
+                        <td>
+                            <span class="badge bg-light text-dark border px-3 py-2 rounded-pill fw-bold">
+                                {{ publication.commentaires|length }}
+                            </span>
+                        </td>
+                        <td class="pe-4 text-end">
+                            <div class="d-flex justify-content-end gap-2">
+                                <a href="{{ path('app_admin_publication_edit', {'id': publication.id}) }}" class="btn btn-sm btn-light border" title="Modifier"><i class="fas fa-pen text-muted"></i></a>
+                                <form method="post" action="{{ path('app_admin_publication_delete', {'id': publication.id}) }}" onsubmit="return confirm('Supprimer cette publication ?');" class="d-inline">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ publication.id) }}">
+                                    <button class="btn btn-sm btn-light border" title="Supprimer"><i class="fas fa-trash text-danger"></i></button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center py-5 text-muted">Aucune publication trouvée</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,61 @@
+<!-- Hero Section - Version adaptée pour Symfony -->
+<section class="hero-section position-relative overflow-hidden bg-success">
+    <!-- Background avec overlay -->
+    <div class="position-absolute top-0 start-0 w-100 h-100 bg-success">
+        <!-- Si vous avez l'image hero-bg.png dans public/images/, elle s'affichera automatiquement -->
+        <img src="{{ asset('images/hero-bg.png') }}" 
+             alt="Agriculteur utilisant une tablette dans une serre"
+             class="w-100 h-100 object-fit-cover"
+             onerror="this.style.display='none'">
+        <div class="position-absolute top-0 start-0 w-100 h-100 bg-gradient-to-bottom from-white/30 via-white/20 to-white/40"></div>
+    </div>
+
+    <div class="container position-relative z-1 px-4 py-20 py-lg-32">
+        <div class="mx-auto text-center" style="max-width: 56rem;">
+            <!-- Badge -->
+            <div class="mb-8 d-inline-flex align-items-center gap-2 rounded-pill border border-white/30 bg-white/90 px-5 py-2 text-sm font-medium text-success">
+                <i class="fas fa-seedling me-2"></i>
+                Plateforme agricole nouvelle génération
+            </div>
+
+            <!-- Heading -->
+            <h1 class="mb-6 display-4 fw-bold text-white text-center">
+    <span class="text-warning">FIRMETNA</span>
+    <div class="fs-3 mt-3">Gérez votre exploitation agricole</div>
+</h1>
+
+            <!-- Description -->
+            <p class="mx-auto mb-10 lead text-white/80" style="max-width: 42rem;">
+                Une solution complète pour les agriculteurs, clients et volontaires.
+                Gérez vos produits, événements, finances et bien plus encore.
+            </p>
+
+            <!-- CTA Buttons -->
+            <div class="d-flex flex-column flex-sm-row justify-content-center gap-4 mb-20">
+                <a href="{{ path('app_user_new') }}" class="btn btn-light btn-lg px-8 fw-bold">
+                    <i class="fas fa-play-circle me-2"></i>Commencer gratuitement
+                </a>
+                <a href="#modules" class="btn btn-outline-light btn-lg px-8">
+                    Découvrir les modules
+                </a>
+            </div>
+
+            <!-- Stats -->
+            <div class="row mt-20">
+                {% for stat in [
+                    { value: "500+", label: "Agriculteurs" },
+                    { value: "10k+", label: "Produits" },
+                    { value: "200+", label: "Événements" },
+                    { value: "50k€", label: "Dons collectés" }
+                ] %}
+                <div class="col-6 col-md-3 mb-4">
+                    <div class="text-center">
+                        <div class="display-6 fw-bold text-white">{{ stat.value }}</div>
+                        <div class="text-sm text-white/70">{{ stat.label }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>

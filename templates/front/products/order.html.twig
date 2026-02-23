@@ -1,0 +1,325 @@
+﻿{% extends 'base.html.twig' %}
+
+{% block title %}Commander {{ produit.nom }} - FIRMETNA{% endblock %}
+
+{% block body %}
+<style>
+    body {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 100vh;
+    }
+    .order-container {
+        max-width: 900px;
+        margin: 2rem auto;
+    }
+    .back-button {
+        display: inline-flex;
+        align-items: center;
+        color: #6c757d;
+        text-decoration: none;
+        font-weight: 500;
+        margin-bottom: 2rem;
+        transition: all 0.3s;
+        padding: 0.5rem 1rem;
+        border-radius: 10px;
+    }
+    .back-button:hover {
+        color: #495057;
+        background: #f8f9fa;
+    }
+    .order-wrapper {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+    }
+    .product-summary {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        height: fit-content;
+        position: sticky;
+        top: 20px;
+    }
+    .product-image-summary {
+        width: 100%;
+        height: 250px;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+    }
+    .product-image-summary img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .product-info h3 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 0.5rem;
+    }
+    .product-description {
+        color: #6b7280;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+    }
+    .price-section {
+        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+        padding: 1.5rem;
+        border-radius: 15px;
+        margin-bottom: 1.5rem;
+    }
+    .price-label {
+        color: #6b7280;
+        font-size: 0.875rem;
+        margin-bottom: 0.5rem;
+    }
+    .price-amount {
+        font-size: 2.5rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 0.5rem;
+    }
+    .stock-info {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #10b981;
+        font-weight: 600;
+        margin-top: 0.5rem;
+    }
+    .form-section {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+    .form-section h2 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    .form-label {
+        display: block;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+    }
+    .form-control {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: all 0.3s;
+        font-family: inherit;
+    }
+    .form-control:focus {
+        outline: none;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+    .form-text {
+        display: block;
+        margin-top: 0.25rem;
+        font-size: 0.875rem;
+        color: #6b7280;
+    }
+    .btn-order {
+        width: 100%;
+        padding: 1rem 2rem;
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+        border: none;
+        border-radius: 30px;
+        font-weight: 700;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-top: 1.5rem;
+    }
+    .btn-order:hover {
+        background: linear-gradient(135deg, #059669, #047857);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 25px rgba(16, 185, 129, 0.4);
+    }
+    .btn-order:active {
+        transform: translateY(0);
+    }
+    .alert {
+        padding: 1rem;
+        border-radius: 10px;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    .alert-danger {
+        background: #fee2e2;
+        border-left: 4px solid #ef4444;
+        color: #991b1b;
+    }
+    .alert-success {
+        background: #dcfce7;
+        border-left: 4px solid #10b981;
+        color: #065f46;
+    }
+    .error-message {
+        color: #dc2626;
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .order-wrapper {
+            grid-template-columns: 1fr;
+        }
+        .product-summary {
+            position: relative;
+            top: 0;
+        }
+    }
+</style>
+
+<div class="order-container">
+    <div class="action-buttons">
+            <a href="{{ path('app_products') }}" class="back-button">
+                <i class="fas fa-arrow-left"></i>
+                Retour aux produits
+            </a>
+        </div>
+
+    <div class="order-wrapper">
+        <!-- Product Summary -->
+        <div class="product-summary">
+            <div class="product-image-summary">
+                {% if produit.imageUrl %}
+                    <img src="{{ produit.imageUrl }}" alt="{{ produit.nom }}">
+                {% else %}
+                    <i class="fas fa-{{ type == 'vegetale' ? 'leaf' : 'drumstick-bite' }} fa-5x text-muted"></i>
+                {% endif %}
+            </div>
+            
+            <div class="product-info">
+                <h3>{{ produit.nom }}</h3>
+                <p class="product-description">{{ produit.description }}</p>
+                
+                <div class="price-section">
+                    <div class="price-label">Prix unitaire</div>
+                    <div class="price-amount">{{ produit.prix }} €</div>
+                    <div class="stock-info">
+                        <i class="fas fa-check-circle"></i>
+                        <span>{{ produit.stock }} en stock</span>
+                    </div>
+                </div>
+
+                {% if produit.badge or produit.isBio %}
+                    <div>
+                        {% if produit.isBio %}
+                            <span class="badge bg-success me-2">
+                                <i class="fas fa-leaf me-1"></i> Bio
+                            </span>
+                        {% endif %}
+                        {% if produit.badge %}
+                            <span class="badge bg-warning text-dark">{{ produit.badge }}</span>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Order Form -->
+        <div class="form-section">
+            <h2>
+                <i class="fas fa-shopping-bag"></i>
+                Finaliser votre commande
+            </h2>
+
+            {% if form.vars.errors|length > 0 %}
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <div>
+                        <strong>Erreurs détectées :</strong>
+                        <ul class="mb-0 mt-1 ps-3">
+                            {% for error in form.vars.errors %}
+                                <li>{{ error.message }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            {% endif %}
+
+            {{ form_start(form, {'attr': {'novalidate': 'novalidate'}, 'method': 'POST'}) }}
+
+            <div class="form-group">
+                {{ form_label(form.quantite, 'Quantité') }}
+                {{ form_widget(form.quantite) }}
+                {% if form.quantite.vars.errors|length > 0 %}
+                    <div class="error-message">
+                        {{ form_errors(form.quantite) }}
+                    </div>
+                {% endif %}
+                <small class="form-text">
+                    Vous disposez de <strong>{{ produit.stock }}</strong> 
+                    {{ unite_labels[produit.unite] ?? produit.unite }}
+                </small>
+            </div>
+
+            <div class="form-group">
+                {{ form_label(form.adresseLivraison, 'Adresse de livraison') }}
+                {{ form_widget(form.adresseLivraison) }}
+                {% if form.adresseLivraison.vars.errors|length > 0 %}
+                    <div class="error-message">
+                        {{ form_errors(form.adresseLivraison) }}
+                    </div>
+                {% endif %}
+                <small class="form-text">Laissez vide pour utiliser votre adresse par défaut</small>
+            </div>
+
+            <div class="form-group">
+                {{ form_label(form.commentaire, 'Commentaires (optionnel)') }}
+                {{ form_widget(form.commentaire) }}
+                {% if form.commentaire.vars.errors|length > 0 %}
+                    <div class="error-message">
+                        {{ form_errors(form.commentaire) }}
+                    </div>
+                {% endif %}
+                <small class="form-text">
+                    Spécifiez préférences de livraison, instructions spéciales, etc.
+                </small>
+            </div>
+
+            <button type="submit" class="btn-order">
+                <i class="fas fa-check-circle"></i>
+                Confirmer la commande
+            </button>
+
+            {{ form_end(form) }}
+        </div>
+    </div>
+</div>
+{% endblock %}

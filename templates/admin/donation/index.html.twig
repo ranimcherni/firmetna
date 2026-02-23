@@ -1,0 +1,96 @@
+{% extends 'admin_base.html.twig' %}
+
+{% block title %}Gestion des dons - FIRMETNA{% endblock %}
+
+{% block body %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-0">Gestion des dons</h2>
+        <p class="text-muted mb-0">Offres de dons publiées par les donateurs</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{{ path('app_admin_donation_demandes') }}" class="btn btn-outline-success px-4 py-2" style="border-radius: 8px;">
+            <i class="fas fa-list me-2"></i> Voir les demandes
+        </a>
+        <a href="{{ path('app_admin_donation_new') }}" class="btn btn-success px-4 py-2" style="background-color: #1a4d2e; border: none; border-radius: 8px;">
+            <i class="fas fa-plus me-2"></i> Ajouter une offre
+        </a>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm" style="border-radius: 15px;">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4 py-3 border-0" style="width: 60px;">ID</th>
+                        <th class="py-3 border-0" style="width: 70px;">Photo</th>
+                        <th class="py-3 border-0">Nom</th>
+                        <th class="py-3 border-0">Téléphone</th>
+                        <th class="py-3 border-0">Catégorie</th>
+                        <th class="py-3 border-0">Quantité</th>
+                        <th class="py-3 border-0">Disponible</th>
+                        <th class="py-3 border-0">Date</th>
+                        <th class="py-3 border-0 pe-4 text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for offre in offres %}
+                    <tr>
+                        <td class="ps-4 fw-bold text-muted">#{{ offre.id }}</td>
+                        <td>
+                            {% if offre.photo %}
+                                <img src="{{ asset(offre.photo) }}" alt="" style="width: 45px; height: 45px; object-fit: cover; border-radius: 8px;">
+                            {% else %}
+                                <div class="bg-light rounded d-flex align-items-center justify-content-center text-muted" style="width: 45px; height: 45px;">
+                                    <i class="fas fa-seedling"></i>
+                                </div>
+                            {% endif %}
+                        </td>
+                        <td class="fw-600">{{ offre.nom }}</td>
+                        <td class="text-muted">{{ offre.telephone }}</td>
+                        <td><span class="badge bg-success-subtle text-success rounded-pill">{{ offre.categorie }}</span></td>
+                        <td class="text-muted">{{ offre.quantite ?? '—' }}</td>
+                        <td>
+                            {% if offre.disponible %}
+                                <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill">Oui</span>
+                            {% else %}
+                                <span class="badge bg-danger-subtle text-danger px-3 py-2 rounded-pill">Non</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-muted">{{ offre.createdAt ? offre.createdAt|date('d/m/Y') : '—' }}</td>
+                        <td class="pe-4 text-end">
+                            <div class="d-flex justify-content-end gap-2">
+                                <a href="{{ path('app_admin_donation_edit', { id: offre.id }) }}" class="btn btn-sm btn-light border" title="Modifier">
+                                    <i class="fas fa-pen text-muted"></i>
+                                </a>
+                                <form method="post" action="{{ path('app_admin_donation_delete', { id: offre.id }) }}" onsubmit="return confirm('Supprimer cette offre de don ?');" class="d-inline">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ offre.id) }}">
+                                    <button type="submit" class="btn btn-sm btn-light border" title="Supprimer">
+                                        <i class="fas fa-trash text-danger"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="9" class="text-center py-5 text-muted">
+                            <i class="fas fa-hand-holding-heart fa-2x mb-2"></i>
+                            <p class="mb-0">Aucune offre de don pour le moment.</p>
+                            <a href="{{ path('app_admin_donation_new') }}" class="btn btn-success btn-sm mt-2" style="background-color: #1a4d2e; border: none;">Ajouter une offre</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-success-subtle { background-color: #d1fae5; }
+    .bg-danger-subtle { background-color: #fee2e2; }
+</style>
+{% endblock %}

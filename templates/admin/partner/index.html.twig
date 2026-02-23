@@ -1,0 +1,99 @@
+{% extends 'admin_base.html.twig' %}
+
+{% block title %}Gestion Partenariats - FIRMETNA{% endblock %}
+
+{% block body %}
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+    <div>
+        <h2 class="fw-bold mb-0">Gestion Partenariats</h2>
+        <p class="text-muted mb-0">Liste des partenaires et offres</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{{ path('app_admin_partner_export_csv') }}" class="btn btn-outline-success px-3 py-2" style="border-radius: 8px;">
+            <i class="fas fa-file-csv me-2"></i>Exporter CSV
+        </a>
+        <a href="{{ path('app_admin_partner_offer_index') }}" class="btn btn-outline-primary px-3 py-2" style="border-radius: 8px;">
+            <i class="fas fa-gift me-2"></i>Offres
+        </a>
+        <a href="{{ path('app_admin_partner_new') }}" class="btn btn-success px-4 py-2" style="background-color: #1a4d2e; border: none; border-radius: 8px;">
+            <i class="fas fa-plus me-2"></i>Ajouter un partenaire
+        </a>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-4" style="border-radius: 15px;">
+    <div class="card-body p-4">
+        <form method="get" action="{{ path('app_admin_partenariats') }}" class="row g-3">
+            <div class="col-md-8">
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-0"><i class="fas fa-search text-muted"></i></span>
+                    <input type="text" name="q" value="{{ app.request.query.get('q') }}" class="form-control bg-light border-0" placeholder="Rechercher par nom, email...">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <select name="status" class="form-select bg-light border-0" onchange="this.form.submit()">
+                    <option value="">Tous</option>
+                    <option value="Actif" {% if app.request.query.get('status') == 'Actif' %}selected{% endif %}>Actif</option>
+                    <option value="Inactif" {% if app.request.query.get('status') == 'Inactif' %}selected{% endif %}>Inactif</option>
+                    <option value="En attente" {% if app.request.query.get('status') == 'En attente' %}selected{% endif %}>En attente</option>
+                </select>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm" style="border-radius: 15px;">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4 py-3 border-0" style="width: 60px;">ID</th>
+                        <th class="py-3 border-0">Nom</th>
+                        <th class="py-3 border-0">Type</th>
+                        <th class="py-3 border-0">Email</th>
+                        <th class="py-3 border-0">Statut</th>
+                        <th class="py-3 border-0">Offres</th>
+                        <th class="py-3 border-0 pe-4 text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for partner in partners %}
+                    <tr>
+                        <td class="ps-4 fw-bold text-muted">#{{ partner.id }}</td>
+                        <td class="fw-600">{{ partner.name }}</td>
+                        <td>
+                            {% if partner.type %}
+                                <span class="badge bg-primary bg-opacity-25 text-primary">{{ partner.type }}</span>
+                            {% else %}
+                                <span class="text-muted">—</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-muted">{{ partner.email ?? '—' }}</td>
+                        <td>
+                            {% set status = partner.status ?? 'Actif' %}
+                            <span class="badge {% if status == 'Actif' %}bg-success{% elseif status == 'Inactif' %}bg-secondary{% else %}bg-warning text-dark{% endif %}">{{ status }}</span>
+                        </td>
+                        <td>
+                            <a href="{{ path('app_admin_partner_offer_index', {partner_id: partner.id}) }}" class="btn btn-sm btn-outline-primary" title="Voir les offres">{{ partner.offers|length }}</a>
+                            <a href="{{ path('app_admin_partner_offer_new', {partner_id: partner.id}) }}" class="btn btn-sm btn-light border" title="Ajouter une offre"><i class="fas fa-plus text-success"></i></a>
+                        </td>
+                        <td class="pe-4 text-end">
+                            <a href="{{ path('app_admin_partner_edit', {'id': partner.id}) }}" class="btn btn-sm btn-light border" title="Modifier"><i class="fas fa-pen text-muted"></i></a>
+                            <form method="post" action="{{ path('app_admin_partner_delete', {'id': partner.id}) }}" onsubmit="return confirm('Supprimer ce partenaire et ses offres ?');" class="d-inline">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ partner.id) }}">
+                                <button class="btn btn-sm btn-light border" title="Supprimer"><i class="fas fa-trash text-danger"></i></button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center py-5 text-muted">Aucun partenaire. <a href="{{ path('app_admin_partner_new') }}">Ajouter le premier</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

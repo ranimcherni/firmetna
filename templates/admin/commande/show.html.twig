@@ -1,0 +1,98 @@
+{% extends 'admin_base.html.twig' %}
+
+{% block title %}Commande #{{ commande.id }} - FIRMETNA{% endblock %}
+
+{% block body %}
+<div class="mb-4">
+    <a href="{{ path('app_admin_commandes') }}" class="text-success text-decoration-none fw-600">
+        <i class="fas fa-arrow-left me-2"></i> Retour aux commandes
+    </a>
+    <h2 class="fw-bold mt-2">Commande #{{ commande.id }}</h2>
+    <p class="text-muted">{{ commande.dateCommande ? commande.dateCommande|date('d/m/Y à H:i') : '' }}</p>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm mb-4" style="border-radius: 15px;">
+            <div class="card-header bg-light border-0 py-3" style="border-radius: 15px 15px 0 0;">
+                <h5 class="mb-0 fw-bold">Détails de la commande</h5>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4 py-3">Produit</th>
+                            <th class="py-3">Prix unit.</th>
+                            <th class="py-3">Qté</th>
+                            <th class="pe-4 py-3 text-end">Sous-total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ligne in commande.lignes %}
+                        <tr>
+                            <td class="ps-4">{{ ligne.produit.nom }}</td>
+                            <td>{{ ligne.prixUnitaire }} €</td>
+                            <td>{{ ligne.quantite }}</td>
+                            <td class="pe-4 text-end fw-600">{{ ligne.sousTotal }} €</td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center py-4 text-muted">Aucune ligne</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer bg-light border-0 py-3 pe-4 text-end">
+                <strong>Total : {{ commande.total }} €</strong>
+            </div>
+        </div>
+
+        {% if commande.adresseLivraison %}
+        <div class="card border-0 shadow-sm mb-4" style="border-radius: 15px;">
+            <div class="card-body p-4">
+                <h6 class="text-muted mb-2">Adresse de livraison</h6>
+                <p class="mb-0">{{ commande.adresseLivraison }}</p>
+            </div>
+        </div>
+        {% endif %}
+        {% if commande.commentaire %}
+        <div class="card border-0 shadow-sm mb-4" style="border-radius: 15px;">
+            <div class="card-body p-4">
+                <h6 class="text-muted mb-2">Commentaire</h6>
+                <p class="mb-0">{{ commande.commentaire }}</p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm mb-4" style="border-radius: 15px;">
+            <div class="card-body p-4">
+                <h6 class="text-muted mb-3">Client</h6>
+                {% if commande.client %}
+                    <p class="mb-1 fw-600">{{ commande.client.nom }} {{ commande.client.prenom }}</p>
+                    <p class="mb-0 text-muted small">{{ commande.client.email }}</p>
+                {% else %}
+                    <p class="mb-0 text-muted">—</p>
+                {% endif %}
+            </div>
+        </div>
+        <div class="card border-0 shadow-sm" style="border-radius: 15px;">
+            <div class="card-body p-4">
+                <h6 class="text-muted mb-3">Changer le statut</h6>
+                <form method="post" action="{{ path('app_admin_commande_statut', {'id': commande.id}) }}" class="d-flex flex-wrap gap-2">
+                    <input type="hidden" name="_token" value="{{ csrf_token('statut' ~ commande.id) }}">
+                    <select name="statut" class="form-select form-select-sm">
+                        <option value="En attente" {{ commande.statut == 'En attente' ? 'selected' : '' }}>En attente</option>
+                        <option value="Confirmée" {{ commande.statut == 'Confirmée' ? 'selected' : '' }}>Confirmée</option>
+                        <option value="Expédiée" {{ commande.statut == 'Expédiée' ? 'selected' : '' }}>Expédiée</option>
+                        <option value="Livrée" {{ commande.statut == 'Livrée' ? 'selected' : '' }}>Livrée</option>
+                        <option value="Annulée" {{ commande.statut == 'Annulée' ? 'selected' : '' }}>Annulée</option>
+                    </select>
+                    <button type="submit" class="btn btn-success btn-sm" style="background-color: #1a4d2e; border: none;">Mettre à jour</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

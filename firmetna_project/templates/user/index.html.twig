@@ -1,0 +1,127 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion des Utilisateurs - FIRMETNA{% endblock %}
+
+{% block body %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1><i class="fas fa-users text-success"></i> Gestion des Utilisateurs</h1>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{{ path('user_new') }}" class="btn btn-primary-custom">
+            <i class="fas fa-plus"></i> Nouvel Utilisateur
+        </a>
+    </div>
+</div>
+
+<!-- Statistiques -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card card-custom">
+            <div class="card-body">
+                <h5><i class="fas fa-tractor"></i> Agriculteurs</h5>
+                <h2>{{ stats.agriculteurs }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-custom">
+            <div class="card-body">
+                <h5><i class="fas fa-shopping-basket"></i> Consommateurs</h5>
+                <h2>{{ stats.consommateurs }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-custom">
+            <div class="card-body">
+                <h5><i class="fas fa-user-shield"></i> Admins</h5>
+                <h2>{{ stats.admins }}</h2>
+            </div>
+            <div class="row mb-4">
+    <div class="col-md-8">
+        <h1><i class="fas fa-users text-success"></i> Gestion des Utilisateurs</h1>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{{ path('user_new') }}" class="btn btn-primary-custom">
+            <i class="fas fa-plus"></i> Nouvel Utilisateur
+        </a>
+    </div>
+</div>
+       
+
+<!-- Table des utilisateurs -->
+<div class="card">
+    <div class="card-body">
+        <table class="table table-hover table-custom">
+            <thead>
+                <tr>
+                    <th>Photo</th>
+                    <th>Nom Complet</th>
+                    <th>Email</th>
+                    <th>Téléphone</th>
+                    <th>Rôle</th>
+                    <th>Statut</th>
+                    <th>Date Inscription</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>
+                        {% if user.imageUrl %}
+                            <img src="{{ user.imageUrl }}" alt="{{ user.prenom }}" class="rounded-circle" width="40" height="40">
+                        {% else %}
+                            <div class="rounded-circle bg-secondary d-inline-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                <i class="fas fa-user text-white"></i>
+                            </div>
+                        {% endif %}
+                    </td>
+                    <td>{{ user.prenom }} {{ user.nom }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.telephone ?? 'N/A' }}</td>
+                    <td>
+                        {% if user.role == 'AGRICULTEUR' %}
+                            <span class="badge bg-success"><i class="fas fa-tractor"></i> Agriculteur</span>
+                        {% elseif user.role == 'CONSOMMATEUR' %}
+                            <span class="badge bg-info"><i class="fas fa-shopping-basket"></i> Consommateur</span>
+                        {% else %}
+                            <span class="badge bg-warning"><i class="fas fa-user-shield"></i> Admin</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if user.statut == 'ACTIF' %}
+                            <span class="badge bg-success">Actif</span>
+                        {% else %}
+                            <span class="badge bg-danger">Inactif</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ user.dateInscription|date('d/m/Y') }}</td>
+                    <td>
+                        <a href="{{ path('user_show', {'id': user.id}) }}" class="btn btn-sm btn-info" title="Voir">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        <a href="{{ path('user_edit', {'id': user.id}) }}" class="btn btn-sm btn-warning" title="Modifier">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <form method="post" action="{{ path('user_delete', {'id': user.id}) }}" style="display: inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.id) }}">
+                            <button type="submit" class="btn btn-sm btn-danger" title="Supprimer">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="8" class="text-center">Aucun utilisateur trouvé</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Pagination supprimée pour simplification -->
+{% endblock %}

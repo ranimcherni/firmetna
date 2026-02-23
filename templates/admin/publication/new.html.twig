@@ -1,0 +1,54 @@
+{% extends 'admin_base.html.twig' %}
+
+{% block title %}Nouvelle Publication - FIRMETNA{% endblock %}
+
+{% block body %}
+<div class="mb-4">
+    <a href="{{ path('app_admin_publication_index') }}" class="text-decoration-none text-muted">
+        <i class="fas fa-arrow-left me-2"></i> Retour à la liste
+    </a>
+    <h2 class="fw-bold mt-2">Nouvelle publication</h2>
+</div>
+
+<div class="card border-0 shadow-sm" style="border-radius: 15px;">
+    <div class="card-body p-4">
+        {{ form_start(form) }}
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="mb-3">
+                        {{ form_label(form.titre) }}
+                        {{ form_widget(form.titre) }}
+                        {{ form_errors(form.titre) }}
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        {{ form_label(form.type) }}
+                        {{ form_widget(form.type) }}
+                        {{ form_errors(form.type) }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                {{ form_label(form.contenu) }}
+                {{ form_widget(form.contenu) }}
+                {{ form_errors(form.contenu) }}
+            </div>
+
+            <div class="mb-4">
+                {{ form_label(form.imageFile) }}
+                {{ form_widget(form.imageFile) }}
+                {{ form_errors(form.imageFile) }}
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-success px-4" style="background-color: #1a4d2e; border: none;">
+                    Créer la publication
+                </button>
+                <a href="{{ path('app_admin_publication_index') }}" class="btn btn-light border px-4">Annuler</a>
+            </div>
+        {{ form_end(form) }}
+    </div>
+</div>
+{% endblock %}

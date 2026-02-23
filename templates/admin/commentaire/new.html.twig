@@ -1,0 +1,48 @@
+{% extends 'admin_base.html.twig' %}
+
+{% block title %}Ajouter un Commentaire - FIRMETNA{% endblock %}
+
+{% block body %}
+<div class="mb-4">
+    <a href="{{ path('app_admin_commentaire_index') }}" class="text-decoration-none text-muted">
+        <i class="fas fa-arrow-left me-1"></i> Retour à la liste
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+            <div class="card-body p-4">
+                <h2 class="fw-bold mb-4">Ajouter un nouveau commentaire</h2>
+                <p class="text-muted mb-4">Créez un commentaire manuellement pour une publication.</p>
+
+                {{ form_start(form) }}
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            {{ form_label(form.publication) }}
+                            {{ form_widget(form.publication) }}
+                            {{ form_errors(form.publication) }}
+                        </div>
+                        <div class="col-md-12">
+                            {{ form_label(form.auteur) }}
+                            {{ form_widget(form.auteur) }}
+                            {{ form_errors(form.auteur) }}
+                        </div>
+                        <div class="col-md-12">
+                            {{ form_label(form.contenu) }}
+                            {{ form_widget(form.contenu) }}
+                            {{ form_errors(form.contenu) }}
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-4 border-top">
+                        <button type="submit" class="btn btn-success px-5 py-2" style="background-color: #1a4d2e; border: none; border-radius: 8px;">
+                            <i class="fas fa-save me-2"></i> Enregistrer le commentaire
+                        </button>
+                    </div>
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

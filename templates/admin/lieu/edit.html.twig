@@ -1,0 +1,59 @@
+{% extends 'admin_base.html.twig' %}
+
+{% block title %}Modifier le Lieu - FIRMETNA{% endblock %}
+
+{% block body %}
+<div class="mb-4">
+    <a href="{{ path('app_admin_lieu_index') }}" class="text-decoration-none text-muted">
+        <i class="fas fa-arrow-left me-1"></i> Retour à la liste
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+            <div class="card-body p-4">
+                <h2 class="fw-bold mb-4">Modifier le lieu : {{ lieu.ville }}</h2>
+                
+                {% if lieu.image %}
+                    <div class="mb-4">
+                        <p class="text-muted small mb-2">Image actuelle :</p>
+                        <img src="{{ lieu.image }}" alt="Lieu" class="img-thumbnail" style="max-height: 150px;">
+                    </div>
+                {% endif %}
+
+                {{ form_start(form) }}
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            {{ form_label(form.ville) }}
+                            {{ form_widget(form.ville) }}
+                            {{ form_errors(form.ville) }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form_label(form.adresse) }}
+                            {{ form_widget(form.adresse) }}
+                            {{ form_errors(form.adresse) }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form_label(form.capacite) }}
+                            {{ form_widget(form.capacite) }}
+                            {{ form_errors(form.capacite) }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form_label(form.imageFile) }}
+                            {{ form_widget(form.imageFile) }}
+                            {{ form_errors(form.imageFile) }}
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-4 border-top">
+                        <button type="submit" class="btn btn-success px-5 py-2" style="background-color: #1a4d2e; border: none; border-radius: 8px;">
+                            <i class="fas fa-save me-2"></i> Mettre à jour le lieu
+                        </button>
+                    </div>
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

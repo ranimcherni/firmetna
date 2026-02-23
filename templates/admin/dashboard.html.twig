@@ -1,0 +1,218 @@
+{% extends 'admin_base.html.twig' %}
+
+{% block title %}Tableau de bord - FIRMETNA{% endblock %}
+
+{% block body %}
+<div class="mb-4 d-flex justify-content-between align-items-center">
+    <div>
+        <h2 class="fw-bold fs-3 mb-1">Tableau de Bord Analytique</h2>
+        <p class="text-muted">Statistiques en temps réel et indicateurs de performance</p>
+    </div>
+    <div class="d-flex gap-2">
+        <button class="btn btn-white shadow-sm rounded-pill px-3 border"><i class="fas fa-download me-2"></i>Exporter PDF</button>
+        <button class="btn btn-success shadow-sm rounded-pill px-3 border-0" style="background-color: #1a4d2e;"><i class="fas fa-sync me-2"></i>Actualiser</button>
+    </div>
+</div>
+
+<!-- Statistiques des Modules (Gestions) -->
+<div class="row g-4 mb-4">
+    <div class="col-md-4 col-lg-2">
+        <div class="card border-0 shadow-sm text-center p-3" style="border-radius: 20px; background: #f8fafc;">
+            <i class="fas fa-users fa-2x text-primary mb-2"></i>
+            <h3 class="fw-bold mb-0 text-dark">{{ totalUsers }}</h3>
+            <span class="text-muted small fw-semibold">Utilisateurs</span>
+        </div>
+    </div>
+    <div class="col-md-4 col-lg-2">
+        <div class="card border-0 shadow-sm text-center p-3" style="border-radius: 20px; background: #f8fafc;">
+            <i class="fas fa-shopping-basket fa-2x text-success mb-2"></i>
+            <h3 class="fw-bold mb-0 text-dark">{{ produitsCount }}</h3>
+            <span class="text-muted small fw-semibold">Produits</span>
+        </div>
+    </div>
+    <div class="col-md-4 col-lg-2">
+        <div class="card border-0 shadow-sm text-center p-3" style="border-radius: 20px; background: #f8fafc;">
+            <i class="fas fa-calendar-alt fa-2x text-warning mb-2"></i>
+            <h3 class="fw-bold mb-0 text-dark">{{ eventsCount }}</h3>
+            <span class="text-muted small fw-semibold">Événements</span>
+        </div>
+    </div>
+    <div class="col-md-4 col-lg-2">
+        <div class="card border-0 shadow-sm text-center p-3" style="border-radius: 20px; background: #f8fafc;">
+            <i class="fas fa-comments fa-2x text-info mb-2"></i>
+            <h3 class="fw-bold mb-0 text-dark">{{ publicationsCount }}</h3>
+            <span class="text-muted small fw-semibold">Forum</span>
+        </div>
+    </div>
+    <div class="col-md-4 col-lg-2">
+        <div class="card border-0 shadow-sm text-center p-3" style="border-radius: 20px; background: #f8fafc;">
+            <i class="fas fa-hand-holding-heart fa-2x text-danger mb-2"></i>
+            <h3 class="fw-bold mb-0 text-dark">{{ offresCount }}</h3>
+            <span class="text-muted small fw-semibold">Dons</span>
+        </div>
+    </div>
+    <div class="col-md-4 col-lg-2">
+        <div class="card border-0 shadow-sm text-center p-3" style="border-radius: 20px; background: #f8fafc;">
+            <i class="fas fa-truck fa-2x text-secondary mb-2"></i>
+            <h3 class="fw-bold mb-0 text-dark">{{ commandesCount }}</h3>
+            <span class="text-muted small fw-semibold">Commandes</span>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <!-- Distribution Utilisateurs -->
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100" style="border-radius: 24px;">
+            <div class="card-body p-4">
+                <h5 class="fw-bold mb-4"><i class="fas fa-chart-pie me-2 text-success"></i>Distribution Utilisateurs</h5>
+                <div style="height: 280px;">
+                    <canvas id="userDistributionChart"></canvas>
+                </div>
+                <div class="mt-4 d-flex justify-content-center flex-wrap gap-4">
+                    <div class="small fw-bold"><i class="fas fa-circle me-1" style="color: #1a4d2e;"></i>Agriculteurs: {{ agriculteursCount }}</div>
+                    <div class="small fw-bold"><i class="fas fa-circle me-1" style="color: #fbbf24;"></i>Clients: {{ clientsCount }}</div>
+                    <div class="small fw-bold"><i class="fas fa-circle me-1" style="color: #2e7d32;"></i>Donateurs: {{ donateursCount }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Produits (Visuel) -->
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100" style="border-radius: 24px;">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="fw-bold mb-0"><i class="fas fa-star me-2 text-warning"></i>Produits Phares</h5>
+                    <a href="{{ path('app_admin_produits') }}" class="btn btn-link text-success text-decoration-none fw-bold p-0 small">Voir tout <i class="fas fa-chevron-right ms-1"></i></a>
+                </div>
+                
+                <div class="row g-3">
+                    {% for product in topProducts %}
+                    <div class="col-12">
+                        <div class="p-3 border rounded-4 d-flex align-items-center bg-white transition-all shadow-hover">
+                            <img src="{{ product.image }}" class="rounded-3 me-3" style="width: 60px; height: 60px; object-fit: cover;">
+                            <div class="flex-grow-1">
+                                <h6 class="fw-bold mb-0">{{ product.name }}</h6>
+                                <span class="badge {% if product.category == 'Végétal' %}bg-success-subtle text-success{% else %}bg-warning-subtle text-warning{% endif %} rounded-pill px-2" style="font-size: 0.65rem;">{{ product.category }}</span>
+                            </div>
+                            <div class="text-end">
+                                <div class="fw-bold text-dark small">{{ product.sales }} ventes</div>
+                                <div class="small text-success fw-bold" style="font-size: 0.75rem;">{{ product.growth }} <i class="fas fa-arrow-up ms-1"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!-- Évolution de l'Activité (Courbe) -->
+<div class="row g-4 mt-2">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm" style="border-radius: 24px;">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="fw-bold mb-0 text-success"><i class="fas fa-chart-line me-2"></i>Évolution de l'Activité globale</h5>
+                    <select class="form-select form-select-sm w-auto border-0 bg-light rounded-pill px-3">
+                        <option selected>6 derniers mois</option>
+                        <option>Cette année</option>
+                    </select>
+                </div>
+                <div style="height: 300px;">
+                    <canvas id="activityCurveChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 2. Pie Chart: User Distribution
+    const ctxUser = document.getElementById('userDistributionChart').getContext('2d');
+    new Chart(ctxUser, {
+        type: 'pie',
+        data: {
+            labels: ['Agriculteurs', 'Clients', 'Donateurs'],
+            datasets: [{
+                data: [{{ agriculteursCount }}, {{ clientsCount }}, {{ donateursCount }}],
+                backgroundColor: ['#1a4d2e', '#fbbf24', '#2e7d32'],
+                borderWidth: 2,
+                borderColor: '#ffffff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.raw || 0;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = Math.round((value / total) * 100);
+                            return `${label}: ${value} (${percentage}%)`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // 3. Line Chart: Activity Curve (Bottom)
+    const ctxCurve = document.getElementById('activityCurveChart').getContext('2d');
+    new Chart(ctxCurve, {
+        type: 'line',
+        data: {
+            labels: ['Jan', 'Féb', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil'],
+            datasets: [{
+                label: 'Interactions globales',
+                data: {{ monthlySales|json_encode|raw }},
+                borderColor: '#1a4d2e',
+                backgroundColor: 'rgba(26, 77, 46, 0.05)',
+                borderWidth: 4,
+                tension: 0.4,
+                fill: true,
+                pointBackgroundColor: '#fff',
+                pointBorderColor: '#1a4d2e',
+                pointBorderWidth: 2,
+                pointRadius: 6,
+                pointHoverRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { 
+                legend: { display: false },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                }
+            },
+            scales: {
+                y: { 
+                    beginAtZero: true,
+                    grid: { color: '#f1f5f9' },
+                    ticks: { color: '#64748b' }
+                },
+                x: { 
+                    grid: { display: false },
+                    ticks: { color: '#64748b' }
+                }
+            },
+            interaction: {
+                mode: 'nearest',
+                axis: 'x',
+                intersect: false
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

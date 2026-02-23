@@ -1,0 +1,118 @@
+{% extends 'admin_base.html.twig' %}
+
+{% block title %}Gestion des demandes de dons - Administration{% endblock %}
+
+{% block body %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-800 mb-1">Gestion des demandes de dons</h2>
+        <p class="text-muted mb-0">Liste des demandes effectuées par les utilisateurs sur les offres de dons</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{{ path('app_admin_donations') }}" class="btn btn-outline-secondary rounded-pill px-4">
+            <i class="fas fa-arrow-left me-2"></i>Voir les offres
+        </a>
+        <a href="{{ path('app_admin_donation_demande_new') }}" class="btn btn-success px-4 py-2" style="background-color: #1a4d2e; border: none; border-radius: 8px;">
+            <i class="fas fa-plus me-2"></i> Ajouter une demande
+        </a>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm" style="border-radius: 16px; overflow: hidden;">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="bg-light">
+                <tr>
+                    <th class="ps-4 py-3 text-uppercase fs-xs fw-700 text-muted">ID</th>
+                    <th class="py-3 text-uppercase fs-xs fw-700 text-muted">Offre</th>
+                    <th class="py-3 text-uppercase fs-xs fw-700 text-muted">Demandeur</th>
+                    <th class="py-3 text-uppercase fs-xs fw-700 text-muted">Date Demande</th>
+                    <th class="py-3 text-uppercase fs-xs fw-700 text-muted">Statut</th>
+                    <th class="pe-4 py-3 text-end text-uppercase fs-xs fw-700 text-muted">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for demande in demandes %}
+                    <tr>
+                        <td class="ps-4 fw-600">#{{ demande.id }}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                {% if demande.offre.photo %}
+                                    <img src="{{ asset(demande.offre.photo) }}" alt="" style="width: 40px; height: 40px; border-radius: 8px; object-fit: cover;" class="me-3">
+                                {% else %}
+                                    <div class="bg-light d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; border-radius: 8px;">
+                                        <i class="fas fa-hand-holding-heart text-muted"></i>
+                                    </div>
+                                {% endif %}
+                                <div>
+                                    <span class="d-block fw-700 text-dark">{{ demande.offre.categorie }}</span>
+                                    <small class="text-muted">{{ demande.offre.nom }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="bg-primary-subtle rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px;">
+                                    <i class="fas fa-user text-primary fs-xs"></i>
+                                </div>
+                                <span class="fw-600">{{ demande.demandeur.email }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="text-muted small">
+                                <i class="far fa-calendar-alt me-1"></i>
+                                {{ demande.createdAt|date('d/m/Y H:i') }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if demande.statut == 'en_attente' %}
+                                <span class="badge bg-warning-subtle text-warning px-3 py-2 rounded-pill fw-700">En attente</span>
+                            {% elseif demande.statut == 'acceptee' %}
+                                <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill fw-700">Acceptée</span>
+                            {% else %}
+                                <span class="badge bg-danger-subtle text-danger px-3 py-2 rounded-pill fw-700">Refusée</span>
+                            {% endif %}
+                        </td>
+                        <td class="pe-4 text-end">
+                            <div class="d-flex justify-content-end gap-2">
+                                <a href="{{ path('app_admin_donation_demande_edit', {'id': demande.id}) }}" class="btn btn-light btn-sm rounded-circle shadow-sm" style="width: 32px; height: 32px; color: #64748b;" title="Modifier">
+                                    <i class="fas fa-pen"></i>
+                                </a>
+                                <form method="post" action="{{ path('app_admin_donation_demande_delete', {'id': demande.id}) }}" style="display: inline-block" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette demande ?');">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete_demande' ~ demande.id) }}">
+                                    <button class="btn btn-light btn-sm rounded-circle shadow-sm" style="width: 32px; height: 32px; color: #ef4444;" title="Supprimer">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5">
+                            <div class="py-4">
+                                <i class="fas fa-inbox fa-3x text-light mb-3"></i>
+                                <p class="text-muted mb-0">Aucune demande de don pour le moment.</p>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    .fs-xs { font-size: 0.75rem; }
+    .fw-700 { font-weight: 700; }
+    .fw-800 { font-weight: 800; }
+    .bg-warning-subtle { background-color: #fffbeb !important; }
+    .text-warning { color: #d97706 !important; }
+    .bg-success-subtle { background-color: #f0fdf4 !important; }
+    .text-success { color: #16a34a !important; }
+    .bg-danger-subtle { background-color: #fef2f2 !important; }
+    .text-danger { color: #dc2626 !important; }
+    .bg-primary-subtle { background-color: #eff6ff !important; }
+    .text-primary { color: #2563eb !important; }
+</style>
+{% endblock %}

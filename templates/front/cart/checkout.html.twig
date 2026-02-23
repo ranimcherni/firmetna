@@ -1,0 +1,208 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Valider la commande - FIRMETNA{% endblock %}
+
+{% block styles %}
+<style>
+    body {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 100vh;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .checkout-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+    .checkout-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+    .cart-summary {
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+    }
+    .cart-item {
+        display: flex;
+        align-items: center;
+        padding: 1rem 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+    .cart-item:last-child {
+        border-bottom: none;
+    }
+    .item-image {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 8px;
+        margin-right: 1rem;
+    }
+    .item-details {
+        flex: 1;
+    }
+    .item-name {
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 0.25rem;
+    }
+    .item-price {
+        color: #28a745;
+        font-weight: 500;
+    }
+    .item-quantity {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+    .email-form {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+    }
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    .form-label {
+        display: block;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+    }
+    .form-control {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: all 0.3s;
+    }
+    .form-control:focus {
+        outline: none;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+    .btn-send {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+        padding: 0.75rem 2rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        width: 100%;
+    }
+    .btn-send:hover {
+        background: linear-gradient(135deg, #218838, #1e7e34);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(40, 167, 69, 0.3);
+    }
+    .total-section {
+        background: #e8f4fd;
+        padding: 1.5rem;
+        border-radius: 15px;
+        text-align: center;
+    }
+    .total-amount {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #155724;
+    }
+    .alert {
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+    }
+    .alert-success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+    .alert-danger {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="checkout-container">
+    <h1 style="text-align: center; margin-bottom: 2rem; color: #2c3e50;">
+        <i class="fas fa-shopping-cart"></i>
+        Valider la commande
+    </h1>
+
+    <!-- Cart Summary -->
+    <div class="cart-summary">
+        <h2 style="margin-bottom: 1.5rem; color: #2c3e50;">
+            <i class="fas fa-list"></i>
+            Récapitulatif de votre panier
+        </h2>
+        
+        {% if items|length > 0 %}
+            {% for item in items %}
+                <div class="cart-item">
+                    <div class="item-image">
+                        {% if item.produit.imageUrl %}
+                            <img src="{{ item.produit.imageUrl }}" alt="{{ item.produit.nom }}">
+                        {% else %}
+                            <i class="fas fa-{{ item.produit.type == 'vegetale' ? 'leaf' : 'drumstick-bite' }} fa-2x text-muted"></i>
+                        {% endif %}
+                    </div>
+                    <div class="item-details">
+                        <div class="item-name">{{ item.produit.nom }}</div>
+                        <div class="item-price">{{ item.produit.prix }} €</div>
+                        <div class="item-quantity">Quantité: {{ item.quantity }}</div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p style="text-align: center; color: #6c757d;">Votre panier est vide.</p>
+        {% endif %}
+    </div>
+
+    <!-- Total Section -->
+    <div class="total-section">
+        <div class="total-amount">{{ total }} €</div>
+    </div>
+
+    <!-- Email Verification Form -->
+    <div class="email-form">
+        <h2 style="margin-bottom: 1.5rem; color: #2c3e50;">
+            <i class="fas fa-envelope"></i>
+            Vérification par Email
+        </h2>
+        
+        {% for flash in app.flashes %}
+            <div class="alert alert-{{ flash.type }}">
+                {{ flash.message }}
+            </div>
+        {% endfor %}
+
+        <form method="POST" action="{{ path('cart_checkout') }}">
+            <div class="form-group">
+                <label for="email" class="form-label">
+                    <i class="fas fa-envelope"></i>
+                    Adresse Email
+                </label>
+                <input type="email" id="email" name="email" class="form-control" 
+                       placeholder="Entrez votre adresse email" required>
+            </div>
+
+            <button type="submit" class="btn-send">
+                <i class="fas fa-paper-plane"></i>
+                Envoyer le code de vérification
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

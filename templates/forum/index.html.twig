@@ -1,0 +1,280 @@
+﻿{% extends 'base.html.twig' %}
+
+{% block title %}Forum communautaire - FIRMETNA{% endblock %}
+
+{% block body %}
+<style>
+    /* Global Background for Forum */
+    body {
+        background-color: #f3f0ff !important;
+    }
+
+    /* Hero Section */
+    .forum-hero {
+        background: linear-gradient(rgba(26, 77, 46, 0.7), rgba(0, 0, 0, 0.5)), url('{{ asset('images/vert.png') }}');
+        background-size: cover;
+        background-position: center;
+        padding: 5.5rem 0;
+        color: white;
+        margin-bottom: 0;
+    }
+    .hero-content h1 {
+        font-size: 3rem;
+        font-weight: 800;
+        margin-bottom: 1rem;
+        letter-spacing: -0.5px;
+    }
+    .hero-content p {
+        font-size: 1.2rem;
+        opacity: 0.9;
+        max-width: 700px;
+    }
+
+    .btn-hero-new {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        padding: 0.8rem 1.8rem;
+        border-radius: 50px;
+        font-weight: 600;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .btn-hero-new:hover {
+        background: white;
+        color: #1a4d2e;
+        transform: translateY(-2px);
+    }
+
+    /* Publication Cards Container */
+    .publications-container {
+        padding: 3rem 0;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    /* Social Style Card */
+    .pub-card {
+        background: #ffffff;
+        border-radius: 12px;
+        border: none;
+        margin-bottom: 2rem;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+    .pub-header {
+        padding: 1.25rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+    .user-profile {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .avatar {
+        width: 44px;
+        height: 44px;
+        background: #1a4d2e;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.2rem;
+    }
+    .user-info .name {
+        font-weight: 700;
+        color: #1a1a1b;
+        margin: 0;
+        font-size: 0.95rem;
+    }
+    .user-info .meta {
+        font-size: 0.8rem;
+        color: #57606a;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .badge-type {
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+    .text-idee { color: #00a65a; }
+    .text-probleme { color: #dc3545; }
+
+    .pub-content-area {
+        padding: 0 1.25rem 1rem;
+    }
+    .pub-title {
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: #1a1a1b;
+        margin-bottom: 0.75rem;
+    }
+    .pub-text {
+        font-size: 0.95rem;
+        color: #1a1a1b;
+        line-height: 1.5;
+        white-space: pre-wrap;
+    }
+
+    .pub-media {
+        border-top: 1px solid #f0f0f0;
+        background: #f8f9fa;
+        text-align: center;
+    }
+    .pub-media img {
+        width: 100%;
+        max-height: 500px;
+        object-fit: cover;
+    }
+
+    .pub-footer {
+        padding: 0.75rem 1.25rem;
+        border-top: 1px solid #f0f0f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .action-buttons {
+        display: flex;
+        gap: 20px;
+    }
+    .action-btn {
+        background: none;
+        border: none;
+        color: #57606a;
+        font-size: 0.9rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 10px;
+        border-radius: 6px;
+        transition: background 0.2s;
+        text-decoration: none;
+    }
+    .action-btn:hover {
+        background: #f6f8fa;
+        color: #1a4d2e;
+    }
+
+    .comment-count {
+        font-size: 0.85rem;
+        color: #57606a;
+    }
+
+    /* Custom Scrollbar for better UI */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #f3f0ff; }
+    ::-webkit-scrollbar-thumb { background: #1a4d2e; border-radius: 10px; }
+</style>
+
+<div class="forum-hero">
+    <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center gap-4">
+        <div class="hero-content text-center text-md-start">
+            <h1>Le Forum Firmetna</h1>
+            <p>Rejoignez la plus grande communauté agricole de Tunisie. Échangez des idées, trouvez des solutions et progressez ensemble.</p>
+        </div>
+        <div>
+            <a href="{{ path('app_forum_new') }}" class="btn-hero-new">
+                <i class="fas fa-plus-circle"></i>
+                <span>Nouvelle Publication</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="container publications-container">
+    {% for publication in publications %}
+        <article class="pub-card shadow-sm">
+            <div class="pub-header">
+                <div class="user-profile">
+                    <div class="avatar">
+                        {{ publication.auteur.nom|first|upper ?: publication.auteur.email|first|upper ?: 'U' }}
+                    </div>
+                    <div class="user-info">
+                        <p class="name">{{ publication.auteur.nom ?: publication.auteur.prenom ?: 'Utilisateur' }}</p>
+                        <p class="meta">
+                            <span>{{ publication.dateCreation|date('d M, H:i') }}</span>
+                            <span>•</span>
+                            <span class="badge-type {{ publication.type == 'idee' ? 'text-idee' : 'text-probleme' }}">
+                                <i class="fas {{ publication.type == 'idee' ? 'fa-lightbulb' : 'fa-exclamation-circle' }}"></i>
+                                {{ publication.getTypeLabel() }}
+                            </span>
+                        </p>
+                    </div>
+                </div>
+                <div class="dropdown">
+                    <button class="btn btn-link text-muted p-0" data-bs-toggle="dropdown">
+                        <i class="fas fa-ellipsis-h"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                        <li><a class="dropdown-item py-2" href="{{ path('app_forum_show', {id: publication.id}) }}"><i class="fas fa-eye me-2"></i>Voir les détails</a></li>
+                        {% if publication.auteur == app.user or is_granted('ROLE_ADMIN') %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item py-2 text-danger" href="{{ path('app_forum_edit', {id: publication.id}) }}"><i class="fas fa-edit me-2"></i>Modifier</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+
+            <div class="pub-content-area">
+                <h2 class="pub-title">{{ publication.titre }}</h2>
+                <div class="pub-text">{{ publication.contenu|u.truncate(300, '...') }}</div>
+            </div>
+
+            {% if publication.imageFilename %}
+                <div class="pub-media">
+                    <a href="{{ path('app_forum_show', {id: publication.id}) }}">
+                        <img src="{{ asset(publication.imageFilename) }}" alt="Illustration">
+                    </a>
+                </div>
+            {% endif %}
+
+            <div class="pub-footer">
+                <div class="action-buttons">
+                    <button class="action-btn">
+                        <i class="far fa-thumbs-up"></i>
+                        <span>0</span>
+                    </button>
+                    <a href="{{ path('app_forum_show', {id: publication.id}) }}#commentaires" class="action-btn">
+                        <i class="far fa-comment"></i>
+                        <span>Commenter</span>
+                    </a>
+                </div>
+                <div class="comment-count">
+                    {{ publication.commentaires|length }} commentaires
+                </div>
+            </div>
+        </article>
+    {% else %}
+        <div class="text-center py-5 bg-white rounded-3 shadow-sm mt-4">
+            <i class="fas fa-comments fa-4x text-muted mb-3 opacity-25"></i>
+            <h3 class="text-muted">Aucune publication pour le moment</h3>
+            <p class="text-muted mb-4 px-4">Soyez le premier à partager votre passion avec la communauté.</p>
+            <a href="{{ path('app_forum_new') }}" class="btn btn-success rounded-pill px-4">
+                <i class="fas fa-plus me-2"></i>Commencer maintenant
+            </a>
+        </div>
+    {% endfor %}
+
+    {% if publications is defined and publications.pageCount > 1 %}
+        <div class="d-flex justify-content-center mt-5">
+            {{ knp_pagination_render(publications) }}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

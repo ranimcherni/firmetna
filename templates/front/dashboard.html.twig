@@ -1,0 +1,63 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon Espace - FIRMETNA{% endblock %}
+
+{% block body %}
+<!-- Global Page Styling -->
+<style>
+    body {
+        background-color: #f3f0ff;
+        background-image: linear-gradient(rgba(243, 240, 255, 0.8), rgba(243, 240, 255, 0.8)), url('https://images.unsplash.com/photo-1499002238440-d264edd596ec?auto=format&fit=crop&q=80&w=2000');
+        background-size: cover;
+        background-attachment: fixed;
+    }
+    .backdrop-blur { backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+    .max-width-600 { max-width: 600px; }
+    .hover-grow:hover { transform: scale(1.05); }
+    .transition-all { transition: all 0.3s ease; }
+    .glass-card {
+        background: rgba(255, 255, 255, 0.7) !important;
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    }
+    .news-card {
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 20px;
+        padding: 2rem;
+        border-left: 5px solid;
+        transition: all 0.3s;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    .news-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+</style>
+
+<!-- Extended Hero Section with Lavender Background -->
+<div class="container-fluid py-0 position-relative" style="background: linear-gradient(rgba(107, 70, 193, 0.4), rgba(107, 70, 193, 0.3)), url('https://images.unsplash.com/photo-1499002238440-d264edd596ec?auto=format&fit=crop&q=80&w=2000') no-repeat center center; background-size: cover; background-attachment: fixed; margin-top: -85px; min-height: 100vh; display: flex; align-items: center;">
+    <div class="container py-5 text-white position-relative" style="z-index: 2;">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <div class="badge bg-white bg-opacity-20 text-white rounded-pill px-3 py-2 mb-3 shadow-sm border border-white border-opacity-25">
+                    <i class="fas fa-moon me-2"></i>Espace Distingué FIRMETNA
+                </div>
+                <h1 class="display-1 fw-bold mb-3">Bonjour, {{ app.user.prenom }} !</h1>
+                <h2 class="display-6 fw-bold mb-4">Et bienvenue au FIRMETNA</h2>
+                <p class="fs-4 mb-5 opacity-90 max-width-600">Explorez vos modules préférés en haut dans la barre de navigation et gérez votre activité agricole en toute simplicité.</p>
+                
+                <div class="d-flex gap-3">
+                    <a href="{{ path('app_profil_me') }}" class="btn btn-light btn-lg rounded-pill px-5 fw-bold shadow-lg text-primary border-0">
+                        <i class="fas fa-user-edit me-2"></i>Mon Profil
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block footer %}{% endblock %}
+
+
+{% endblock %}
+
