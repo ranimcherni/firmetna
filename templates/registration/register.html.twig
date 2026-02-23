@@ -512,39 +512,60 @@
         async function runRecognitionLoop() {
             if (recognitionInterval) clearInterval(recognitionInterval);
             
+            // Critical check: ensure models are ready
+            if (!faceapi.nets.tinyFaceDetector.params || !faceapi.nets.faceLandmark68Net.params) {
+                iaStatus.textContent = "Modèles non chargés...";
+                return;
+            }
+
             detectionsActive = true;
-            iaStatus.textContent = "Recherche visage...";
+            iaStatus.textContent = "IA INITIALISÉE - SCAN...";
             
             recognitionInterval = setInterval(async () => {
                 if (!detectionsActive || video.paused || video.ended) return;
 
-                const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.5 }))
-                    .withFaceLandmarks();
+                try {
+                    // OPTIMIZED: 160 is much faster for a continuous loop
+                    const detection = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 160, scoreThreshold: 0.1 }))
+                        .withFaceLandmarks();
 
-                const ctx = overlay.getContext('2d');
-                ctx.clearRect(0, 0, overlay.width, overlay.height);
+                    const ctx = overlay.getContext('2d');
+                    ctx.clearRect(0, 0, overlay.width, overlay.height);
 
-                if (detections.length > 1) {
-                    iaStatus.textContent = "PLUSIEURS VISAGES";
-                    iaStatus.className = "text-danger small fw-bold mb-2 text-center";
-                    btnCaptureFace.disabled = true;
-                } else if (detections.length === 1) {
-                    const displaySize = { width: video.clientWidth, height: video.clientHeight };
-                    if (overlay.width !== displaySize.width) {
-                        overlay.width = displaySize.width;
-                        overlay.height = displaySize.height;
+                    if (detection) {
+                        const displaySize = { width: video.clientWidth, height: video.clientHeight };
+                        if (overlay.width !== displaySize.width) {
+                            overlay.width = displaySize.width;
+                            overlay.height = displaySize.height;
+                        }
+                        const resizedResult = faceapi.resizeResults(detection, displaySize);
+                        
+                        // FORCED PINK DOTS - High visibility
+                        const drawOptions = {
+                            drawLines: false, // Cleaner look
+                            drawPoints: true,
+                            pointColor: '#FF1493', // Deep Pink
+                            pointSize: 4
+                        };
+                        const drawBox = new faceapi.draw.DrawFaceLandmarks(resizedResult.landmarks, drawOptions);
+                        drawBox.draw(overlay);
+
+                        iaStatus.textContent = "VISAGE PRÊT !";
+                        iaStatus.className = "text-success fw-bold mb-2 text-center";
+                        btnCaptureFace.disabled = false;
+                        btnCaptureFace.classList.add('btn-pulse', 'btn-success');
+                        btnCaptureFace.classList.remove('btn-outline-success');
+                    } else {
+                        iaStatus.textContent = "Positionnez votre visage...";
+                        iaStatus.className = "text-muted small mb-2 text-center";
+                        btnCaptureFace.disabled = true;
+                        btnCaptureFace.classList.remove('btn-pulse', 'btn-success');
+                        btnCaptureFace.classList.add('btn-outline-success');
                     }
-                    const resizedResult = faceapi.resizeResults(detections[0], displaySize);
-                    faceapi.draw.drawFaceLandmarks(overlay, resizedResult);
-                    iaStatus.textContent = "PRÊT POUR LA CAPTURE";
-                    iaStatus.className = "text-success small fw-bold mb-2 text-center";
-                    btnCaptureFace.disabled = false;
-                } else {
-                    iaStatus.textContent = "Aucun visage détecté";
-                    iaStatus.className = "text-muted small fw-bold mb-2 text-center";
-                    btnCaptureFace.disabled = true;
+                } catch (err) {
+                    console.error("AI Scan Error:", err);
                 }
-            }, 200);
+            }, 100); 
         }
 
         switchFace.addEventListener('change', async (e) => {
