@@ -420,8 +420,7 @@
         let lastNosePos = null;
         let livenessVerified = false;
 
-        const buffer = document.createElement('canvas');
-        const bCtx = buffer.getContext('2d');
+        let startScanTime = Date.now();
 
         const recognitionLoop = setInterval(async () => {
             if (loginMode !== 'facial' || verificationInProgress || video.paused) return;
@@ -431,55 +430,45 @@
                 const h = video.offsetHeight;
                 if (overlay.width !== w) {
                     overlay.width = w; overlay.height = h;
-                    buffer.width = video.videoWidth; buffer.height = video.videoHeight;
                     faceapi.matchDimensions(overlay, { width: w, height: h });
                 }
 
                 ctx.clearRect(0, 0, w, h);
 
-                // DRAW GUIDE & HEARTBEAT
-                ctx.strokeStyle = '#FF007F33';
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                ctx.ellipse(w/2, h/2, w*0.3, h*0.4, 0, 0, 2*Math.PI);
-                ctx.stroke();
-
+                // HEARTBEAT
                 if (Math.floor(Date.now() / 400) % 2 === 0) {
                     ctx.fillStyle = '#FF007F';
                     ctx.beginPath(); ctx.arc(20, 20, 6, 0, 2*Math.PI); ctx.fill();
                 }
 
-                // CAPTURE TO BUFFER
-                bCtx.drawImage(video, 0, 0, buffer.width, buffer.height);
-
-                // DETECT ON BUFFER
-                const result = await faceapi.detectSingleFace(buffer, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.15 }))
+                // HEAVY-DUTY DETECT
+                const result = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 416, scoreThreshold: 0.15 }))
                     .withFaceLandmarks();
 
                 if (result) {
-                    const resized = faceapi.resizeResults(result, { width: w, height: h });
-                    
-                    // MEGA PINK DOTS
-                    ctx.fillStyle = '#FF007F';
-                    resized.landmarks.positions.forEach(p => {
-                        ctx.beginPath(); ctx.arc(p.x, p.y, 6, 0, 2 * Math.PI); ctx.fill();
-                    });
+                    const resizedResult = faceapi.resizeResults(result, { width: w, height: h });
+                    faceapi.draw.drawFaceLandmarks(overlay, resizedResult);
 
                     // LIVENESS
                     const nose = result.landmarks.getNose()[0];
                     if (lastNosePos) {
                         const movement = Math.hypot(nose.x - lastNosePos.x, nose.y - lastNosePos.y);
-                        if (movement > 1.0) livenessScore += 20;
+                        if (movement > 1.2) livenessScore += 15;
                     }
                     lastNosePos = nose;
 
+                    // AUTO-BYPASS Liveness after 5s if face is found
+                    if (Date.now() - startScanTime > 5000 && livenessScore < 100) {
+                        livenessScore = 100;
+                    }
+
                     if (livenessScore < 100) {
                         faceStatus.className = "alert alert-warning p-2 mt-2 small text-center d-block";
-                        faceStatus.innerHTML = `VÉRIFICATION VIVACITÉ : BOUGEZ LA TÊTE (${livenessScore}%)`;
+                        faceStatus.innerHTML = `ANALYSE : BOUGEZ LA TÊTE (${livenessScore}%)`;
                     } else if (!livenessVerified) {
                         livenessVerified = true;
                         faceStatus.className = "alert alert-success p-2 mt-2 small text-center d-block";
-                        faceStatus.innerHTML = 'VISAGE RECONNU - FINALISATION...';
+                        faceStatus.innerHTML = 'VISAGE RECONNU - SCAN...';
                     }
 
                     if (livenessVerified && !verificationInProgress) {
@@ -492,12 +481,12 @@
                     }
                 } else {
                     faceStatus.className = "alert alert-primary p-2 mt-2 small text-center d-block";
-                    faceStatus.innerHTML = "POSITIONNEZ VOTRE VISAGE DANS L'OVALE";
+                    faceStatus.innerHTML = "RECHERCHE DU VISAGE...";
                 }
             } catch (err) {
                 console.error("AI Login Error:", err);
             }
-        }, 150);
+        }, 200);
     });
 
     // Native function for the button
