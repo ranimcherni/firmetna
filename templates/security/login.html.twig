@@ -420,31 +420,27 @@
         let lastNosePos = null;
         let livenessVerified = false;
 
-        // Hidden booster for Login
-        let booster = document.createElement('canvas');
-        booster.style.display = 'none';
-        document.body.appendChild(booster);
-
         const recognitionLoop = setInterval(async () => {
             if (loginMode !== 'facial' || verificationInProgress || video.paused) return;
             
             try {
-                // Pre-process for IA
-                booster.width = video.videoWidth || 640;
-                booster.height = video.videoHeight || 480;
-                const bCtx = booster.getContext('2d');
-                bCtx.filter = 'brightness(1.5) contrast(1.2)';
-                bCtx.drawImage(video, 0, 0);
-
+                const ctx = overlay.getContext('2d');
                 ctx.clearRect(0, 0, overlay.width, overlay.height);
-                // Heartbeat
+
+                // DRAW GUIDE & HEARTBEAT
+                ctx.strokeStyle = '#FF007F55';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.ellipse(overlay.width/2, overlay.height/2, 80, 110, 0, 0, 2*Math.PI);
+                ctx.stroke();
+
                 if (Math.floor(Date.now() / 400) % 2 === 0) {
                     ctx.fillStyle = '#FF007F';
                     ctx.beginPath(); ctx.arc(20, 20, 6, 0, 2*Math.PI); ctx.fill();
                 }
 
-                // NUCLEAR SENSITIVITY
-                const result = await faceapi.detectSingleFace(booster, new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.01 }))
+                // DETECT (Facile)
+                const result = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 160, scoreThreshold: 0.1 }))
                     .withFaceLandmarks();
 
                 if (result) {
@@ -467,7 +463,7 @@
                     const nose = result.landmarks.getNose()[0];
                     if (lastNosePos) {
                         const movement = Math.hypot(nose.x - lastNosePos.x, nose.y - lastNosePos.y);
-                        if (movement > 1.5) livenessScore += 20;
+                        if (movement > 1.0) livenessScore += 20;
                     }
                     lastNosePos = nose;
 
@@ -477,11 +473,11 @@
                     } else if (!livenessVerified) {
                         livenessVerified = true;
                         faceStatus.className = "alert alert-success p-2 mt-2 small text-center d-block";
-                        faceStatus.innerHTML = 'ANALYSE SCANNER...';
+                        faceStatus.innerHTML = 'ANALYSE EN COURS...';
                     }
 
                     if (livenessVerified && !verificationInProgress) {
-                        const fullDetection = await faceapi.detectSingleFace(video, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.4 }))
+                        const fullDetection = await faceapi.detectSingleFace(video, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.3 }))
                             .withFaceLandmarks().withFaceDescriptor();
 
                         if (fullDetection && fullDetection.descriptor) {
@@ -490,7 +486,7 @@
                     }
                 } else {
                     faceStatus.className = "alert alert-primary p-2 mt-2 small text-center d-block";
-                    faceStatus.innerHTML = 'RECHERCHE (POINTS ROSES)...';
+                    faceStatus.innerHTML = "POSITIONNEZ VOTRE VISAGE DANS L'OVALE";
                 }
             } catch (err) {
                 console.error("AI Login Error:", err);

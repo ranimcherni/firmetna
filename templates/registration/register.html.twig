@@ -517,16 +517,8 @@
             }
 
             detectionsActive = true;
-            iaStatus.textContent = "IA HYPER-SENSIBLE ACTIVÉE...";
-            
-            // Create a hidden booster canvas to help IA see in the dark
-            let booster = document.getElementById('ia-booster');
-            if (!booster) {
-                booster = document.createElement('canvas');
-                booster.id = 'ia-booster';
-                booster.style.display = 'none';
-                document.body.appendChild(booster);
-            }
+            iaStatus.textContent = "IA EN ATTENTE DU VISAGE...";
+            iaStatus.className = "text-primary fw-bold mb-2 text-center";
 
             overlay.style.zIndex = "100";
             overlay.style.display = "block";
@@ -536,25 +528,25 @@
                 if (!detectionsActive || video.paused || video.ended) return;
 
                 try {
-                    // 1. PRE-PROCESS: Boost brightness for the IA
-                    booster.width = video.videoWidth;
-                    booster.height = video.videoHeight;
-                    const bCtx = booster.getContext('2d');
-                    bCtx.filter = 'brightness(1.5) contrast(1.2)'; 
-                    bCtx.drawImage(video, 0, 0);
-
-                    // 2. DETECT: Ultra-low threshold (0.01) to find anything resembling a face
-                    const result = await faceapi.detectSingleFace(booster, new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.01 }))
-                        .withFaceLandmarks();
-
-                    // 3. DRAW
+                    // 1. DRAW GUIDE & HEARTBEAT
                     ctx.clearRect(0, 0, overlay.width, overlay.height);
                     
-                    // Always show heartbeat
+                    // The Target Oval
+                    ctx.strokeStyle = '#FF007F55';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.ellipse(overlay.width/2, overlay.height/2, 80, 110, 0, 0, 2*Math.PI);
+                    ctx.stroke();
+
+                    // Pink Heartbeat
                     if (Math.floor(Date.now() / 400) % 2 === 0) {
                         ctx.fillStyle = '#FF007F'; 
-                        ctx.beginPath(); ctx.arc(20, 20, 7, 0, 2*Math.PI); ctx.fill();
+                        ctx.beginPath(); ctx.arc(20, 20, 6, 0, 2*Math.PI); ctx.fill();
                     }
+
+                    // 2. DETECT (Facile Mode: 160px input)
+                    const result = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 160, scoreThreshold: 0.1 }))
+                        .withFaceLandmarks();
 
                     if (result) {
                         const displaySize = { width: video.offsetWidth, height: video.offsetHeight };
@@ -566,22 +558,22 @@
                         
                         const resizedResult = faceapi.resizeResults(result, displaySize);
                         
-                        // DRAW HUGE NEON DOTS
+                        // DRAW LANDMARKS (8px XXL)
                         ctx.fillStyle = '#FF007F'; 
                         resizedResult.landmarks.positions.forEach(p => {
                             ctx.beginPath(); ctx.arc(p.x, p.y, 8, 0, 2 * Math.PI); ctx.fill();
                         });
 
-                        const score = Math.round((result.detection ? result.detection.score : 0.5) * 100);
-                        iaStatus.textContent = `VISAGE DÉTECTÉ (${score}%)`;
+                        const score = Math.round(result.detection.score * 100);
+                        iaStatus.textContent = `VISAGE TROUVÉ (${score}%)`;
                         iaStatus.className = "text-success fw-bold mb-2 text-center";
                         btnCaptureFace.disabled = false;
                         btnCaptureFace.classList.add('btn-pulse', 'btn-success');
                     } else {
-                        iaStatus.textContent = "RECHERCHE... (Points Roses)";
+                        iaStatus.textContent = "POSITIONNEZ VOTRE VISAGE DANS L'OVALE";
                         iaStatus.className = "text-muted small mb-2 text-center";
                         btnCaptureFace.disabled = true;
-                        btnCaptureFace.classList.remove('btn-pulse');
+                        btnCaptureFace.classList.remove('btn-pulse', 'btn-success');
                     }
                 } catch (err) {
                     console.error("Scanner Error:", err);
