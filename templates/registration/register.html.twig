@@ -517,51 +517,60 @@
             }
 
             detectionsActive = true;
-            iaStatus.textContent = "IA EN ATTENTE DU VISAGE...";
-            iaStatus.className = "text-primary fw-bold mb-2 text-center";
-
+            iaStatus.textContent = "IA DÉMARRÉE - SCAN EN COURS...";
+            
             overlay.style.zIndex = "100";
             overlay.style.display = "block";
             const ctx = overlay.getContext('2d');
+
+            // Buffer canvas to avoid video stream locks
+            const buffer = document.createElement('canvas');
+            const bCtx = buffer.getContext('2d');
+
+            let failCount = 0;
 
             recognitionInterval = setInterval(async () => {
                 if (!detectionsActive || video.paused || video.ended) return;
 
                 try {
-                    // 1. DRAW GUIDE & HEARTBEAT
-                    ctx.clearRect(0, 0, overlay.width, overlay.height);
+                    // 1. SYNC & DRAW UI
+                    const w = video.offsetWidth;
+                    const h = video.offsetHeight;
+                    if (overlay.width !== w) {
+                        overlay.width = w; overlay.height = h;
+                        buffer.width = video.videoWidth; buffer.height = video.videoHeight;
+                    }
+
+                    ctx.clearRect(0, 0, w, h);
                     
-                    // The Target Oval
-                    ctx.strokeStyle = '#FF007F55';
-                    ctx.lineWidth = 2;
+                    // Guide Oval
+                    ctx.strokeStyle = '#FF007F33';
+                    ctx.lineWidth = 3;
                     ctx.beginPath();
-                    ctx.ellipse(overlay.width/2, overlay.height/2, 80, 110, 0, 0, 2*Math.PI);
+                    ctx.ellipse(w/2, h/2, w*0.3, h*0.4, 0, 0, 2*Math.PI);
                     ctx.stroke();
 
-                    // Pink Heartbeat
+                    // Heartbeat
                     if (Math.floor(Date.now() / 400) % 2 === 0) {
                         ctx.fillStyle = '#FF007F'; 
                         ctx.beginPath(); ctx.arc(20, 20, 6, 0, 2*Math.PI); ctx.fill();
                     }
 
-                    // 2. DETECT (Facile Mode: 160px input)
-                    const result = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 160, scoreThreshold: 0.1 }))
+                    // 2. CAPTURE TO BUFFER
+                    bCtx.drawImage(video, 0, 0, buffer.width, buffer.height);
+
+                    // 3. DETECT ON BUFFER (SSD is more robust than Tiny)
+                    const result = await faceapi.detectSingleFace(buffer, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.15 }))
                         .withFaceLandmarks();
 
                     if (result) {
-                        const displaySize = { width: video.offsetWidth, height: video.offsetHeight };
-                        if (overlay.width !== displaySize.width) {
-                            overlay.width = displaySize.width;
-                            overlay.height = displaySize.height;
-                            faceapi.matchDimensions(overlay, displaySize);
-                        }
+                        failCount = 0;
+                        const resized = faceapi.resizeResults(result, { width: w, height: h });
                         
-                        const resizedResult = faceapi.resizeResults(result, displaySize);
-                        
-                        // DRAW LANDMARKS (8px XXL)
+                        // DRAW POINTS
                         ctx.fillStyle = '#FF007F'; 
-                        resizedResult.landmarks.positions.forEach(p => {
-                            ctx.beginPath(); ctx.arc(p.x, p.y, 8, 0, 2 * Math.PI); ctx.fill();
+                        resized.landmarks.positions.forEach(p => {
+                            ctx.beginPath(); ctx.arc(p.x, p.y, 6, 0, 2 * Math.PI); ctx.fill();
                         });
 
                         const score = Math.round(result.detection.score * 100);
@@ -570,10 +579,16 @@
                         btnCaptureFace.disabled = false;
                         btnCaptureFace.classList.add('btn-pulse', 'btn-success');
                     } else {
+                        failCount++;
                         iaStatus.textContent = "POSITIONNEZ VOTRE VISAGE DANS L'OVALE";
                         iaStatus.className = "text-muted small mb-2 text-center";
                         btnCaptureFace.disabled = true;
                         btnCaptureFace.classList.remove('btn-pulse', 'btn-success');
+                        
+                        // Show manual backup if failing
+                        if (failCount > 40) { // ~4 seconds
+                             iaStatus.textContent = "IA DIFFICULTÉ : RAPPROCHEZ-VOUS OU CHANGEZ D'ANGLE";
+                        }
                     }
                 } catch (err) {
                     console.error("Scanner Error:", err);

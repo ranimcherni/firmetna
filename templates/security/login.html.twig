@@ -420,18 +420,28 @@
         let lastNosePos = null;
         let livenessVerified = false;
 
+        const buffer = document.createElement('canvas');
+        const bCtx = buffer.getContext('2d');
+
         const recognitionLoop = setInterval(async () => {
             if (loginMode !== 'facial' || verificationInProgress || video.paused) return;
             
             try {
-                const ctx = overlay.getContext('2d');
-                ctx.clearRect(0, 0, overlay.width, overlay.height);
+                const w = video.offsetWidth;
+                const h = video.offsetHeight;
+                if (overlay.width !== w) {
+                    overlay.width = w; overlay.height = h;
+                    buffer.width = video.videoWidth; buffer.height = video.videoHeight;
+                    faceapi.matchDimensions(overlay, { width: w, height: h });
+                }
+
+                ctx.clearRect(0, 0, w, h);
 
                 // DRAW GUIDE & HEARTBEAT
-                ctx.strokeStyle = '#FF007F55';
+                ctx.strokeStyle = '#FF007F33';
                 ctx.lineWidth = 2;
                 ctx.beginPath();
-                ctx.ellipse(overlay.width/2, overlay.height/2, 80, 110, 0, 0, 2*Math.PI);
+                ctx.ellipse(w/2, h/2, w*0.3, h*0.4, 0, 0, 2*Math.PI);
                 ctx.stroke();
 
                 if (Math.floor(Date.now() / 400) % 2 === 0) {
@@ -439,24 +449,20 @@
                     ctx.beginPath(); ctx.arc(20, 20, 6, 0, 2*Math.PI); ctx.fill();
                 }
 
-                // DETECT (Facile)
-                const result = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 160, scoreThreshold: 0.1 }))
+                // CAPTURE TO BUFFER
+                bCtx.drawImage(video, 0, 0, buffer.width, buffer.height);
+
+                // DETECT ON BUFFER
+                const result = await faceapi.detectSingleFace(buffer, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.15 }))
                     .withFaceLandmarks();
 
                 if (result) {
-                    const displaySize = { width: video.offsetWidth, height: video.offsetHeight };
-                    if (overlay.width !== displaySize.width) {
-                        overlay.width = displaySize.width;
-                        overlay.height = displaySize.height;
-                        faceapi.matchDimensions(overlay, displaySize);
-                    }
-
-                    const resizedResult = faceapi.resizeResults(result, displaySize);
+                    const resized = faceapi.resizeResults(result, { width: w, height: h });
                     
                     // MEGA PINK DOTS
                     ctx.fillStyle = '#FF007F';
-                    resizedResult.landmarks.positions.forEach(p => {
-                        ctx.beginPath(); ctx.arc(p.x, p.y, 8, 0, 2 * Math.PI); ctx.fill();
+                    resized.landmarks.positions.forEach(p => {
+                        ctx.beginPath(); ctx.arc(p.x, p.y, 6, 0, 2 * Math.PI); ctx.fill();
                     });
 
                     // LIVENESS
@@ -469,11 +475,11 @@
 
                     if (livenessScore < 100) {
                         faceStatus.className = "alert alert-warning p-2 mt-2 small text-center d-block";
-                        faceStatus.innerHTML = `VIVACITÉ : BOUGEZ LA TÊTE (${livenessScore}%)`;
+                        faceStatus.innerHTML = `VÉRIFICATION VIVACITÉ : BOUGEZ LA TÊTE (${livenessScore}%)`;
                     } else if (!livenessVerified) {
                         livenessVerified = true;
                         faceStatus.className = "alert alert-success p-2 mt-2 small text-center d-block";
-                        faceStatus.innerHTML = 'ANALYSE EN COURS...';
+                        faceStatus.innerHTML = 'VISAGE RECONNU - FINALISATION...';
                     }
 
                     if (livenessVerified && !verificationInProgress) {
@@ -491,7 +497,7 @@
             } catch (err) {
                 console.error("AI Login Error:", err);
             }
-        }, 200);
+        }, 150);
     });
 
     // Native function for the button
