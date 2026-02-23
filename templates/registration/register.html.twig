@@ -512,79 +512,95 @@
         async function runRecognitionLoop() {
             if (recognitionInterval) clearInterval(recognitionInterval);
             
-            // Critical check: ensure models are ready
-            if (!faceapi.nets.tinyFaceDetector.params || !faceapi.nets.faceLandmark68Net.params) {
-                iaStatus.textContent = "Modèles non chargés...";
+            if (!modelsLoaded) {
+                iaStatus.textContent = "ATTENTE DES MODÈLES...";
                 return;
             }
 
             detectionsActive = true;
-            iaStatus.textContent = "IA INITIALISÉE - SCAN...";
+            iaStatus.textContent = "IA EN RECHERCHE (SSD)...";
+            iaStatus.className = "text-primary fw-bold mb-2 text-center";
             
+            overlay.style.zIndex = "100";
+            const ctx = overlay.getContext('2d');
+
             recognitionInterval = setInterval(async () => {
                 if (!detectionsActive || video.paused || video.ended) return;
 
                 try {
-                    // OPTIMIZED: 160 is much faster for a continuous loop
-                    const detection = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 160, scoreThreshold: 0.1 }))
+                    // BLINKING HEARTBEAT: Confirms the loop is running even if detection fails
+                    ctx.clearRect(0, 0, overlay.width, overlay.height);
+                    if (Math.floor(Date.now() / 500) % 2 === 0) {
+                        ctx.fillStyle = '#FF007F'; // Neon Pink blip
+                        ctx.beginPath(); ctx.arc(15, 15, 5, 0, 2*Math.PI); ctx.fill();
+                    }
+
+                    // SSD: Use the high-precision robust detector
+                    const detection = await faceapi.detectSingleFace(video, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.1 }))
                         .withFaceLandmarks();
 
-                    const ctx = overlay.getContext('2d');
-                    ctx.clearRect(0, 0, overlay.width, overlay.height);
-
                     if (detection) {
-                        const displaySize = { width: video.clientWidth, height: video.clientHeight };
-                        if (overlay.width !== displaySize.width) {
-                            overlay.width = displaySize.width;
-                            overlay.height = displaySize.height;
+                        const videoRect = video.getBoundingClientRect();
+                        if (overlay.width !== videoRect.width || overlay.height !== videoRect.height) {
+                            overlay.width = videoRect.width;
+                            overlay.height = videoRect.height;
+                            faceapi.matchDimensions(overlay, { width: videoRect.width, height: videoRect.height });
                         }
+                        
+                        const displaySize = { width: videoRect.width, height: videoRect.height };
                         const resizedResult = faceapi.resizeResults(detection, displaySize);
                         
-                        // FORCED PINK DOTS - High visibility
-                        const drawOptions = {
-                            drawLines: false, // Cleaner look
-                            drawPoints: true,
-                            pointColor: '#FF1493', // Deep Pink
-                            pointSize: 4
-                        };
-                        const drawBox = new faceapi.draw.DrawFaceLandmarks(resizedResult.landmarks, drawOptions);
-                        drawBox.draw(overlay);
+                        // LARGE NEON PINK DOTS
+                        const points = resizedResult.landmarks.positions;
+                        ctx.fillStyle = '#FF007F'; 
+                        points.forEach(p => {
+                            ctx.beginPath();
+                            ctx.arc(p.x, p.y, 7, 0, 2 * Math.PI); 
+                            ctx.fill();
+                        });
 
-                        iaStatus.textContent = "VISAGE PRÊT !";
+                        const score = Math.round(detection.score * 100);
+                        iaStatus.textContent = `VISAGE TROUVÉ (${score}%)`;
                         iaStatus.className = "text-success fw-bold mb-2 text-center";
                         btnCaptureFace.disabled = false;
                         btnCaptureFace.classList.add('btn-pulse', 'btn-success');
                         btnCaptureFace.classList.remove('btn-outline-success');
                     } else {
-                        iaStatus.textContent = "Positionnez votre visage...";
+                        iaStatus.textContent = "RECH. VISAGE (Points Roses)";
                         iaStatus.className = "text-muted small mb-2 text-center";
                         btnCaptureFace.disabled = true;
                         btnCaptureFace.classList.remove('btn-pulse', 'btn-success');
                         btnCaptureFace.classList.add('btn-outline-success');
                     }
                 } catch (err) {
-                    console.error("AI Scan Error:", err);
+                    console.error("AI Loop Error:", err);
                 }
-            }, 100); 
+            }, 200); 
         }
 
         switchFace.addEventListener('change', async (e) => {
             if (e.target.checked) {
                 faceUIContainer.classList.remove('d-none');
                 if (!modelsLoaded) {
-                    iaStatus.textContent = "Chargement IA...";
+                    iaStatus.textContent = "TÉLÉCHARGEMENT DE L'IA...";
                     try {
-                        await Promise.all([
-                            faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
-                            faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
-                            faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL),
-                            faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL)
-                        ]);
+                        const baseUrl = 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights';
+                        await faceapi.nets.tinyFaceDetector.loadFromUri(baseUrl);
+                        iaStatus.textContent = "CHARGEMENT RÉSEAU 1/4...";
+                        await faceapi.nets.faceLandmark68Net.loadFromUri(baseUrl);
+                        iaStatus.textContent = "CHARGEMENT RÉSEAU 2/4...";
+                        await faceapi.nets.faceRecognitionNet.loadFromUri(baseUrl);
+                        iaStatus.textContent = "CHARGEMENT RÉSEAU 3/4...";
+                        await faceapi.nets.ssdMobilenetv1.loadFromUri(baseUrl);
+                        
                         modelsLoaded = true;
-                        iaStatus.textContent = "IA Chargée";
+                        iaStatus.textContent = "IA PRÊTE À 100%";
+                        iaStatus.className = "text-success fw-bold mb-2 text-center";
                         startVideo();
                     } catch (err) {
                         console.error("Models failed:", err);
+                        iaStatus.textContent = "ERREUR DE RÉSEAU (Vérifiez votre connexion)";
+                        iaStatus.className = "text-danger small fw-bold mb-2 text-center";
                     }
                 } else {
                     startVideo();
