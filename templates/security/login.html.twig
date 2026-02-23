@@ -413,80 +413,78 @@
     }
 
     video.addEventListener('play', () => {
-        const displaySize = { width: 280, height: 210 };
-        overlay.width = 280;
-        overlay.height = 210;
-        faceapi.matchDimensions(overlay, displaySize);
+        const ctx = overlay.getContext('2d');
+        overlay.style.zIndex = "100";
 
         let livenessScore = 0;
         let lastNosePos = null;
-        let lastEyeDistance = null;
         let livenessVerified = false;
 
         const recognitionLoop = setInterval(async () => {
             if (loginMode !== 'facial' || verificationInProgress || video.paused) return;
             
             try {
-                // 1. FAST FEEDBACK: Detect landmarks for liveness and feedback
-                const detection = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.5 }))
+                // HEARTBEAT: Confirms scan is active
+                ctx.clearRect(0, 0, overlay.width, overlay.height);
+                if (Math.floor(Date.now() / 400) % 2 === 0) {
+                    ctx.fillStyle = '#FF007F';
+                    ctx.beginPath(); ctx.arc(15, 15, 6, 0, 2*Math.PI); ctx.fill();
+                }
+
+                // ULTRA-SENSITIVE SSD
+                const detection = await faceapi.detectSingleFace(video, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.15 }))
                     .withFaceLandmarks();
 
-                const ctx = overlay.getContext('2d');
-                ctx.clearRect(0, 0, overlay.width, overlay.height);
-
                 if (detection) {
-                    const landmarks = detection.landmarks;
-                    const nose = landmarks.getNose()[0];
-                    const leftEye = landmarks.getLeftEye();
-                    const rightEye = landmarks.getRightEye();
+                    const videoRect = video.getBoundingClientRect();
+                    if (overlay.width !== videoRect.width) {
+                        overlay.width = videoRect.width;
+                        overlay.height = videoRect.height;
+                        faceapi.matchDimensions(overlay, { width: videoRect.width, height: videoRect.height });
+                    }
 
-                    // LIVENESS CHECK 1: Blink Detection (Rough approximation by eye aspect ratio change or distance)
-                    const eyeDist = Math.hypot(leftEye[0].x - rightEye[0].x, leftEye[0].y - rightEye[0].y);
+                    const resizedResult = faceapi.resizeResults(detection, { width: videoRect.width, height: videoRect.height });
                     
-                    // LIVENESS CHECK 2: Head Movement
+                    // NEON PINK LANDMARKS (7px)
+                    const points = resizedResult.landmarks.positions;
+                    ctx.fillStyle = '#FF007F';
+                    points.forEach(p => {
+                        ctx.beginPath(); ctx.arc(p.x, p.y, 7, 0, 2 * Math.PI); ctx.fill();
+                    });
+
+                    // LIVENESS
+                    const nose = detection.landmarks.getNose()[0];
                     if (lastNosePos) {
                         const movement = Math.hypot(nose.x - lastNosePos.x, nose.y - lastNosePos.y);
-                        if (movement > 2 && movement < 30) {
-                            livenessScore += 10;
-                        }
+                        if (movement > 1.5 && movement < 30) livenessScore += 15;
                     }
                     lastNosePos = nose;
 
-                    // Progress bar or feedback
                     if (livenessScore < 100) {
-                        faceStatus.className = "alert alert-warning p-2 mt-2 shadow-sm border-0 small text-center d-block";
-                        faceStatus.innerHTML = `<i class="fas fa-arrows-alt me-2"></i>VÉRIFICATION DE VIVACITÉ : BOUGEZ LÉGÈREMENT (${livenessScore}%)`;
+                        faceStatus.className = "alert alert-warning p-2 mt-2 small text-center d-block";
+                        faceStatus.innerHTML = `<i class="fas fa-arrows-alt me-2"></i>VIVACITÉ : BOUGEZ LÉGÈREMENT LA TÊTE (${livenessScore}%)`;
                     } else if (!livenessVerified) {
                         livenessVerified = true;
-                        faceStatus.className = "alert alert-success p-2 mt-2 shadow-sm border-0 small text-center d-block";
-                        faceStatus.innerHTML = '<i class="fas fa-check-circle me-2"></i>VIVACITÉ CONFIRMÉE - ANALYSE...';
+                        faceStatus.className = "alert alert-success p-2 mt-2 small text-center d-block";
+                        faceStatus.innerHTML = '<i class="fas fa-check-circle me-2"></i>ANALYSE EN COURS...';
                     }
 
-                    const displaySize = { width: video.clientWidth, height: video.clientHeight };
-                    if (overlay.width !== displaySize.width) {
-                        overlay.width = displaySize.width;
-                        overlay.height = displaySize.height;
-                    }
-                    const resizedResult = faceapi.resizeResults(detection, displaySize);
-                    faceapi.draw.drawFaceLandmarks(overlay, resizedResult);
-                    
-                    if (livenessVerified) {
-                        // 2. HIGH-PRECISION VERIFY: Use SSD and Recognition
-                        const fullDetection = await faceapi.detectSingleFace(video, new faceapi.SsdMobilenetv1Options())
+                    if (livenessVerified && !verificationInProgress) {
+                        const fullDetection = await faceapi.detectSingleFace(video, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.3 }))
                             .withFaceLandmarks().withFaceDescriptor();
 
-                        if (fullDetection && fullDetection.descriptor && !verificationInProgress) {
+                        if (fullDetection && fullDetection.descriptor) {
                             verifyFace(Array.from(fullDetection.descriptor));
                         }
                     }
                 } else {
-                    faceStatus.className = "alert alert-primary p-2 mt-2 shadow-sm border-0 small text-center d-block";
-                    faceStatus.innerHTML = '<i class="fas fa-user-clock me-2"></i>Positionnez votre visage...';
+                    faceStatus.className = "alert alert-primary p-2 mt-2 small text-center d-block";
+                    faceStatus.innerHTML = '<i class="fas fa-user-clock me-2"></i>RECHERCHE (POINTS ROSES)...';
                 }
             } catch (err) {
                 console.error("AI Login Error:", err);
             }
-        }, 300);
+        }, 200);
     });
 
     // Native function for the button

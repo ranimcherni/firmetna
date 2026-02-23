@@ -517,8 +517,14 @@
                 return;
             }
 
+            // Ensure video is playing
+            if (video.readyState < 2) {
+                setTimeout(runRecognitionLoop, 500);
+                return;
+            }
+
             detectionsActive = true;
-            iaStatus.textContent = "IA EN RECHERCHE (SSD)...";
+            iaStatus.textContent = "IA EN SCAN (ULTRA-SENSIBLE)...";
             iaStatus.className = "text-primary fw-bold mb-2 text-center";
             
             overlay.style.zIndex = "100";
@@ -528,27 +534,26 @@
                 if (!detectionsActive || video.paused || video.ended) return;
 
                 try {
-                    // BLINKING HEARTBEAT: Confirms the loop is running even if detection fails
+                    // HEARTBEAT: Blinks pink to prove scanning is happening
                     ctx.clearRect(0, 0, overlay.width, overlay.height);
-                    if (Math.floor(Date.now() / 500) % 2 === 0) {
-                        ctx.fillStyle = '#FF007F'; // Neon Pink blip
-                        ctx.beginPath(); ctx.arc(15, 15, 5, 0, 2*Math.PI); ctx.fill();
+                    if (Math.floor(Date.now() / 400) % 2 === 0) {
+                        ctx.fillStyle = '#FF007F'; 
+                        ctx.beginPath(); ctx.arc(15, 15, 6, 0, 2*Math.PI); ctx.fill();
                     }
 
-                    // SSD: Use the high-precision robust detector
-                    const detection = await faceapi.detectSingleFace(video, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.1 }))
+                    // SSD ULTRA-ROBUST: Detect even in very low light (0.05)
+                    const detection = await faceapi.detectSingleFace(video, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.05 }))
                         .withFaceLandmarks();
 
                     if (detection) {
                         const videoRect = video.getBoundingClientRect();
-                        if (overlay.width !== videoRect.width || overlay.height !== videoRect.height) {
+                        if (overlay.width !== videoRect.width) {
                             overlay.width = videoRect.width;
                             overlay.height = videoRect.height;
                             faceapi.matchDimensions(overlay, { width: videoRect.width, height: videoRect.height });
                         }
                         
-                        const displaySize = { width: videoRect.width, height: videoRect.height };
-                        const resizedResult = faceapi.resizeResults(detection, displaySize);
+                        const resizedResult = faceapi.resizeResults(detection, { width: videoRect.width, height: videoRect.height });
                         
                         // LARGE NEON PINK DOTS
                         const points = resizedResult.landmarks.positions;
@@ -575,7 +580,7 @@
                 } catch (err) {
                     console.error("AI Loop Error:", err);
                 }
-            }, 200); 
+            }, 100); // Faster scan
         }
 
         switchFace.addEventListener('change', async (e) => {
