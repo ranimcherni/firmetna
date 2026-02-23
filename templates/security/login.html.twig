@@ -420,22 +420,34 @@
         let lastNosePos = null;
         let livenessVerified = false;
 
+        // Hidden booster for Login
+        let booster = document.createElement('canvas');
+        booster.style.display = 'none';
+        document.body.appendChild(booster);
+
         const recognitionLoop = setInterval(async () => {
             if (loginMode !== 'facial' || verificationInProgress || video.paused) return;
             
             try {
-                // HEARTBEAT
+                // Pre-process for IA
+                booster.width = video.videoWidth || 640;
+                booster.height = video.videoHeight || 480;
+                const bCtx = booster.getContext('2d');
+                bCtx.filter = 'brightness(1.5) contrast(1.2)';
+                bCtx.drawImage(video, 0, 0);
+
                 ctx.clearRect(0, 0, overlay.width, overlay.height);
+                // Heartbeat
                 if (Math.floor(Date.now() / 400) % 2 === 0) {
                     ctx.fillStyle = '#FF007F';
                     ctx.beginPath(); ctx.arc(20, 20, 6, 0, 2*Math.PI); ctx.fill();
                 }
 
-                // DETECTION
-                const result = await faceapi.detectSingleFace(video, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.1 }))
+                // NUCLEAR SENSITIVITY
+                const result = await faceapi.detectSingleFace(booster, new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.01 }))
                     .withFaceLandmarks();
 
-                if (result && result.detection) {
+                if (result) {
                     const displaySize = { width: video.offsetWidth, height: video.offsetHeight };
                     if (overlay.width !== displaySize.width) {
                         overlay.width = displaySize.width;
@@ -445,28 +457,27 @@
 
                     const resizedResult = faceapi.resizeResults(result, displaySize);
                     
-                    // NEON PINK DOTS
-                    const points = resizedResult.landmarks.positions;
+                    // MEGA PINK DOTS
                     ctx.fillStyle = '#FF007F';
-                    points.forEach(p => {
-                        ctx.beginPath(); ctx.arc(p.x, p.y, 6, 0, 2 * Math.PI); ctx.fill();
+                    resizedResult.landmarks.positions.forEach(p => {
+                        ctx.beginPath(); ctx.arc(p.x, p.y, 8, 0, 2 * Math.PI); ctx.fill();
                     });
 
                     // LIVENESS
                     const nose = result.landmarks.getNose()[0];
                     if (lastNosePos) {
                         const movement = Math.hypot(nose.x - lastNosePos.x, nose.y - lastNosePos.y);
-                        if (movement > 2 && movement < 30) livenessScore += 15;
+                        if (movement > 1.5) livenessScore += 20;
                     }
                     lastNosePos = nose;
 
                     if (livenessScore < 100) {
                         faceStatus.className = "alert alert-warning p-2 mt-2 small text-center d-block";
-                        faceStatus.innerHTML = `<i class="fas fa-arrows-alt me-2"></i>VIVACITÉ : BOUGEZ LA TÊTE (${livenessScore}%)`;
+                        faceStatus.innerHTML = `VIVACITÉ : BOUGEZ LA TÊTE (${livenessScore}%)`;
                     } else if (!livenessVerified) {
                         livenessVerified = true;
                         faceStatus.className = "alert alert-success p-2 mt-2 small text-center d-block";
-                        faceStatus.innerHTML = '<i class="fas fa-check-circle me-2"></i>DÉTECTION RÉUSSIE - SCAN...';
+                        faceStatus.innerHTML = 'ANALYSE SCANNER...';
                     }
 
                     if (livenessVerified && !verificationInProgress) {
@@ -479,7 +490,7 @@
                     }
                 } else {
                     faceStatus.className = "alert alert-primary p-2 mt-2 small text-center d-block";
-                    faceStatus.innerHTML = '<i class="fas fa-user-clock me-2"></i>SCAN EN COURS...';
+                    faceStatus.innerHTML = 'RECHERCHE (POINTS ROSES)...';
                 }
             } catch (err) {
                 console.error("AI Login Error:", err);

@@ -511,22 +511,23 @@
 
         async function runRecognitionLoop() {
             if (recognitionInterval) clearInterval(recognitionInterval);
-            
-            if (!modelsLoaded) {
-                iaStatus.textContent = "ATTENTE DES MODÈLES...";
-                return;
-            }
-
-            // Ensure video is playing
-            if (video.readyState < 2) {
+            if (!modelsLoaded || video.readyState < 2) {
                 setTimeout(runRecognitionLoop, 500);
                 return;
             }
 
             detectionsActive = true;
-            iaStatus.textContent = "IA ACTIVE - ANALYSE...";
-            iaStatus.className = "text-primary fw-bold mb-2 text-center";
+            iaStatus.textContent = "IA HYPER-SENSIBLE ACTIVÉE...";
             
+            // Create a hidden booster canvas to help IA see in the dark
+            let booster = document.getElementById('ia-booster');
+            if (!booster) {
+                booster = document.createElement('canvas');
+                booster.id = 'ia-booster';
+                booster.style.display = 'none';
+                document.body.appendChild(booster);
+            }
+
             overlay.style.zIndex = "100";
             overlay.style.display = "block";
             const ctx = overlay.getContext('2d');
@@ -535,18 +536,27 @@
                 if (!detectionsActive || video.paused || video.ended) return;
 
                 try {
-                    // BLINKING HEARTBEAT (Always Visible)
-                    ctx.clearRect(0, 0, overlay.width, overlay.height);
-                    if (Math.floor(Date.now() / 400) % 2 === 0) {
-                        ctx.fillStyle = '#FF007F'; 
-                        ctx.beginPath(); ctx.arc(20, 20, 6, 0, 2*Math.PI); ctx.fill();
-                    }
+                    // 1. PRE-PROCESS: Boost brightness for the IA
+                    booster.width = video.videoWidth;
+                    booster.height = video.videoHeight;
+                    const bCtx = booster.getContext('2d');
+                    bCtx.filter = 'brightness(1.5) contrast(1.2)'; 
+                    bCtx.drawImage(video, 0, 0);
 
-                    // SSD DETECTION - Use standard options
-                    const result = await faceapi.detectSingleFace(video, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.1 }))
+                    // 2. DETECT: Ultra-low threshold (0.01) to find anything resembling a face
+                    const result = await faceapi.detectSingleFace(booster, new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.01 }))
                         .withFaceLandmarks();
 
-                    if (result && result.detection) {
+                    // 3. DRAW
+                    ctx.clearRect(0, 0, overlay.width, overlay.height);
+                    
+                    // Always show heartbeat
+                    if (Math.floor(Date.now() / 400) % 2 === 0) {
+                        ctx.fillStyle = '#FF007F'; 
+                        ctx.beginPath(); ctx.arc(20, 20, 7, 0, 2*Math.PI); ctx.fill();
+                    }
+
+                    if (result) {
                         const displaySize = { width: video.offsetWidth, height: video.offsetHeight };
                         if (overlay.width !== displaySize.width) {
                             overlay.width = displaySize.width;
@@ -556,32 +566,27 @@
                         
                         const resizedResult = faceapi.resizeResults(result, displaySize);
                         
-                        // DRAW LANDMARKS CORRECTLY
-                        const points = resizedResult.landmarks.positions;
+                        // DRAW HUGE NEON DOTS
                         ctx.fillStyle = '#FF007F'; 
-                        points.forEach(p => {
-                            ctx.beginPath();
-                            ctx.arc(p.x, p.y, 6, 0, 2 * Math.PI); 
-                            ctx.fill();
+                        resizedResult.landmarks.positions.forEach(p => {
+                            ctx.beginPath(); ctx.arc(p.x, p.y, 8, 0, 2 * Math.PI); ctx.fill();
                         });
 
-                        const score = Math.round(result.detection.score * 100);
-                        iaStatus.textContent = `VISAGE TROUVÉ (${score}%)`;
+                        const score = Math.round((result.detection ? result.detection.score : 0.5) * 100);
+                        iaStatus.textContent = `VISAGE DÉTECTÉ (${score}%)`;
                         iaStatus.className = "text-success fw-bold mb-2 text-center";
                         btnCaptureFace.disabled = false;
                         btnCaptureFace.classList.add('btn-pulse', 'btn-success');
-                        btnCaptureFace.classList.remove('btn-outline-success');
                     } else {
-                        iaStatus.textContent = "CHARGEMENT DES POINTS ROSES...";
+                        iaStatus.textContent = "RECHERCHE... (Points Roses)";
                         iaStatus.className = "text-muted small mb-2 text-center";
                         btnCaptureFace.disabled = true;
-                        btnCaptureFace.classList.remove('btn-pulse', 'btn-success');
-                        btnCaptureFace.classList.add('btn-outline-success');
+                        btnCaptureFace.classList.remove('btn-pulse');
                     }
                 } catch (err) {
-                    console.error("AI Loop Error:", err);
+                    console.error("Scanner Error:", err);
                 }
-            }, 150); 
+            }, 100); 
         }
 
         switchFace.addEventListener('change', async (e) => {
