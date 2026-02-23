@@ -1,0 +1,58 @@
+<div class="row g-3">
+    <div class="col-12">
+        {{ form_row(form.partner) }}
+    </div>
+    <div class="col-md-6">
+        {{ form_row(form.type) }}
+    </div>
+    <div class="col-md-6">
+        {{ form_row(form.status) }}
+    </div>
+    <div class="col-12">
+        {{ form_row(form.title) }}
+    </div>
+    <div class="col-12">
+        {{ form_row(form.description) }}
+    </div>
+    <div class="col-md-6">
+        {{ form_row(form.amount) }}
+    </div>
+    <div class="col-md-6">
+        {{ form_row(form.offerDate) }}
+    </div>
+    <div class="col-md-6">
+        {{ form_row(form.dateDebutContract) }}
+    </div>
+    <div class="col-md-6">
+        {{ form_row(form.dateFinContract) }}
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const dateDebut = document.querySelector('#contract_dateDebutContract');
+    const dateFin = document.querySelector('#contract_dateFinContract');
+    
+    if (dateDebut && dateFin) {
+        // Set minimum date for date debut to today
+        const today = new Date().toISOString().split('T')[0];
+        dateDebut.setAttribute('min', today);
+        
+        // Update date fin minimum when date debut changes
+        dateDebut.addEventListener('change', function() {
+            if (this.value) {
+                dateFin.setAttribute('min', this.value);
+                // Clear date fin if it's earlier than new date debut
+                if (dateFin.value && dateFin.value < this.value) {
+                    dateFin.value = '';
+                }
+            }
+        });
+        
+        // Initial validation
+        if (dateDebut.value) {
+            dateFin.setAttribute('min', dateDebut.value);
+        }
+    }
+});
+</script>

@@ -1,0 +1,76 @@
+<div class="row g-3">
+    <div class="col-md-6">
+        {{ form_row(form.name) }}
+    </div>
+    <div class="col-md-3">
+        {{ form_row(form.type) }}
+    </div>
+    <div class="col-md-3">
+        {{ form_row(form.status) }}
+    </div>
+    <div class="col-md-6">
+        {{ form_row(form.email) }}
+    </div>
+    <div class="col-md-6">
+        {{ form_row(form.phone) }}
+    </div>
+    <div class="col-12">
+        <label class="form-label required">Adresse</label>
+        <div class="input-group">
+            {{ form_widget(form.address, {'attr': {'class': 'form-control', 'placeholder': 'Entrez l\'adresse du partenaire...', 'id': 'partner_address'}}) }}
+            <button type="button" class="btn btn-outline-primary" onclick="openGoogleMaps()">
+                <i class="fas fa-map-marker-alt"></i> Choisir sur Maps
+            </button>
+        </div>
+        <small class="form-text text-muted">
+            Cliquez sur "Choisir sur Maps" pour rechercher une adresse sur Google Maps et la copier ici
+        </small>
+        {{ form_errors(form.address) }}
+    </div>
+    <div class="col-12">
+        {{ form_row(form.description) }}
+    </div>
+    <div class="col-md-6">
+        {{ form_row(form.website) }}
+    </div>
+    <div class="col-md-6">
+        {{ form_row(form.logoUrl) }}
+    </div>
+</div>
+
+<script>
+function openGoogleMaps() {
+    // Open Google Maps in a new tab
+    const mapsWindow = window.open('https://www.google.com/maps', '_blank');
+    
+    // Show instructions to user
+    alert('Instructions:\n\n1. Dans Google Maps, recherchez une adresse\n2. Cliquez sur l\'adresse pour la sélectionner\n3. Copiez l\'adresse (Ctrl+C)\n4. Revenez à cette page et collez l\'adresse (Ctrl+V)\n\nL\'adresse sera automatiquement sauvegardée!');
+    
+    // Auto-paste functionality (works in some browsers)
+    setTimeout(() => {
+        mapsWindow.postMessage('Please search and copy an address', '*');
+    }, 1000);
+}
+
+// Auto-paste listener (when user returns from Google Maps)
+document.addEventListener('paste', function(e) {
+    const pastedData = (e.clipboardData || window.clipboardData).getData('text');
+    if (pastedData && pastedData.length > 10) {
+        // Basic address validation
+        const addressField = document.getElementById('partner_address');
+        if (addressField && document.activeElement === addressField) {
+            // Address will be pasted automatically by browser
+            console.log('Address pasted:', pastedData);
+        }
+    }
+});
+
+// Add coordinates display (optional feature)
+document.getElementById('partner_address').addEventListener('change', function() {
+    const address = this.value;
+    if (address && address.length > 10) {
+        // You could add a simple coordinates estimation here
+        console.log('Address entered:', address);
+    }
+});
+</script>
