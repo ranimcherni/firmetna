@@ -231,9 +231,84 @@
         font-weight: 700;
     }
 
-    @media (max-width: 1024px) {
-        .left-side { display: none; }
-        .right-side { flex: 1; padding: 2rem; }
+    /* Switch Styling */
+    .form-switch {
+        padding-left: 2.5em;
+    }
+    .form-check-input {
+        width: 3em !important;
+        height: 1.5em !important;
+        margin-left: -2.5em !important;
+        cursor: pointer;
+    }
+    .form-check-input:checked {
+        background-color: var(--primary-green);
+        border-color: var(--primary-green);
+    }
+    .face-card {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .face-guide-overlay {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 170px;
+        height: 190px;
+        border: 2px dashed rgba(25, 135, 84, 0.4);
+        border-radius: 35px;
+        pointer-events: none;
+        z-index: 5;
+        opacity: 0.7;
+    }
+
+    .face-guide-overlay::after {
+        content: '';
+        width: 100%;
+        height: 2px;
+        background: rgba(25, 135, 84, 0.3);
+        position: absolute;
+        box-shadow: 0 0 10px rgba(25, 135, 84, 0.5);
+        animation: scan 2.5s infinite ease-in-out;
+    }
+
+    @keyframes scan {
+        0%, 100% { top: 15%; }
+        50% { top: 85%; }
+    }
+    .text-danger-soft {
+        color: #ef4444;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    @keyframes pulse-green {
+        0% { box-shadow: 0 0 0 0 rgba(26, 77, 46, 0.7); }
+        70% { box-shadow: 0 0 0 15px rgba(26, 77, 46, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(26, 77, 46, 0); }
+    }
+    .btn-pulse {
+        animation: pulse-green 2s infinite;
+        background-color: #198754 !important;
+        border-color: #198754 !important;
+    }
+    .step-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background-color: #e2e8f0;
+        transition: all 0.3s ease;
+    }
+    .step-dot.active {
+        background-color: var(--primary-green);
+        transform: scale(1.3);
+        box-shadow: 0 0 8px rgba(26, 77, 46, 0.4);
     }
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -319,10 +394,57 @@
                     </div>
                 </div>
 
+                <!-- Refined Face Recognition Section -->
+                <div class="face-recognition-section mb-4">
+                    <div class="face-card">
+                        <div class="d-flex justify-content-between align-items-center mb-2 text-start">
+                            <h6 class="mb-0 fw-bold" style="color: var(--primary-green);">Reconnaissance Faciale (Optionnel)</h6>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="switch-face">
+                            </div>
+                        </div>
+                        <p class="text-muted small text-start mb-3">
+                            Activez la connexion par visage pour un accès plus rapide et sécurisé. Aucune photo n'est stockée.
+                        </p>
+
+                        <div id="face-ui-container" class="d-none">
+                            <div id="ia-status" class="text-primary small fw-bold mb-2 text-center">Initialisation...</div>
+                            
+                            <!-- Progress Steps -->
+                            <div class="d-flex justify-content-center gap-2 mb-3">
+                                <div id="step-1" class="step-dot active"></div>
+                                <div id="step-2" class="step-dot"></div>
+                                <div id="step-3" class="step-dot"></div>
+                            </div>
+                            <div id="step-instruction" class="text-center small fw-bold mb-2 text-muted">ÉTAPE 1 : Regardez l'écran bien en face</div>
+
+                            <div class="video-container position-relative mx-auto mb-3" style="width: 280px; height: 210px; background: #000; border-radius: 12px; overflow: hidden; border: 3px solid var(--primary-green);">
+                                <video id="video" style="width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1);" autoplay muted></video>
+                                <canvas id="overlay" class="position-absolute start-0 top-0" style="width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); pointer-events: none;"></canvas>
+                                <div class="face-guide-overlay"></div>
+                            </div>
+                            
+                            <div id="scan-status" class="alert p-2 small d-none mb-3"></div>
+                            <div id="detection-msg" class="alert alert-warning p-2 small mb-3 d-none"></div>
+
+                            <button type="button" id="btn-capture-face" class="btn btn-outline-success w-100 py-2 fw-bold" disabled>
+                                <i class="fas fa-camera me-2"></i>Capturer (<span id="capture-count">0</span>/3)
+                            </button>
+                        </div>
+                    </div>
+                    {{ form_row(registrationForm.faceSignature) }}
+                </div>
+
+                <div class="mb-4 d-flex justify-content-center">
+                    <div class="g-recaptcha" data-sitekey="{{ recaptcha_site_key }}"></div>
+                </div>
+
                 <button type="submit" class="btn-submit">
                     S'inscrire
                 </button>
             {{ form_end(registrationForm) }}
+
+            <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
             <div class="login-footer">
                 Déjà un compte ? <a href="{{ path('app_login') }}">Connectez-vous</a>
@@ -333,52 +455,198 @@
 {% endblock %}
 
 {% block javascripts %}
+<!-- Face-API.js -->
+<script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
 <script>
-    function previewImage(input) {
-        if (input.files && input.files[0]) {
-            var reader = new FileReader();
-            reader.onload = function(e) {
-                var preview = document.getElementById('imagePreview');
-                preview.innerHTML = '<img src="' + e.target.result + '" style="width: 100%; height: 100%; object-fit: cover;" />';
+    document.addEventListener('DOMContentLoaded', () => {
+        const video = document.getElementById('video');
+        const overlay = document.getElementById('overlay');
+        const loadingModels = document.getElementById('loading-models');
+        const scanStatus = document.getElementById('scan-status');
+        const faceSignatureInput = document.getElementById('registration_form_faceSignature');
+        const submitBtn = document.querySelector('.btn-submit');
+        const switchFace = document.getElementById('switch-face');
+        const btnCaptureFace = document.getElementById('btn-capture-face');
+        const faceUIContainer = document.getElementById('face-ui-container');
+        const detectionMsg = document.getElementById('detection-msg');
+        const iaStatus = document.getElementById('ia-status');
+
+        const captureCountText = document.getElementById('capture-count');
+        const stepInstruction = document.getElementById('step-instruction');
+        const dots = [document.getElementById('step-1'), document.getElementById('step-2'), document.getElementById('step-3')];
+
+        let modelsLoaded = false;
+        let detectionsActive = false;
+        let recognitionInterval = null;
+        let capturedDescriptors = [];
+        const STEPS = [
+            "Regardez l'écran bien en face",
+            "Tournez légèrement la tête vers la GAUCHE",
+            "Tournez légèrement la tête vers la DROITE"
+        ];
+
+        const MODEL_URL = 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights';
+
+        async function startVideo() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { width: 640, height: 480 } 
+                });
+                video.srcObject = stream;
+            } catch (err) {
+                console.error("Camera access error:", err);
+                detectionMsg.textContent = "Caméra bloquée ou inaccessible.";
+                detectionMsg.classList.remove('d-none');
             }
-            reader.readAsDataURL(input.files[0]);
         }
-    }
 
-    // Phone number field logic
-    const phoneInput = document.querySelector('input[name*="telephone"]');
-    if (phoneInput) {
-        // Enforce +216 prefix
-        if (!phoneInput.value.startsWith('+216')) {
-            phoneInput.value = '+216 ';
+        function stopVideo() {
+            detectionsActive = false;
+            if (recognitionInterval) clearInterval(recognitionInterval);
+            if (video.srcObject) {
+                video.srcObject.getTracks().forEach(track => track.stop());
+                video.srcObject = null;
+            }
         }
 
-        phoneInput.addEventListener('input', function(e) {
-            let val = e.target.value;
+        async function runRecognitionLoop() {
+            if (recognitionInterval) clearInterval(recognitionInterval);
             
-            // Ensure prefix remains
-            if (!val.startsWith('+216')) {
-                e.target.value = '+216 ';
-                return;
-            }
+            detectionsActive = true;
+            iaStatus.textContent = "Recherche visage...";
+            
+            recognitionInterval = setInterval(async () => {
+                if (!detectionsActive || video.paused || video.ended) return;
 
-            // Remove non-digits after prefix
-            let prefix = '+216 ';
-            let suffix = val.substring(prefix.length).replace(/\D/g, '');
-            
-            // Limit to 8 digits
-            if (suffix.length > 8) {
-                suffix = suffix.substring(0, 8);
+                const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.5 }))
+                    .withFaceLandmarks();
+
+                const ctx = overlay.getContext('2d');
+                ctx.clearRect(0, 0, overlay.width, overlay.height);
+
+                if (detections.length > 1) {
+                    iaStatus.textContent = "PLUSIEURS VISAGES";
+                    iaStatus.className = "text-danger small fw-bold mb-2 text-center";
+                    btnCaptureFace.disabled = true;
+                } else if (detections.length === 1) {
+                    const displaySize = { width: video.clientWidth, height: video.clientHeight };
+                    if (overlay.width !== displaySize.width) {
+                        overlay.width = displaySize.width;
+                        overlay.height = displaySize.height;
+                    }
+                    const resizedResult = faceapi.resizeResults(detections[0], displaySize);
+                    faceapi.draw.drawFaceLandmarks(overlay, resizedResult);
+                    iaStatus.textContent = "PRÊT POUR LA CAPTURE";
+                    iaStatus.className = "text-success small fw-bold mb-2 text-center";
+                    btnCaptureFace.disabled = false;
+                } else {
+                    iaStatus.textContent = "Aucun visage détecté";
+                    iaStatus.className = "text-muted small fw-bold mb-2 text-center";
+                    btnCaptureFace.disabled = true;
+                }
+            }, 200);
+        }
+
+        switchFace.addEventListener('change', async (e) => {
+            if (e.target.checked) {
+                faceUIContainer.classList.remove('d-none');
+                if (!modelsLoaded) {
+                    iaStatus.textContent = "Chargement IA...";
+                    try {
+                        await Promise.all([
+                            faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
+                            faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
+                            faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL),
+                            faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL)
+                        ]);
+                        modelsLoaded = true;
+                        iaStatus.textContent = "IA Chargée";
+                        startVideo();
+                    } catch (err) {
+                        console.error("Models failed:", err);
+                    }
+                } else {
+                    startVideo();
+                }
+            } else {
+                stopVideo();
+                faceUIContainer.classList.add('d-none');
+                faceSignatureInput.value = '';
+                capturedDescriptors = [];
+                updateCaptureUI();
             }
-            
-            e.target.value = prefix + suffix;
         });
 
-        // Prevent deleting prefix
-        phoneInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Backspace' && e.target.value.length <= 5) {
-                e.preventDefault();
+        function updateCaptureUI() {
+            const count = capturedDescriptors.length;
+            captureCountText.textContent = count;
+            
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === count);
+                dot.classList.toggle('bg-success', i < count);
+            });
+
+            if (count < 3) {
+                stepInstruction.textContent = "ÉTAPE " + (count + 1) + " : " + STEPS[count];
             }
+        }
+
+        btnCaptureFace.addEventListener('click', async (e) => {
+            e.preventDefault();
+            if (capturedDescriptors.length >= 3) return;
+
+            btnCaptureFace.disabled = true;
+            iaStatus.textContent = "Analyse en cours...";
+
+            try {
+                const detection = await faceapi.detectSingleFace(video, new faceapi.SsdMobilenetv1Options())
+                    .withFaceLandmarks()
+                    .withFaceDescriptor();
+
+                if (detection) {
+                    capturedDescriptors.push(detection.descriptor);
+                    updateCaptureUI();
+
+                    if (capturedDescriptors.length === 3) {
+                        // Calculate mean descriptor
+                        const meanDescriptor = new Float32Array(128);
+                        for (let i = 0; i < 128; i++) {
+                            meanDescriptor[i] = (capturedDescriptors[0][i] + capturedDescriptors[1][i] + capturedDescriptors[2][i]) / 3;
+                        }
+                        
+                        faceSignatureInput.value = JSON.stringify(Array.from(meanDescriptor));
+                        iaStatus.textContent = "SIGNATURE COMPLÈTE !";
+                        iaStatus.className = "text-success fw-bold mb-2 text-center";
+                        stopVideo();
+                        btnCaptureFace.classList.add('d-none');
+                        scanStatus.className = "alert alert-success p-3 text-center";
+                        scanStatus.innerHTML = "<i class='fas fa-check-circle me-2'></i> Signature générée avec succès.";
+                        scanStatus.classList.remove('d-none');
+                    } else {
+                        iaStatus.textContent = "Captureréussie ! Étape suivante...";
+                        setTimeout(runRecognitionLoop, 500);
+                    }
+                } else {
+                    alert("Visage non détecté. Assurez-vous d'être bien éclairé.");
+                }
+            } catch (err) {
+                console.error("Capture error:", err);
+            }
+        });
+
+        video.addEventListener('play', runRecognitionLoop);
+    });
+
+    // Phone prefix logic
+    const phoneInput = document.querySelector('input[name*="telephone"]');
+    if (phoneInput) {
+        if (!phoneInput.value.startsWith('+216')) phoneInput.value = '+216 ';
+        phoneInput.addEventListener('input', function(e) {
+            let val = e.target.value;
+            if (!val.startsWith('+216')) { e.target.value = '+216 '; return; }
+            let suffix = val.substring(5).replace(/\D/g, '');
+            if (suffix.length > 8) suffix = suffix.substring(0, 8);
+            e.target.value = '+216 ' + suffix;
         });
     }
 </script>

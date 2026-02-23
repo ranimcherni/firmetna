@@ -1,0 +1,186 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Vérification - FIRMETNA{% endblock %}
+
+{% block body %}
+<div class="auth-wrapper">
+    <div class="auth-container">
+        <div class="auth-card text-center">
+            <div class="icon-circle mb-4">
+                <i class="fas fa-shield-alt text-success"></i>
+            </div>
+            
+            <h2 class="page-title mb-2">Vérification</h2>
+            <p class="instruction-text mb-4">
+                Un code de vérification à 6 chiffres a été envoyé à votre adresse email <strong>{{ email }}</strong>. Veuillez le saisir ci-dessous.
+            </p>
+
+            {% for label, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ label == 'error' ? 'danger' : label }} alert-dismissible fade show mb-3" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endfor %}
+
+            <form method="POST" id="verification-form">
+                <div class="code-inputs-container mb-4">
+                    <input type="text" name="code[]" maxlength="1" class="code-input" required autofocus>
+                    <input type="text" name="code[]" maxlength="1" class="code-input" required>
+                    <input type="text" name="code[]" maxlength="1" class="code-input" required>
+                    <input type="text" name="code[]" maxlength="1" class="code-input" required>
+                    <input type="text" name="code[]" maxlength="1" class="code-input" required>
+                    <input type="text" name="code[]" maxlength="1" class="code-input" required>
+                </div>
+                
+                <div class="d-grid mb-4">
+                    <button type="submit" class="btn btn-premium-success">Vérifier le code</button>
+                </div>
+            </form>
+            
+            <div class="auth-footer">
+                <p class="text-muted mb-0">Pas reçu ? <a href="{{ path('app_forgot_password_request') }}" class="resend-link">Renvoyer un code</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    :root {
+        --premium-green: #1a4d2e;
+        --soft-green: #e8f5e8;
+        --border-color: #f0f0f0;
+        --text-muted: #888;
+    }
+
+    .auth-wrapper {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f8f9fa;
+        padding: 20px;
+    }
+
+    .auth-container {
+        width: 100%;
+        max-width: 450px;
+    }
+
+    .auth-card {
+        background: white;
+        border-radius: 24px;
+        padding: 40px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    }
+
+    .icon-circle {
+        width: 80px;
+        height: 80px;
+        background-color: var(--soft-green);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        font-size: 32px;
+    }
+
+    .page-title {
+        font-weight: 800;
+        font-size: 28px;
+        color: #101828;
+    }
+
+    .instruction-text {
+        color: #667085;
+        font-size: 15px;
+        line-height: 1.5;
+    }
+
+    .code-inputs-container {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .code-input {
+        width: 50px;
+        height: 60px;
+        text-align: center;
+        font-size: 24px;
+        font-weight: 700;
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        background-color: #fcfcfd;
+        transition: all 0.2s;
+    }
+
+    .code-input:focus {
+        outline: none;
+        border-color: var(--premium-green);
+        box-shadow: 0 0 0 4px rgba(26, 77, 46, 0.1);
+    }
+
+    .btn-premium-success {
+        background-color: var(--premium-green);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        padding: 14px;
+        font-weight: 700;
+        font-size: 18px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-premium-success:hover {
+        background-color: #143a22;
+        transform: translateY(-2px);
+        color: white;
+    }
+
+    .resend-link {
+        color: var(--premium-green);
+        text-decoration: none;
+        font-weight: 700;
+    }
+
+    .resend-link:hover {
+        text-decoration: underline;
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const inputs = document.querySelectorAll('.code-input');
+    
+    inputs.forEach((input, index) => {
+        input.addEventListener('input', (e) => {
+            if (e.target.value.length === 1 && index < inputs.length - 1) {
+                inputs[index + 1].focus();
+            }
+        });
+
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                inputs[index - 1].focus();
+            }
+        });
+        
+        // Coller le code
+        input.addEventListener('paste', (e) => {
+            e.preventDefault();
+            const pasteData = e.clipboardData.getData('text').slice(0, 6);
+            const digits = pasteData.split('');
+            digits.forEach((digit, i) => {
+                if (inputs[i]) {
+                    inputs[i].value = digit;
+                    if (inputs[i+1]) inputs[i+1].focus();
+                }
+            });
+        });
+    });
+});
+</script>
+{% endblock %}

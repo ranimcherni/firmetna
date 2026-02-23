@@ -64,10 +64,15 @@ class RegistrationController extends AbstractController
                 }
             }
 
-            $user->setDateInscription(new \DateTime());
-            $user->setStatut('Actif');
-
             try {
+                $user->setDateInscription(new \DateTime());
+                $user->setStatut('Actif');
+
+                // Set facial recognition flag
+                if ($user->getFaceSignature()) {
+                    $user->setFacialRecognitionEnabled(true);
+                }
+
                 $entityManager->persist($user);
                 $entityManager->flush();
 

@@ -1,0 +1,68 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Email envoyé - FIRMETNA{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="bg-success p-4 text-white text-center">
+                    <h2 class="fw-bold mb-0">
+                        <i class="fas fa-envelope me-2"></i>Email envoyé
+                    </h2>
+                    <p class="mb-0 opacity-75">Vérifiez votre boîte de réception</p>
+                </div>
+                
+                <div class="card-body p-4 text-center">
+                    <div class="mb-4">
+                        <i class="fas fa-envelope-open-text fa-4x text-success mb-3 opacity-25"></i>
+                    </div>
+                    
+                    <h4 class="fw-bold mb-3">Email de réinitialisation envoyé !</h4>
+                    
+                    <p class="text-muted mb-4">
+                        Si un compte existe avec l'adresse email que vous avez fournie, vous recevrez un email contenant les instructions pour réinitialiser votre mot de passe.
+                    </p>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Pour information :</strong>
+                        <ul class="mb-0 mt-2">
+                            <li>Vérifiez votre dossier spam ou courriers indésirables</li>
+                            <li>Le lien de réinitialisation expirera après 1 heure</li>
+                            <li>Si vous ne recevez pas l'email dans 10 minutes, réessayez</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <a href="{{ path('app_forgot_password_request') }}" class="btn btn-outline-success">
+                            <i class="fas fa-redo me-2"></i>Renvoyer l'email
+                        </a>
+                        <a href="{{ path('app_login') }}" class="btn btn-success">
+                            <i class="fas fa-arrow-left me-2"></i>Retour à la connexion
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border: none;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .alert-info {
+        background-color: #e8f5e8;
+        border-color: #1a4d2e;
+        color: #333;
+    }
+    
+    .btn {
+        min-width: 150px;
+    }
+</style>
+{% endblock %}

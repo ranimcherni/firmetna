@@ -1,0 +1,167 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Réinitialisation - FIRMETNA{% endblock %}
+
+{% block body %}
+<div class="auth-wrapper">
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1 class="brand-title">FIRMETNA</h1>
+                <h2 class="page-title">RÉINITIALISATION</h2>
+                <p class="subtitle">Mot de passe oublié ?</p>
+            </div>
+            
+            <div class="auth-body">
+                <p class="instruction-text text-center mb-4">
+                    Entrez l'adresse email associée à votre compte Firmetna.
+                </p>
+
+                {% for label, messages in app.flashes %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ label == 'error' ? 'danger' : label }} alert-dismissible fade show mb-3" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+
+                <form method="POST">
+                    <div class="form-group mb-4">
+                        <label for="email" class="form-label">Votre Email</label>
+                        <input type="email" name="email" id="email" class="form-control premium-input" placeholder="votre@email.com" required autofocus>
+                    </div>
+                    
+                    <div class="d-grid mb-4">
+                        <button type="submit" class="btn btn-premium-success">Envoyer</button>
+                    </div>
+                </form>
+                
+                <div class="auth-footer text-center">
+                    <a href="{{ path('app_login') }}" class="back-link">
+                        <i class="fas fa-arrow-left me-2"></i>Retour à la connexion
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    :root {
+        --premium-green: #1a4d2e;
+        --soft-green: #e8f5e8;
+        --border-color: #f0f0f0;
+        --text-muted: #888;
+    }
+
+    .auth-wrapper {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-image: url('{{ asset("images/bg_green_leaf.jpg") }}'); /* Assurez-vous d'avoir une image ou utilisez un dégradé */
+        background-size: cover;
+        background-position: center;
+        padding: 20px;
+    }
+
+    .auth-container {
+        width: 100%;
+        max-width: 450px;
+    }
+
+    .auth-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 24px;
+        padding: 40px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    }
+
+    .auth-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .brand-title {
+        color: var(--premium-green);
+        font-weight: 800;
+        font-size: 36px;
+        letter-spacing: 2px;
+        margin-bottom: 5px;
+    }
+
+    .page-title {
+        font-weight: 700;
+        font-size: 24px;
+        color: #2c3e50;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+    }
+
+    .subtitle {
+        color: var(--premium-green);
+        font-weight: 600;
+        font-size: 18px;
+    }
+
+    .instruction-text {
+        color: var(--text-muted);
+        font-size: 15px;
+        line-height: 1.5;
+    }
+
+    .premium-input {
+        background-color: #f8f9fa;
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 15px 20px;
+        transition: all 0.3s ease;
+    }
+
+    .premium-input:focus {
+        background-color: #fff;
+        border-color: var(--premium-green);
+        box-shadow: 0 0 0 4px rgba(26, 77, 46, 0.1);
+    }
+
+    .form-label {
+        font-weight: 700;
+        font-size: 14px;
+        margin-bottom: 8px;
+        color: #333;
+    }
+
+    .btn-premium-success {
+        background-color: var(--premium-green);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        padding: 14px;
+        font-weight: 700;
+        font-size: 18px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(26, 77, 46, 0.2);
+    }
+
+    .btn-premium-success:hover {
+        background-color: #143a22;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(26, 77, 46, 0.3);
+        color: white;
+    }
+
+    .back-link {
+        color: #667085;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 15px;
+        transition: color 0.3s;
+    }
+
+    .back-link:hover {
+        color: var(--premium-green);
+    }
+</style>
+{% endblock %}

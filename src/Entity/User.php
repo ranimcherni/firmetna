@@ -35,8 +35,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 50)]
     #[Assert\NotBlank(message: 'Le rôle est obligatoire.')]
     #[Assert\Choice(
-        choices: ['ROLE_USER', 'ROLE_ADMIN'],
-        message: 'Le rôle doit être soit ROLE_USER soit ROLE_ADMIN.'
+        choices: ['ROLE_USER', 'ROLE_ADMIN', 'ROLE_AGRICULTEUR', 'ROLE_CLIENT', 'ROLE_DONATEUR'],
+        message: 'Le rôle n\'est pas valide.'
     )]
     private ?string $role = "ROLE_USER";
 
@@ -127,6 +127,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     )]
     private ?string $statut = null;
 
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $faceSignature = null;
+
+    #[ORM\Column(type: 'boolean', options: ['default' => false])]
+    private bool $facialRecognitionEnabled = false;
+
     #[ORM\Column(length: 50, nullable: true)]
     #[Assert\Choice(
         choices: ['Agriculteur', 'Client', 'Donateur'],
@@ -191,6 +197,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getStatut(): ?string { return $this->statut; }
     public function setStatut(?string $statut): static { $this->statut = $statut; return $this; }
+
+    public function getFaceSignature(): ?string { return $this->faceSignature; }
+    public function setFaceSignature(?string $faceSignature): static { $this->faceSignature = $faceSignature; return $this; }
+
+    public function isFacialRecognitionEnabled(): bool { return $this->facialRecognitionEnabled; }
+    public function setFacialRecognitionEnabled(bool $facialRecognitionEnabled): static { $this->facialRecognitionEnabled = $facialRecognitionEnabled; return $this; }
 
     public function getRoleType(): ?string { return $this->roleType; }
     public function setRoleType(?string $roleType): static { $this->roleType = $roleType; return $this; }

@@ -16,6 +16,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Validator\Constraints\File;
+use App\Validator\ReCaptcha;
 
 class RegistrationFormType extends AbstractType
 {
@@ -84,6 +85,16 @@ class RegistrationFormType extends AbstractType
                         'max' => 4096,
                     ]),
                 ],
+            ])
+            ->add('faceSignature', \Symfony\Component\Form\Extension\Core\Type\HiddenType::class, [
+                'mapped' => true,
+                'required' => false,
+            ])
+            ->add('captcha', \Symfony\Component\Form\Extension\Core\Type\HiddenType::class, [
+                'mapped' => false,
+                'constraints' => [
+                    new \App\Validator\ReCaptcha()
+                ]
             ])
         ;
     }
