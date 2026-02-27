@@ -27,3 +27,7 @@ services:
         arguments:
             $reCaptchaSecret: '%env(RECAPTCHA_SECRET_KEY)%'
         tags: [validator.constraint_validator]
+
+    App\Service\ModerationService:
+        arguments:
+            $apiKey: '%env(default::PERSPECTIVE_API_KEY)%'

@@ -11,6 +11,7 @@ use App\Form\PublicationType;
 use App\Repository\LikeRepository;
 use App\Repository\NotificationRepository;
 use App\Repository\PublicationRepository;
+use App\Service\ModerationService;
 use App\Service\ShareService;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
@@ -48,7 +49,7 @@ class ForumController extends AbstractController
     }
 
     #[Route('/nouveau', name: 'app_forum_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger, ModerationService $moderation): Response
     {
         // Vérifier que l'utilisateur est connecté
         if (!$this->getUser()) {
@@ -70,6 +71,14 @@ class ForumController extends AbstractController
         }
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // --- Moderation Check ---
+            $textToCheck = ($publication->getTitre() ?? '') . ' ' . strip_tags($publication->getContenu() ?? '');
+            if ($moderation->isToxic($textToCheck)) {
+                $this->addFlash('danger', '⚠️ Votre publication a été refusée car elle contient du contenu inapproprié ou offensant.');
+                return $this->render('forum/new.html.twig', ['form' => $form->createView()]);
+            }
+            // --- End Moderation Check ---
+
             try {
                 // Gestion de l'image
                 $imageFile = $form->get('imageFile')->getData();
@@ -111,7 +120,7 @@ class ForumController extends AbstractController
     }
 
     #[Route('/voir/{id}', name: 'app_forum_show', methods: ['GET', 'POST'])]
-    public function show(int $id, Request $request, PublicationRepository $publicationRepository, EntityManagerInterface $entityManager, LikeRepository $likeRepository, ShareService $shareService): Response
+    public function show(int $id, Request $request, PublicationRepository $publicationRepository, EntityManagerInterface $entityManager, LikeRepository $likeRepository, ShareService $shareService, ModerationService $moderation): Response
     {
         $publication = $publicationRepository->findWithCommentaires($id);
 
@@ -153,6 +162,13 @@ class ForumController extends AbstractController
         }
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // --- Moderation Check ---
+            if ($moderation->isToxic($commentaire->getContenu() ?? '')) {
+                $this->addFlash('danger', '⚠️ Votre commentaire a été refusé car il contient du contenu inapproprié ou offensant.');
+                return $this->redirectToRoute('app_forum_show', ['id' => $id]);
+            }
+            // --- End Moderation Check ---
+
             $entityManager->persist($commentaire);
 
             // Créer une notification si ce n'est pas l'auteur de la publication

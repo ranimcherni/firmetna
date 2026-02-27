@@ -87,4 +87,34 @@ class PublicationRepository extends ServiceEntityRepository
 
         return $qb->getQuery();
     }
+
+    /**
+     * @return array Returns an array of most liked publications
+     */
+    public function findMostLiked(int $limit = 5): array
+    {
+        return $this->createQueryBuilder('p')
+            ->select('p as publication', 'COUNT(l.id) as likesCount')
+            ->leftJoin('p.likes', 'l')
+            ->groupBy('p.id')
+            ->orderBy('likesCount', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * @return array Returns an array of most commented publications
+     */
+    public function findMostCommented(int $limit = 5): array
+    {
+        return $this->createQueryBuilder('p')
+            ->select('p as publication', 'COUNT(c.id) as commentsCount')
+            ->leftJoin('p.commentaires', 'c')
+            ->groupBy('p.id')
+            ->orderBy('commentsCount', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
 }

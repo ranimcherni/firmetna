@@ -20,4 +20,20 @@ class UserRepository extends ServiceEntityRepository
             $this->getEntityManager()->flush();
         }
     }
+
+    /**
+     * @return array Returns an array of most active users (based on number of publications)
+    */
+    public function findTopContributors(int $limit = 5): array
+    {
+        return $this->createQueryBuilder('u')
+            ->select('u as user', 'COUNT(p.id) as publicationsCount')
+            ->leftJoin('App\Entity\Publication', 'p', 'WITH', 'p.auteur = u')
+            ->groupBy('u.id')
+            ->having('publicationsCount > 0')
+            ->orderBy('publicationsCount', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
 }
