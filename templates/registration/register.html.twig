@@ -692,4 +692,16 @@
         });
     }
 </script>
+<script>
+    // Ensure the Google widget value is copied into the Symfony hidden field
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form');
+        if (!form) return;
+        form.addEventListener('submit', function() {
+            const recaptcha = document.querySelector('[name="g-recaptcha-response"]');
+            const hidden = document.querySelector('input[name="registration_form[captcha]"]') || document.getElementById('registration_form_captcha');
+            if (recaptcha && hidden) hidden.value = recaptcha.value;
+        });
+    });
+</script>
 {% endblock %}
