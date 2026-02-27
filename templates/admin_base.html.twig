@@ -293,16 +293,33 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a href="{{ path('app_admin_publication_index') }}" class="nav-link {% if 'admin_publication' in app.request.get('_route') %}active{% endif %}">
-                    <i class="fas fa-comments"></i>
-                    <span>Forum (Publications)</span>
+                {% set forum_active = 'admin_publication' in app.request.get('_route') or 'admin_commentaire' in app.request.get('_route') or app.request.get('_route') == 'app_admin_forum_stats' %}
+                <a href="#forumSubmenu" data-bs-toggle="collapse" class="nav-link {% if forum_active %}active{% endif %} d-flex align-items-center justify-content-between">
+                    <div>
+                        <i class="fas fa-comments"></i>
+                        <span>Gestion Forum</span>
+                    </div>
+                    <i class="fas fa-angle-down" style="font-size: 0.8rem; transition: transform 0.3s;"></i>
                 </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ path('app_admin_commentaire_index') }}" class="nav-link {% if 'admin_commentaire' in app.request.get('_route') %}active{% endif %}">
-                    <i class="fas fa-comment-dots"></i>
-                    <span>Forum (Commentaires)</span>
-                </a>
+                <div class="collapse {% if forum_active %}show{% endif %}" id="forumSubmenu">
+                    <ul class="nav flex-column mt-2" style="margin-left: 2.5rem; border-left: 1px solid rgba(255,255,255,0.2); padding-left: 0.5rem;">
+                        <li class="nav-item m-0 mb-1">
+                            <a href="{{ path('app_admin_publication_index') }}" class="nav-link {% if 'admin_publication' in app.request.get('_route') %}text-white fw-bold{% else %}text-white-50{% endif %}" style="padding: 0.5rem 1rem; border-radius: 8px; background: {% if 'admin_publication' in app.request.get('_route') %}rgba(255,255,255,0.1){% else %}transparent{% endif %};">
+                                <i class="fas fa-bullhorn" style="width: 20px; font-size: 0.9rem;"></i> Publications
+                            </a>
+                        </li>
+                        <li class="nav-item m-0 mb-1">
+                            <a href="{{ path('app_admin_commentaire_index') }}" class="nav-link {% if 'admin_commentaire' in app.request.get('_route') %}text-white fw-bold{% else %}text-white-50{% endif %}" style="padding: 0.5rem 1rem; border-radius: 8px; background: {% if 'admin_commentaire' in app.request.get('_route') %}rgba(255,255,255,0.1){% else %}transparent{% endif %};">
+                                <i class="fas fa-comment-dots" style="width: 20px; font-size: 0.9rem;"></i> Commentaires
+                            </a>
+                        </li>
+                        <li class="nav-item m-0 mb-1">
+                            <a href="{{ path('app_admin_forum_stats') }}" class="nav-link {% if app.request.get('_route') == 'app_admin_forum_stats' %}text-white fw-bold{% else %}text-white-50{% endif %}" style="padding: 0.5rem 1rem; border-radius: 8px; background: {% if app.request.get('_route') == 'app_admin_forum_stats' %}rgba(255,255,255,0.1){% else %}transparent{% endif %};">
+                                <i class="fas fa-chart-pie" style="width: 20px; font-size: 0.9rem;"></i> Statistiques
+                            </a>
+                        </li>
+                    </ul>
+                </div>
             </li>
             <li class="nav-item">
                 <a href="{{ path('app_admin_donations') }}" class="nav-link {% if app.request.get('_route') == 'app_admin_donations' %}active{% endif %}">

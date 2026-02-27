@@ -1,0 +1,374 @@
+{% extends 'admin_base.html.twig' %}
+
+{% block title %}Statistiques du Forum{% endblock %}
+
+{% block body %}
+    <style>
+        .stats-header {
+            background: linear-gradient(135deg, #1a4d2e, #2ecc71);
+            border-radius: 20px;
+            padding: 2rem;
+            color: white;
+            box-shadow: 0 10px 30px rgba(46, 204, 113, 0.2);
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stats-header::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .kpi-card {
+            border: none;
+            border-radius: 24px;
+            padding: 1.5rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            background: white;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+
+        .kpi-bg-icon {
+            position: absolute;
+            right: -10px;
+            bottom: -20px;
+            font-size: 6rem;
+            opacity: 0.05;
+            z-index: -1;
+            transform: rotate(-15deg);
+        }
+
+        .kpi-icon-wrapper {
+            width: 48px;
+            height: 48px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .kpi-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin: 0;
+            color: #2d3748;
+            line-height: 1.2;
+        }
+
+        .kpi-label {
+            color: #718096;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Colors for KPIs */
+        .color-pub .kpi-icon-wrapper { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+        .color-com .kpi-icon-wrapper { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+        .color-like .kpi-icon-wrapper { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+        .color-eng .kpi-icon-wrapper { background: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
+
+        .data-card {
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+            background: white;
+            overflow: hidden;
+            height: 100%;
+        }
+
+        .data-card-header {
+            background: transparent;
+            padding: 1.5rem;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .data-card-title {
+            font-weight: 700;
+            color: #1e293b;
+            font-size: 1.1rem;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .modern-table {
+            margin-bottom: 0;
+        }
+
+        .modern-table th {
+            border-bottom: 2px solid #f1f5f9;
+            color: #64748b;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            padding: 1rem 1.5rem;
+        }
+
+        .modern-table td {
+            vertical-align: middle;
+            border-bottom: 1px solid #f1f5f9;
+            padding: 1rem 1.5rem;
+            color: #334155;
+            font-weight: 500;
+        }
+
+        .modern-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .modern-table tbody tr {
+            transition: background 0.2s ease;
+        }
+
+        .modern-table tbody tr:hover {
+            background: #f8fafc;
+        }
+        
+        .badge-soft {
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+    </style>
+
+    <main class="content p-4" style="background-color: #f4f7f6; min-height: 100vh;">
+        
+        <!-- Beautiful Header -->
+        <div class="stats-header">
+            <h1 class="h3 mb-2 text-white fw-bold"><i class="fas fa-chart-line me-2"></i> Vision Globale du Forum</h1>
+            <p class="mb-0 text-white-50">Surveillez l'engagement et l'activité de votre communauté en temps réel.</p>
+        </div>
+
+        <!-- Rounded KPI Cards -->
+        <div class="row g-4 mb-5">
+            <div class="col-12 col-md-6 col-xl-3">
+                <div class="kpi-card color-pub">
+                    <i class="fas fa-bullhorn kpi-bg-icon"></i>
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="kpi-label">Publications</p>
+                            <h2 class="kpi-value">{{ totalPublications }}</h2>
+                        </div>
+                        <div class="kpi-icon-wrapper">
+                            <i class="fas fa-bullhorn"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-12 col-md-6 col-xl-3">
+                <div class="kpi-card color-com">
+                    <i class="fas fa-comment-dots kpi-bg-icon"></i>
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="kpi-label">Commentaires</p>
+                            <h2 class="kpi-value">{{ totalCommentaires }}</h2>
+                        </div>
+                        <div class="kpi-icon-wrapper">
+                            <i class="fas fa-comment-dots"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 col-xl-3">
+                <div class="kpi-card color-like">
+                    <i class="fas fa-heart kpi-bg-icon"></i>
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="kpi-label">Mentions J'aime</p>
+                            <h2 class="kpi-value">{{ totalLikes }}</h2>
+                        </div>
+                        <div class="kpi-icon-wrapper">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 col-xl-3">
+                <div class="kpi-card color-eng">
+                    <i class="fas fa-bolt kpi-bg-icon"></i>
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="kpi-label">Moy. Engagement</p>
+                            <h2 class="kpi-value">{{ avgEngagement }}</h2>
+                        </div>
+                        <div class="kpi-icon-wrapper">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Tables -->
+        <div class="row g-4">
+            
+            <!-- Most Liked Posts -->
+            <div class="col-12 col-xl-6">
+                <div class="data-card">
+                    <div class="data-card-header">
+                        <h5 class="data-card-title"><i class="fas fa-fire text-danger"></i> Posts les plus Aimés</h5>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table modern-table">
+                            <thead>
+                                <tr>
+                                    <th>Titre</th>
+                                    <th>Auteur</th>
+                                    <th class="text-end">Likes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in topLiked %}
+                                    <tr>
+                                        <td>
+                                            <div class="text-truncate" style="max-width: 200px;" title="{{ item.publication.titre }}">
+                                                {{ item.publication.titre }}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <div class="rounded-circle bg-light d-flex align-items-center justify-content-center text-secondary fw-bold" style="width: 32px; height: 32px; font-size: 0.8rem;">
+                                                    {{ item.publication.auteur.prenom|first|upper }}{{ item.publication.auteur.nom|first|upper }}
+                                                </div>
+                                                {{ item.publication.auteur.prenom }} {{ item.publication.auteur.nom }}
+                                            </div>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="badge-soft text-danger" style="background: rgba(239, 68, 68, 0.1);">
+                                                {{ item.likesCount }} <i class="fas fa-heart"></i>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                {% else %}
+                                    <tr><td colspan="3" class="text-center py-4 text-muted">Aucune donnée disponible</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Most Commented Posts -->
+            <div class="col-12 col-xl-6">
+                <div class="data-card">
+                    <div class="data-card-header">
+                        <h5 class="data-card-title"><i class="fas fa-comments text-success"></i> Posts les plus Commentés</h5>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table modern-table">
+                            <thead>
+                                <tr>
+                                    <th>Titre</th>
+                                    <th>Auteur</th>
+                                    <th class="text-end">Commentaires</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in topCommented %}
+                                    <tr>
+                                        <td>
+                                            <div class="text-truncate" style="max-width: 200px;" title="{{ item.publication.titre }}">
+                                                {{ item.publication.titre }}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <div class="rounded-circle bg-light d-flex align-items-center justify-content-center text-secondary fw-bold" style="width: 32px; height: 32px; font-size: 0.8rem;">
+                                                    {{ item.publication.auteur.prenom|first|upper }}{{ item.publication.auteur.nom|first|upper }}
+                                                </div>
+                                                {{ item.publication.auteur.prenom }} {{ item.publication.auteur.nom }}
+                                            </div>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="badge-soft text-success" style="background: rgba(16, 185, 129, 0.1);">
+                                                {{ item.commentsCount }} <i class="fas fa-comment-dots"></i>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                {% else %}
+                                    <tr><td colspan="3" class="text-center py-4 text-muted">Aucune donnée disponible</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Most Active Users -->
+            <div class="col-12">
+                <div class="data-card mb-4">
+                    <div class="data-card-header d-flex justify-content-between align-items-center">
+                        <h5 class="data-card-title"><i class="fas fa-trophy text-warning"></i> Utilisateurs les plus Actifs (Publications)</h5>
+                        <span class="badge bg-light text-dark rounded-pill border">Top 5</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table modern-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 60px;" class="text-center">Rang</th>
+                                    <th>Utilisateur</th>
+                                    <th>Email</th>
+                                    <th class="text-end">Score (Posts)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in topContributors %}
+                                    <tr>
+                                        <td class="text-center fw-bold text-muted">#{{ loop.index }}</td>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-3">
+                                                <div class="rounded-circle {% if loop.index == 1 %}bg-warning text-white{% elseif loop.index == 2 %}bg-secondary text-white{% elseif loop.index == 3 %}bg-dark text-white{% else %}bg-light text-secondary{% endif %} d-flex align-items-center justify-content-center fw-bold" style="width: 40px; height: 40px; font-size: 1rem;">
+                                                    {{ item.user.prenom|first|upper }}{{ item.user.nom|first|upper }}
+                                                </div>
+                                                <div class="fw-bold">
+                                                    {{ item.user.nom }} {{ item.user.prenom }}
+                                                    {% if loop.index == 1 %}<i class="fas fa-crown text-warning ms-1" title="Top Contributeur"></i>{% endif %}
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="text-muted">{{ item.user.email }}</td>
+                                        <td class="text-end">
+                                            <span class="badge-soft text-primary" style="background: rgba(59, 130, 246, 0.1); font-size: 1rem;">
+                                                {{ item.publicationsCount }} <i class="fas fa-file-alt"></i>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                {% else %}
+                                    <tr><td colspan="4" class="text-center py-4 text-muted">Aucune donnée disponible</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+{% endblock %}
