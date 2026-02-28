@@ -16,7 +16,8 @@ final class Version20260205140000 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $this->addSql('ALTER TABLE publication ADD image_filename VARCHAR(255) DEFAULT NULL');
+        // La colonne image_filename existe déjà dans la table publication.
+        // On laisse cette migration vide pour éviter l'erreur "Duplicate column name".
     }
 
     public function down(Schema $schema): void

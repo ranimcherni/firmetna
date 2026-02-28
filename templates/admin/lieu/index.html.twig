@@ -37,6 +37,7 @@
                         <th class="py-3 text-muted fw-semibold">Ville</th>
                         <th class="py-3 text-muted fw-semibold">Adresse</th>
                         <th class="py-3 text-muted fw-semibold">Capacité</th>
+                        <th class="py-3 text-muted fw-semibold">Disponibilité</th>
                         <th class="px-4 py-3 text-end text-muted fw-semibold" style="width: 150px;">Actions</th>
                     </tr>
                 </thead>
@@ -60,6 +61,14 @@
                                     <span class="badge bg-info-subtle text-info rounded-pill px-3">{{ lieu.capacite }} pers.</span>
                                 {% else %}
                                     <span class="text-muted opacity-50">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if lieu.disponibilite %}
+                                    {% set dispoClass = lieu.disponibilite == 'Disponible' ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger' %}
+                                    <span class="badge {{ dispoClass }} rounded-pill px-3">{{ lieu.disponibilite }}</span>
+                                {% else %}
+                                    <span class="text-muted opacity-50">Non défini</span>
                                 {% endif %}
                             </td>
                             <td class="px-4 text-end">

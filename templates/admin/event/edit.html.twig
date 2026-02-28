@@ -20,6 +20,13 @@
                 </div>
                 <div class="col-md-12">
                     {{ form_row(form.description) }}
+                    <button type="button" id="btn-generate-ai" class="btn btn-outline-primary btn-sm mt-2" style="border-radius: 8px;" onclick="generateDescription()">
+                        <i class="fas fa-robot me-1"></i> Générer avec IA
+                    </button>
+                    <span id="ai-loading" class="ms-2 text-muted small" style="display: none;">
+                        <i class="fas fa-spinner fa-spin me-1"></i> Génération en cours...
+                    </span>
+                    <span id="ai-error" class="ms-2 text-danger small" style="display: none;"></span>
                 </div>
                 <div class="col-md-6">
                     {{ form_row(form.date) }}
@@ -33,7 +40,7 @@
                 <div class="col-12 mt-4">
                     <hr class="opacity-10">
                     <button type="submit" class="btn btn-success px-4 py-2" style="background-color: #1a4d2e; border: none; border-radius: 8px;">
-                        <i class="fas fa-check-circle me-2"></i> Mettre ├á jour
+                        <i class="fas fa-check-circle me-2"></i> Mettre à jour
                     </button>
                     <a href="{{ path('app_admin_event_index') }}" class="btn btn-light border px-4 py-2 ms-2" style="border-radius: 8px;">
                         Annuler
@@ -43,4 +50,48 @@
         {{ form_end(form) }}
     </div>
 </div>
+
+<script>
+function generateDescription() {
+    const nomInput = document.getElementById('event_nom');
+    const descTextarea = document.getElementById('event_description');
+    const loading = document.getElementById('ai-loading');
+    const errorSpan = document.getElementById('ai-error');
+    const btn = document.getElementById('btn-generate-ai');
+
+    if (!nomInput || !nomInput.value.trim()) {
+        errorSpan.textContent = "Veuillez d'abord saisir le nom de l'événement.";
+        errorSpan.style.display = 'inline';
+        setTimeout(() => errorSpan.style.display = 'none', 3000);
+        return;
+    }
+
+    btn.disabled = true;
+    loading.style.display = 'inline';
+    errorSpan.style.display = 'none';
+
+    fetch('{{ path("app_admin_event_generate_description") }}', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nom: nomInput.value.trim() })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.description) {
+            descTextarea.value = data.description;
+        } else if (data.error) {
+            errorSpan.textContent = data.error;
+            errorSpan.style.display = 'inline';
+        }
+    })
+    .catch(err => {
+        errorSpan.textContent = "Erreur de connexion au service IA.";
+        errorSpan.style.display = 'inline';
+    })
+    .finally(() => {
+        btn.disabled = false;
+        loading.style.display = 'none';
+    });
+}
+</script>
 {% endblock %}

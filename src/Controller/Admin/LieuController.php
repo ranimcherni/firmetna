@@ -5,6 +5,7 @@ namespace App\Controller\Admin;
 use App\Entity\Lieu;
 use App\Form\LieuType;
 use App\Repository\LieuRepository;
+use App\Service\GeocodingService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -36,7 +37,7 @@ class LieuController extends AbstractController
     }
 
     #[Route('/new', name: 'app_admin_lieu_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger, GeocodingService $geocodingService): Response
     {
         $lieu = new Lieu();
         $form = $this->createForm(LieuType::class, $lieu);
@@ -59,15 +60,21 @@ class LieuController extends AbstractController
                     $this->addFlash('danger', 'Erreur lors de l\'upload de l\'image.');
                 }
             }
+
+            // Géocodage automatique si latitude/longitude non définies
+            if (!$lieu->getLatitude() || !$lieu->getLongitude()) {
+                $coordinates = $geocodingService->geocode($lieu->getAdresse(), $lieu->getVille());
+                if ($coordinates) {
+                    $lieu->setLatitude((string) $coordinates['lat']);
+                    $lieu->setLongitude((string) $coordinates['lon']);
+                }
+            }
+
             $entityManager->persist($lieu);
             $entityManager->flush();
 
             $this->addFlash('success', 'Lieu créé avec succès !');
             return $this->redirectToRoute('app_admin_lieu_index');
-        }
-
-        if ($form->isSubmitted() && !$form->isValid()) {
-            $this->addFlash('danger', 'Erreur de validation. Veuillez vérifier les champs du formulaire.');
         }
 
         return $this->render('admin/lieu/new.html.twig', [
@@ -77,7 +84,7 @@ class LieuController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_admin_lieu_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Lieu $lieu, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
+    public function edit(Request $request, Lieu $lieu, EntityManagerInterface $entityManager, SluggerInterface $slugger, GeocodingService $geocodingService): Response
     {
         $form = $this->createForm(LieuType::class, $lieu);
         $form->handleRequest($request);
@@ -99,14 +106,20 @@ class LieuController extends AbstractController
                     $this->addFlash('danger', 'Erreur lors de l\'upload de l\'image.');
                 }
             }
+
+            // Géocodage automatique si latitude/longitude non définies
+            if (!$lieu->getLatitude() || !$lieu->getLongitude()) {
+                $coordinates = $geocodingService->geocode($lieu->getAdresse(), $lieu->getVille());
+                if ($coordinates) {
+                    $lieu->setLatitude((string) $coordinates['lat']);
+                    $lieu->setLongitude((string) $coordinates['lon']);
+                }
+            }
+
             $entityManager->flush();
 
             $this->addFlash('success', 'Lieu modifié avec succès !');
             return $this->redirectToRoute('app_admin_lieu_index');
-        }
-
-        if ($form->isSubmitted() && !$form->isValid()) {
-            $this->addFlash('danger', 'Erreur de validation. Veuillez vérifier les champs du formulaire.');
         }
 
         return $this->render('admin/lieu/edit.html.twig', [

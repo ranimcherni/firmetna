@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\EventRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -39,6 +41,14 @@ class Event
     #[ORM\ManyToOne(targetEntity: Lieu::class, inversedBy: 'events')]
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
     private ?Lieu $lieu = null;
+
+    #[ORM\OneToMany(mappedBy: 'event', targetEntity: Participation::class, cascade: ['remove'])]
+    private Collection $participations;
+
+    public function __construct()
+    {
+        $this->participations = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -97,6 +107,35 @@ class Event
     public function setLieu(?Lieu $lieu): static
     {
         $this->lieu = $lieu;
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Participation>
+     */
+    public function getParticipations(): Collection
+    {
+        return $this->participations;
+    }
+
+    public function addParticipation(Participation $participation): static
+    {
+        if (!$this->participations->contains($participation)) {
+            $this->participations->add($participation);
+            $participation->setEvent($this);
+        }
+
+        return $this;
+    }
+
+    public function removeParticipation(Participation $participation): static
+    {
+        if ($this->participations->removeElement($participation)) {
+            if ($participation->getEvent() === $this) {
+                $participation->setEvent(null);
+            }
+        }
+
         return $this;
     }
 }

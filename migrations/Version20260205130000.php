@@ -16,7 +16,8 @@ final class Version20260205130000 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $this->addSql('ALTER TABLE user ADD bio LONGTEXT DEFAULT NULL, ADD specialite VARCHAR(100) DEFAULT NULL, ADD localisation VARCHAR(150) DEFAULT NULL, ADD role_type VARCHAR(50) DEFAULT NULL');
+        // Les colonnes bio, specialite, localisation et role_type existent déjà dans la base.
+        // On laisse cette migration vide pour éviter l'erreur "Duplicate column name".
     }
 
     public function down(Schema $schema): void
