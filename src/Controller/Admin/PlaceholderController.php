@@ -19,13 +19,4 @@ class PlaceholderController extends AbstractController
         ]);
     }
 
-    #[Route('/partenariats', name: 'app_admin_partenariats')]
-    #[Route('/partenariat', name: 'app_admin_partenariat')]
-    public function partenariats(): Response
-    {
-        return $this->render('admin/placeholder.html.twig', [
-            'module' => 'Partenariats',
-            'icon' => 'fas fa-handshake'
-        ]);
-    }
 }
