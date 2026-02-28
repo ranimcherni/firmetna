@@ -4,37 +4,27 @@ namespace App\Service;
 
 class HuggingFaceService
 {
-    // Note: parameter name kept for backwards compatibility with services.yaml
-    public function __construct(private string $huggingfaceApiKey)
+    private string $apiKey;
+
+    public function __construct(string $huggingfaceApiKey)
     {
+        $this->apiKey = $huggingfaceApiKey;
     }
 
     public function generateDescription(string $eventName): string
     {
-        $apiKey = $this->huggingfaceApiKey;
-
-        if (empty($apiKey) || $apiKey === 'your_huggingface_api_key_here') {
-            throw new \RuntimeException('Clé API non configurée. Ajoutez votre clé Gemini dans HUGGINGFACE_API_KEY dans le fichier .env');
-        }
-
-        $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' . $apiKey;
-
-        $prompt = "Écris une description professionnelle et engageante en français pour cet événement agricole : \"$eventName\". "
-            . "La description doit faire 2 à 3 phrases, être informative et donner envie de participer. "
-            . "Réponds uniquement avec la description, sans introduction ni commentaire.";
+        $url = 'https://router.huggingface.co/v1/chat/completions';
 
         $payload = json_encode([
-            'contents' => [
+            'model' => 'Qwen/Qwen2.5-72B-Instruct',
+            'messages' => [
                 [
-                    'parts' => [
-                        ['text' => $prompt]
-                    ]
+                    'role' => 'user',
+                    'content' => "Écris une description professionnelle et engageante en français pour cet événement agricole : \"$eventName\". La description doit faire 2 à 3 phrases, être informative et donner envie de participer. Réponds uniquement avec la description, sans introduction ni commentaire."
                 ]
             ],
-            'generationConfig' => [
-                'maxOutputTokens' => 300,
-                'temperature' => 0.7,
-            ]
+            'max_tokens' => 250,
+            'temperature' => 0.7,
         ]);
 
         $ch = curl_init($url);
@@ -43,9 +33,10 @@ class HuggingFaceService
             CURLOPT_POST => true,
             CURLOPT_POSTFIELDS => $payload,
             CURLOPT_HTTPHEADER => [
+                'Authorization: Bearer ' . $this->apiKey,
                 'Content-Type: application/json',
             ],
-            CURLOPT_TIMEOUT => 30,
+            CURLOPT_TIMEOUT => 60,
             CURLOPT_SSL_VERIFYPEER => true,
         ]);
 
@@ -61,16 +52,20 @@ class HuggingFaceService
         $data = json_decode($response, true);
 
         if ($httpCode !== 200) {
-            $errorMsg = $data['error']['message'] ?? 'Erreur API Gemini (HTTP ' . $httpCode . ')';
+            $errorMsg = $data['error']['message'] ?? $data['error'] ?? 'Erreur API Hugging Face (HTTP ' . $httpCode . ')';
+            if (is_array($errorMsg)) {
+                $errorMsg = json_encode($errorMsg);
+            }
             throw new \RuntimeException($errorMsg);
         }
 
-        $text = $data['candidates'][0]['content']['parts'][0]['text'] ?? null;
-
-        if (!$text || trim($text) === '') {
-            throw new \RuntimeException('Réponse inattendue de l\'API Gemini.');
+        if (isset($data['choices'][0]['message']['content'])) {
+            $text = trim($data['choices'][0]['message']['content']);
+            if (!empty($text)) {
+                return $text;
+            }
         }
 
-        return trim($text);
+        throw new \RuntimeException('Réponse inattendue de l\'API.');
     }
 }
