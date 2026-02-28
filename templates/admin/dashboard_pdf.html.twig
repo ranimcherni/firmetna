@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Tableau de bord - FIRMETNA</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; color: #333; }
+        .header { text-align: center; border-bottom: 2px solid #1a4d2e; padding-bottom: 20px; margin-bottom: 30px; }
+        .header h1 { color: #1a4d2e; margin: 0; }
+        .header p { color: #666; margin: 5px 0; }
+        
+        .section { margin-bottom: 30px; }
+        .section h2 { color: #1a4d2e; border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-bottom: 15px; }
+        
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #f8fafc; font-weight: bold; }
+        
+        .metric-box { display: inline-block; width: 30%; background: #f8fafc; border: 1px solid #eee; margin: 1%; padding: 15px; text-align: center; border-radius: 8px; }
+        .metric-value { font-size: 24px; font-weight: bold; color: #1a4d2e; margin-bottom: 5px; }
+        .metric-label { font-size: 14px; color: #666; }
+        
+        .footer { text-align: center; margin-top: 50px; padding-top: 20px; border-top: 1px solid #ddd; color: #666; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>TABLEAU DE BORD</h1>
+        <p>Généré le: {{ date|date('d/m/Y H:i') }}</p>
+    </div>
+
+    <div class="section">
+        <h2>Indicateurs Clés</h2>
+        <div style="width: 100%; text-align: center;">
+            <div class="metric-box">
+                <div class="metric-value">{{ totalUsers }}</div>
+                <div class="metric-label">Utilisateurs</div>
+            </div>
+            <div class="metric-box">
+                <div class="metric-value">{{ produitsCount }}</div>
+                <div class="metric-label">Produits</div>
+            </div>
+            <div class="metric-box">
+                <div class="metric-value">{{ eventsCount }}</div>
+                <div class="metric-label">Événements</div>
+            </div>
+            <div class="metric-box">
+                <div class="metric-value">{{ publicationsCount }}</div>
+                <div class="metric-label">Publications (Forum)</div>
+            </div>
+            <div class="metric-box">
+                <div class="metric-value">{{ partnersCount }}</div>
+                <div class="metric-label">Partenaires</div>
+            </div>
+            <div class="metric-box">
+                <div class="metric-value">{{ contractsCount }}</div>
+                <div class="metric-label">Contrats</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section" style="margin-top: 40px;">
+        <h2>Répartition des Utilisateurs</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Catégorie</th>
+                    <th>Nombre</th>
+                    <th>Pourcentage</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Agriculteurs</td>
+                    <td>{{ agriculteursCount }}</td>
+                    <td>{{ totalUsers > 0 ? ((agriculteursCount / totalUsers) * 100)|round(1) : 0 }}%</td>
+                </tr>
+                <tr>
+                    <td>Clients</td>
+                    <td>{{ clientsCount }}</td>
+                    <td>{{ totalUsers > 0 ? ((clientsCount / totalUsers) * 100)|round(1) : 0 }}%</td>
+                </tr>
+                <tr>
+                    <td>Donateurs</td>
+                    <td>{{ donateursCount }}</td>
+                    <td>{{ totalUsers > 0 ? ((donateursCount / totalUsers) * 100)|round(1) : 0 }}%</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>Répartition des Produits</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Catégorie</th>
+                    <th>Nombre</th>
+                    <th>Pourcentage</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Végétal</td>
+                    <td>{{ stats.vegetal ?? 0 }}</td>
+                    <td>{{ produitsCount > 0 ? (((stats.vegetal ?? 0) / produitsCount) * 100)|round(1) : 0 }}%</td>
+                </tr>
+                <tr>
+                    <td>Animal</td>
+                    <td>{{ stats.animale ?? 0 }}</td>
+                    <td>{{ produitsCount > 0 ? (((stats.animale ?? 0) / produitsCount) * 100)|round(1) : 0 }}%</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="section">
+        <h2>Top 3 Produits (Stock)</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Nom</th>
+                    <th>Catégorie</th>
+                    <th>Stock Estimé</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in topProducts %}
+                <tr>
+                    <td>{{ product.name }}</td>
+                    <td>{{ product.category }}</td>
+                    <td>~{{ product.sales }} unités</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="3" style="text-align: center;">Aucun produit trouvé</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="footer">
+        <p>Ce document a été généré automatiquement par le système FIRMETNA</p>
+    </div>
+</body>
+</html>

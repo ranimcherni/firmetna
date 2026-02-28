@@ -12,44 +12,57 @@ class PDFService
     {
         $html = $this->generateContractHTML($contract);
         
-        // Pour l'instant, retournons le HTML comme PDF (fallback)
-        // Dans un vrai projet, vous installeriez wkhtmltopdf ou utiliseriez DomPDF
-        return new Response(
-            $html,
-            200,
-            [
-                'Content-Type' => 'text/html',
-                'Content-Disposition' => 'inline; filename="contract_' . $contract->getId() . '.html"'
-            ]
-        );
+        $pdfOptions = new \Dompdf\Options();
+        $pdfOptions->set('defaultFont', 'Arial');
+        $pdfOptions->set('isRemoteEnabled', true);
+
+        $dompdf = new \Dompdf\Dompdf($pdfOptions);
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        return new Response($dompdf->output(), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="contract_' . $contract->getId() . '.pdf"'
+        ]);
     }
 
     public function generatePartnerPDF(Partner $partner): Response
     {
         $html = $this->generatePartnerHTML($partner);
         
-        return new Response(
-            $html,
-            200,
-            [
-                'Content-Type' => 'text/html',
-                'Content-Disposition' => 'inline; filename="partner_' . $partner->getId() . '.html"'
-            ]
-        );
+        $pdfOptions = new \Dompdf\Options();
+        $pdfOptions->set('defaultFont', 'Arial');
+        $pdfOptions->set('isRemoteEnabled', true);
+
+        $dompdf = new \Dompdf\Dompdf($pdfOptions);
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        return new Response($dompdf->output(), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="partner_' . $partner->getId() . '.pdf"'
+        ]);
     }
 
     public function generateContractsListPDF(array $contracts): Response
     {
         $html = $this->generateContractsListHTML($contracts);
         
-        return new Response(
-            $html,
-            200,
-            [
-                'Content-Type' => 'text/html',
-                'Content-Disposition' => 'inline; filename="contracts_list_' . date('Y-m-d') . '.html"'
-            ]
-        );
+        $pdfOptions = new \Dompdf\Options();
+        $pdfOptions->set('defaultFont', 'Arial');
+        $pdfOptions->set('isRemoteEnabled', true);
+
+        $dompdf = new \Dompdf\Dompdf($pdfOptions);
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        return new Response($dompdf->output(), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="contracts_list_' . date('Y-m-d') . '.pdf"'
+        ]);
     }
 
     private function generateContractHTML(Contract $contract): string
