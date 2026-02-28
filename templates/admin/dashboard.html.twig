@@ -46,59 +46,75 @@
     </div>
     <div class="col-md-4 col-lg-2">
         <div class="card border-0 shadow-sm text-center p-3" style="border-radius: 20px; background: #f8fafc;">
-            <i class="fas fa-hand-holding-heart fa-2x text-danger mb-2"></i>
-            <h3 class="fw-bold mb-0 text-dark">{{ offresCount }}</h3>
-            <span class="text-muted small fw-semibold">Dons</span>
+            <i class="fas fa-leaf fa-2x text-success mb-2"></i>
+            <h3 class="fw-bold mb-0 text-dark">{{ stats.bio }}</h3>
+            <span class="text-muted small fw-semibold">Produits Bio</span>
         </div>
     </div>
     <div class="col-md-4 col-lg-2">
         <div class="card border-0 shadow-sm text-center p-3" style="border-radius: 20px; background: #f8fafc;">
-            <i class="fas fa-truck fa-2x text-secondary mb-2"></i>
-            <h3 class="fw-bold mb-0 text-dark">{{ commandesCount }}</h3>
-            <span class="text-muted small fw-semibold">Commandes</span>
+            <i class="fas fa-euro-sign fa-2x text-primary mb-2"></i>
+            <h3 class="fw-bold mb-0 text-dark">{{ stats.totalValue|number_format(0, '.', ' ') }}</h3>
+            <span class="text-muted small fw-semibold">Valeur Stock</span>
         </div>
     </div>
 </div>
 
 <div class="row g-4 mb-4">
     <!-- Distribution Utilisateurs -->
-    <div class="col-lg-6">
+    <div class="col-lg-4">
         <div class="card border-0 shadow-sm h-100" style="border-radius: 24px;">
-            <div class="card-body p-4">
-                <h5 class="fw-bold mb-4"><i class="fas fa-chart-pie me-2 text-success"></i>Distribution Utilisateurs</h5>
-                <div style="height: 280px;">
+            <div class="card-body p-4 text-center">
+                <h5 class="fw-bold mb-4"><i class="fas fa-users me-2 text-primary"></i>Utilisateurs</h5>
+                <div style="height: 200px;">
                     <canvas id="userDistributionChart"></canvas>
                 </div>
-                <div class="mt-4 d-flex justify-content-center flex-wrap gap-4">
-                    <div class="small fw-bold"><i class="fas fa-circle me-1" style="color: #1a4d2e;"></i>Agriculteurs: {{ agriculteursCount }}</div>
-                    <div class="small fw-bold"><i class="fas fa-circle me-1" style="color: #fbbf24;"></i>Clients: {{ clientsCount }}</div>
-                    <div class="small fw-bold"><i class="fas fa-circle me-1" style="color: #2e7d32;"></i>Donateurs: {{ donateursCount }}</div>
+                <div class="mt-3 d-flex flex-column gap-2 text-start">
+                    <div class="small fw-bold"><i class="fas fa-circle me-2" style="color: #1a4d2e;"></i>Agriculteurs: {{ agriculteursCount }}</div>
+                    <div class="small fw-bold"><i class="fas fa-circle me-2" style="color: #fbbf24;"></i>Clients: {{ clientsCount }}</div>
+                    <div class="small fw-bold"><i class="fas fa-circle me-2" style="color: #2e7d32;"></i>Donateurs: {{ donateursCount }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Distribution Produits -->
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm h-100" style="border-radius: 24px;">
+            <div class="card-body p-4 text-center">
+                <h5 class="fw-bold mb-4"><i class="fas fa-box me-2 text-success"></i>Produits</h5>
+                <div style="height: 200px;">
+                    <canvas id="productDistributionChart"></canvas>
+                </div>
+                <div class="mt-3 d-flex flex-column gap-2 text-start">
+                    <div class="small fw-bold"><i class="fas fa-circle me-2" style="color: #10b981;"></i>Végétal: {{ stats.vegetal }}</div>
+                    <div class="small fw-bold"><i class="fas fa-circle me-2" style="color: #ef4444;"></i>Animal: {{ stats.animale }}</div>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Top Produits (Visuel) -->
-    <div class="col-lg-6">
+    <div class="col-lg-4">
         <div class="card border-0 shadow-sm h-100" style="border-radius: 24px;">
             <div class="card-body p-4">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h5 class="fw-bold mb-0"><i class="fas fa-star me-2 text-warning"></i>Produits Phares</h5>
-                    <a href="{{ path('app_admin_produits') }}" class="btn btn-link text-success text-decoration-none fw-bold p-0 small">Voir tout <i class="fas fa-chevron-right ms-1"></i></a>
+                    <h5 class="fw-bold mb-0"><i class="fas fa-star me-2 text-warning"></i>Phare</h5>
+                    <a href="{{ path('app_admin_produits') }}" class="btn btn-link text-success text-decoration-none fw-bold p-0 small">Voir tout</a>
                 </div>
                 
-                <div class="row g-3">
+                <div class="row g-2">
                     {% for product in topProducts %}
                     <div class="col-12">
-                        <div class="p-3 border rounded-4 d-flex align-items-center bg-white transition-all shadow-hover">
-                            <img src="{{ product.image }}" class="rounded-3 me-3" style="width: 60px; height: 60px; object-fit: cover;">
-                            <div class="flex-grow-1">
-                                <h6 class="fw-bold mb-0">{{ product.name }}</h6>
-                                <span class="badge {% if product.category == 'Végétal' %}bg-success-subtle text-success{% else %}bg-warning-subtle text-warning{% endif %} rounded-pill px-2" style="font-size: 0.65rem;">{{ product.category }}</span>
+                        <div class="p-2 border rounded-4 d-flex align-items-center bg-white">
+                            <img src="{{ product.image }}" class="rounded-3 me-2" style="width: 45px; height: 45px; object-fit: cover;">
+                            <div class="flex-grow-1 min-width-0">
+                                <h6 class="fw-bold mb-0 text-truncate" style="font-size: 0.85rem;">{{ product.name }}</h6>
+                                <span class="badge {% if 'Vegetal' in product.category %}bg-success-subtle text-success{% else %}bg-danger-subtle text-danger{% endif %} rounded-pill px-2" style="font-size: 0.6rem;">{{ product.category }}</span>
                             </div>
-                            <div class="text-end">
-                                <div class="fw-bold text-dark small">{{ product.sales }} ventes</div>
-                                <div class="small text-success fw-bold" style="font-size: 0.75rem;">{{ product.growth }} <i class="fas fa-arrow-up ms-1"></i></div>
+                            <div class="text-end ms-2">
+                                <div class="fw-bold text-dark" style="font-size: 0.75rem;">{{ product.sales }}</div>
+                                <div class="small text-success fw-bold" style="font-size: 0.65rem;">{{ product.growth }}</div>
                             </div>
                         </div>
                     </div>
@@ -107,20 +123,17 @@
             </div>
         </div>
     </div>
+</div>
 
-<!-- Évolution de l'Activité (Courbe) -->
-<div class="row g-4 mt-2">
+<div class="row g-4">
+    <!-- Évolution de l'Activité (Courbe) -->
     <div class="col-12">
         <div class="card border-0 shadow-sm" style="border-radius: 24px;">
             <div class="card-body p-4">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h5 class="fw-bold mb-0 text-success"><i class="fas fa-chart-line me-2"></i>Évolution de l'Activité globale</h5>
-                    <select class="form-select form-select-sm w-auto border-0 bg-light rounded-pill px-3">
-                        <option selected>6 derniers mois</option>
-                        <option>Cette année</option>
-                    </select>
+                    <h5 class="fw-bold mb-0 text-success"><i class="fas fa-chart-line me-2"></i>Activité globale</h5>
                 </div>
-                <div style="height: 300px;">
+                <div style="height: 250px;">
                     <canvas id="activityCurveChart"></canvas>
                 </div>
             </div>
@@ -128,88 +141,76 @@
     </div>
 </div>
 </div>
+{% endblock %}
 
+{% block javascripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // 2. Pie Chart: User Distribution
+    // 1. User Distribution Chart
     const ctxUser = document.getElementById('userDistributionChart').getContext('2d');
     new Chart(ctxUser, {
-        type: 'pie',
+        type: 'doughnut',
         data: {
             labels: ['Agriculteurs', 'Clients', 'Donateurs'],
             datasets: [{
                 data: [{{ agriculteursCount }}, {{ clientsCount }}, {{ donateursCount }}],
                 backgroundColor: ['#1a4d2e', '#fbbf24', '#2e7d32'],
-                borderWidth: 2,
-                borderColor: '#ffffff'
+                borderWidth: 0,
+                cutout: '70%'
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            const label = context.label || '';
-                            const value = context.raw || 0;
-                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                            const percentage = Math.round((value / total) * 100);
-                            return `${label}: ${value} (${percentage}%)`;
-                        }
-                    }
-                }
-            }
+            plugins: { legend: { display: false } }
         }
     });
 
-    // 3. Line Chart: Activity Curve (Bottom)
+    // 2. Product Distribution Chart
+    const ctxProduct = document.getElementById('productDistributionChart').getContext('2d');
+    new Chart(ctxProduct, {
+        type: 'doughnut',
+        data: {
+            labels: ['Végétal', 'Animal'],
+            datasets: [{
+                data: [{{ stats.vegetal }}, {{ stats.animale }}],
+                backgroundColor: ['#10b981', '#ef4444'],
+                borderWidth: 0,
+                cutout: '70%'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } }
+        }
+    });
+
+    // 3. Activity Curve Chart
     const ctxCurve = document.getElementById('activityCurveChart').getContext('2d');
     new Chart(ctxCurve, {
         type: 'line',
         data: {
             labels: ['Jan', 'Féb', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil'],
             datasets: [{
-                label: 'Interactions globales',
+                label: 'Interactions',
                 data: {{ monthlySales|json_encode|raw }},
                 borderColor: '#1a4d2e',
                 backgroundColor: 'rgba(26, 77, 46, 0.05)',
-                borderWidth: 4,
+                borderWidth: 3,
                 tension: 0.4,
                 fill: true,
-                pointBackgroundColor: '#fff',
-                pointBorderColor: '#1a4d2e',
-                pointBorderWidth: 2,
-                pointRadius: 6,
-                pointHoverRadius: 8
+                pointRadius: 0,
+                pointHoverRadius: 5
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { 
-                legend: { display: false },
-                tooltip: {
-                    mode: 'index',
-                    intersect: false,
-                }
-            },
+            plugins: { legend: { display: false } },
             scales: {
-                y: { 
-                    beginAtZero: true,
-                    grid: { color: '#f1f5f9' },
-                    ticks: { color: '#64748b' }
-                },
-                x: { 
-                    grid: { display: false },
-                    ticks: { color: '#64748b' }
-                }
-            },
-            interaction: {
-                mode: 'nearest',
-                axis: 'x',
-                intersect: false
+                y: { display: false },
+                x: { grid: { display: false } }
             }
         }
     });
