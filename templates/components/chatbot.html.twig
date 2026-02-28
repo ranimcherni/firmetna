@@ -2,9 +2,8 @@
 <style>
     .chatbot-container {
         position: fixed;
-        bottom: auto;
-        top: 80px;
-        left: 20px;
+        bottom: 20px;
+        right: 20px;
         width: 380px;
         height: auto;
         max-height: 600px;
@@ -12,6 +11,9 @@
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         cursor: grab;
         user-select: none;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
     }
 
     .chatbot-container.dragging {
@@ -522,8 +524,8 @@
         chatbotContainer.style.left = '';
         chatbotContainer.style.top = '';
         chatbotContainer.style.right = '20px';
-        chatbotContainer.style.bottom = '';
-        // Update button to move back to left
+        chatbotContainer.style.bottom = '20px';
+        // Update button to move back to left if it was switched
         document.getElementById('resetPosBtn').innerHTML = '<i class="fas fa-arrow-left"></i>';
         document.getElementById('resetPosBtn').title = 'Move to left side';
     }

@@ -37,6 +37,14 @@ class DemandeType extends AbstractType
                 'label' => 'Statut',
                 'attr' => ['class' => 'form-select'],
             ])
+            ->add('quantiteDemandee', \Symfony\Component\Form\Extension\Core\Type\IntegerType::class, [
+                'label' => 'Quantité demandée',
+                'attr' => ['class' => 'form-control', 'min' => 1],
+                'constraints' => [
+                    new \Symfony\Component\Validator\Constraints\NotBlank(['message' => 'La quantité est obligatoire.']),
+                    new \Symfony\Component\Validator\Constraints\Positive(['message' => 'La quantité doit être supérieure à 0.']),
+                ],
+            ])
         ;
     }
 

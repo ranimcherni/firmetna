@@ -37,10 +37,9 @@ class Offre
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $photo = null;
 
-    /** Quantité ou précision (ex: "50 kg", "1 tracteur") */
-    #[ORM\Column(length: 100, nullable: true)]
-    #[Assert\Length(max: 100)]
-    private ?string $quantite = null;
+    /** Quantité disponible */
+    #[ORM\Column(type: Types::INTEGER, options: ['default' => 0])]
+    private int $quantite = 0;
 
     #[ORM\Column(type: Types::BOOLEAN, options: ['default' => true])]
     private bool $disponible = true;
@@ -120,12 +119,12 @@ class Offre
         return $this;
     }
 
-    public function getQuantite(): ?string
+    public function getQuantite(): int
     {
         return $this->quantite;
     }
 
-    public function setQuantite(?string $quantite): static
+    public function setQuantite(int $quantite): static
     {
         $this->quantite = $quantite;
         return $this;

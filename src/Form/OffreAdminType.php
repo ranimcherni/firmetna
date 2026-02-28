@@ -43,10 +43,13 @@ class OffreAdminType extends AbstractType
                 'attr' => ['rows' => 4],
                 'constraints' => [new NotBlank(['message' => 'La description est obligatoire.'])],
             ])
-            ->add('quantite', TextType::class, [
-                'label' => 'Quantité (optionnel)',
-                'required' => false,
-                'attr' => ['placeholder' => 'Ex: 50 kg, 1 unité'],
+            ->add('quantite', \Symfony\Component\Form\Extension\Core\Type\IntegerType::class, [
+                'label' => 'Quantité disponible',
+                'required' => true,
+                'attr' => ['placeholder' => 'Ex: 50'],
+                'constraints' => [
+                    new NotBlank(['message' => 'La quantité est obligatoire.']),
+                ],
             ])
             ->add('disponible', CheckboxType::class, [
                 'label' => 'Disponible',

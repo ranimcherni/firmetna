@@ -140,13 +140,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     )]
     private ?string $roleType = null;
 
-    /** @var Collection<int, \App\Entity\Notification> */
-    #[ORM\OneToMany(targetEntity: \App\Entity\Notification::class, mappedBy: 'destinataire', cascade: ['remove'], orphanRemoval: true)]
+    /** @var Collection<int, Notification> */
+    #[ORM\OneToMany(targetEntity: Notification::class, mappedBy: 'destinataire', cascade: ['remove'], orphanRemoval: true)]
     private Collection $notifications;
+
+    /** @var Collection<int, Participation> */
+    #[ORM\OneToMany(targetEntity: Participation::class, mappedBy: 'user', orphanRemoval: true)]
+    private Collection $participations;
 
     public function __construct()
     {
         $this->notifications = new ArrayCollection();
+        $this->participations = new ArrayCollection();
     }
 
     public function getId(): ?int { return $this->id; }
@@ -195,9 +200,45 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getDateInscription(): ?\DateTimeInterface { return $this->dateInscription; }
     public function setDateInscription(?\DateTimeInterface $dateInscription): static { $this->dateInscription = $dateInscription; return $this; }
 
+    public function getFaceSignature(): ?string { return $this->faceSignature; }
+    public function setFaceSignature(?string $faceSignature): static { $this->faceSignature = $faceSignature; return $this; }
+
+    public function isFacialRecognitionEnabled(): bool { return $this->facialRecognitionEnabled; }
+    public function setFacialRecognitionEnabled(bool $facialRecognitionEnabled): static { $this->facialRecognitionEnabled = $facialRecognitionEnabled; return $this; }
+
     public function getStatut(): ?string { return $this->statut; }
     public function setStatut(?string $statut): static { $this->statut = $statut; return $this; }
 
     public function getRoleType(): ?string { return $this->roleType; }
     public function setRoleType(?string $roleType): static { $this->roleType = $roleType; return $this; }
+
+    /**
+     * @return Collection<int, Participation>
+     */
+    public function getParticipations(): Collection
+    {
+        return $this->participations;
+    }
+
+    public function addParticipation(Participation $participation): static
+    {
+        if (!$this->participations->contains($participation)) {
+            $this->participations->add($participation);
+            $participation->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeParticipation(Participation $participation): static
+    {
+        if ($this->participations->removeElement($participation)) {
+            // set the owning side to null (unless already changed)
+            if ($participation->getUser() === $this) {
+                $participation->setUser(null);
+            }
+        }
+
+        return $this;
+    }
 }

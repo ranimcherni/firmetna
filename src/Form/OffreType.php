@@ -53,15 +53,12 @@ class OffreType extends AbstractType
                     new NotBlank(['message' => 'La description est obligatoire.']),
                 ],
             ])
-            ->add('quantite', TextType::class, [
-                'label' => 'Quantité ou précision (optionnel)',
-                'required' => false,
+            ->add('quantite', \Symfony\Component\Form\Extension\Core\Type\IntegerType::class, [
+                'label' => 'Quantité disponible',
+                'required' => true,
                 'attr' => ['placeholder' => 'Ex: 50'],
                 'constraints' => [
-                    new Regex([
-                        'pattern' => '/^\d+$/',
-                        'message' => 'La quantité doit être un nombre.',
-                    ]),
+                    new NotBlank(['message' => 'La quantité est obligatoire.']),
                 ],
             ])
             ->add('photoFile', FileType::class, [
