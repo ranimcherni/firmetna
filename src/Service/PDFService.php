@@ -179,7 +179,7 @@ class PDFService
 
     private function generatePartnerHTML(Partner $partner): string
     {
-        return '
+        $html = '
 <!DOCTYPE html>
 <html>
 <head>
