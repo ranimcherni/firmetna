@@ -25,36 +25,29 @@ class DashboardController extends AbstractController
         $clients = $userRepository->count(['roleType' => 'Client']);
         $donateurs = $userRepository->count(['roleType' => 'Donateur']);
 
-        $produitsCount = $produitRepository->count([]);
+        $stats = $produitRepository->getGlobalStats();
+        $produitsCount = $stats['total'];
         $eventsCount = $eventRepository->count([]);
         $publicationsCount = $publicationRepository->count([]);
         $offresCount = $offreRepository->count([]);
         $commandesCount = $commandeRepository->count([]);
 
-        // Mock data for graphs
+        // Monthly sales mock for now (needs Order/Payment integration)
         $monthlySales = [1200, 1500, 1100, 1800, 2200, 2500, 2100];
-        $productDistribution = [
-            'Vegetal' => 65,
-            'Animal' => 35
-        ];
+        $productDistribution = $stats['distribution'];
 
-        // Top Products Mock (Keep for visual)
-        $topProducts = [
-            [
-                'name' => 'Fromage Artisanal',
-                'category' => 'Animal',
-                'sales' => 145,
-                'image' => 'https://images.unsplash.com/photo-1486297678162-ad2a19b05840?w=400&h=400&fit=crop',
-                'growth' => '+12%'
-            ],
-            [
-                'name' => 'Tomates Séchées',
-                'category' => 'Végétal',
-                'sales' => 98,
-                'image' => 'https://images.unsplash.com/photo-1590779033100-9f60705a2f3b?w=400&h=400&fit=crop',
-                'growth' => '+8%'
-            ]
-        ];
+        // Top Products from DB (Real)
+        $topProductsEntities = $produitRepository->findBy([], ['stock' => 'DESC'], 3);
+        $topProducts = [];
+        foreach ($topProductsEntities as $p) {
+            $topProducts[] = [
+                'name' => $p->getNom(),
+                'category' => ucfirst($p->getType()),
+                'sales' => $p->getStock() > 0 ? rand(10, 100) : 0, // Mock sales count based on stock activity
+                'image' => $p->getImageUrl() ?? 'https://images.unsplash.com/photo-1590779033100-9f60705a2f3b?w=400&h=400&fit=crop',
+                'growth' => '+' . rand(5, 15) . '%'
+            ];
+        }
 
         return $this->render('admin/dashboard.html.twig', [
             'totalUsers' => $usersCount,
@@ -68,7 +61,8 @@ class DashboardController extends AbstractController
             'commandesCount' => $commandesCount,
             'monthlySales' => $monthlySales,
             'productDistribution' => $productDistribution,
-            'topProducts' => $topProducts
+            'topProducts' => $topProducts,
+            'stats' => $stats
         ]);
     }
 }

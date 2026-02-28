@@ -15,7 +15,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class ProduitController extends AbstractController
 {
     #[Route('/', name: 'app_admin_produits', methods: ['GET'])]
-    public function index(Request $request, ProduitRepository $produitRepository): Response
+    public function index(Request $request, ProduitRepository $produitRepository, \Knp\Component\Pager\PaginatorInterface $paginator): Response
     {
         $type = $request->query->get('type');
         $q = $request->query->get('q');
@@ -28,10 +28,17 @@ class ProduitController extends AbstractController
             $qb->andWhere('p.nom LIKE :q OR p.description LIKE :q')
                 ->setParameter('q', '%' . $q . '%');
         }
-        $produits = $qb->orderBy('p.type')->addOrderBy('p.nom')->getQuery()->getResult();
+        
+        $query = $qb->orderBy('p.type')->addOrderBy('p.nom')->getQuery();
+        
+        $pagination = $paginator->paginate(
+            $query,
+            $request->query->getInt('page', 1),
+            10 // Items per page
+        );
 
         return $this->render('admin/produit/index.html.twig', [
-            'produits' => $produits,
+            'produits' => $pagination,
         ]);
     }
 

@@ -4,59 +4,185 @@
 
 {% block body %}
 <!-- Global Page Styling -->
+<!-- Global Page Styling -->
 <style>
+    :root {
+        --glass-bg: rgba(255, 255, 255, 0.75);
+        --glass-border: rgba(255, 255, 255, 0.3);
+        --primary-purple: #6b46c1;
+        --secondary-indigo: #4f46e5;
+    }
     body {
-        background-color: #f3f0ff;
-        background-image: linear-gradient(rgba(243, 240, 255, 0.8), rgba(243, 240, 255, 0.8)), url('https://images.unsplash.com/photo-1499002238440-d264edd596ec?auto=format&fit=crop&q=80&w=2000');
-        background-size: cover;
-        background-attachment: fixed;
+        background: linear-gradient(135deg, #f3f0ff 0%, #e0e7ff 100%);
+        min-height: 100vh;
     }
-    .backdrop-blur { backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
-    .max-width-600 { max-width: 600px; }
-    .hover-grow:hover { transform: scale(1.05); }
-    .transition-all { transition: all 0.3s ease; }
     .glass-card {
-        background: rgba(255, 255, 255, 0.7) !important;
-        backdrop-filter: blur(15px);
-        border: 1px solid rgba(255, 255, 255, 0.3) !important;
+        background: var(--glass-bg);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid var(--glass-border);
+        border-radius: 24px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .news-card {
-        background: rgba(255, 255, 255, 0.9);
-        border-radius: 20px;
-        padding: 2rem;
-        border-left: 5px solid;
-        transition: all 0.3s;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    }
-    .news-card:hover {
+    .glass-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+        background: rgba(255, 255, 255, 0.85);
+    }
+    .stat-badge {
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 16px;
+        font-size: 1.25rem;
+    }
+    .hero-gradient {
+        background: linear-gradient(135deg, var(--primary-purple), var(--secondary-indigo));
+        border-radius: 30px;
+        padding: 3rem;
+        color: white;
+        margin-bottom: 2.5rem;
+        position: relative;
+        overflow: hidden;
+    }
+    .hero-gradient::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 300px;
+        height: 300px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+    }
+    .list-item-glass {
+        padding: 1rem;
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.4);
+        margin-bottom: 0.75rem;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.2s;
+    }
+    .list-item-glass:hover {
+        background: rgba(255, 255, 255, 0.8);
+    }
+    .status-pill {
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
     }
 </style>
 
-<!-- Extended Hero Section with Lavender Background -->
-<div class="container-fluid py-0 position-relative" style="background: linear-gradient(rgba(107, 70, 193, 0.4), rgba(107, 70, 193, 0.3)), url('https://images.unsplash.com/photo-1499002238440-d264edd596ec?auto=format&fit=crop&q=80&w=2000') no-repeat center center; background-size: cover; background-attachment: fixed; margin-top: -85px; min-height: 100vh; display: flex; align-items: center;">
-    <div class="container py-5 text-white position-relative" style="z-index: 2;">
+<div class="container py-5">
+    <!-- Hero Section -->
+    <div class="hero-gradient shadow-lg">
         <div class="row align-items-center">
             <div class="col-lg-8">
-                <div class="badge bg-white bg-opacity-20 text-white rounded-pill px-3 py-2 mb-3 shadow-sm border border-white border-opacity-25">
-                    <i class="fas fa-moon me-2"></i>Espace Distingué FIRMETNA
-                </div>
-                <h1 class="display-1 fw-bold mb-3">Bonjour, {{ app.user.prenom }} !</h1>
-                <h2 class="display-6 fw-bold mb-4">Et bienvenue au FIRMETNA</h2>
-                <p class="fs-4 mb-5 opacity-90 max-width-600">Explorez vos modules préférés en haut dans la barre de navigation et gérez votre activité agricole en toute simplicité.</p>
-                
+                <span class="badge bg-white bg-opacity-20 text-white rounded-pill px-3 py-2 mb-3">
+                    <i class="fas fa-sparkles me-2"></i>Espace Client Privilégié
+                </span>
+                <h1 class="display-4 fw-bold mb-2">Bonjour, {{ app.user.prenom }} !</h1>
+                <p class="fs-5 opacity-90 mb-4">Ravi de vous revoir. Voici un aperçu de votre activité sur Firmetna.</p>
                 <div class="d-flex gap-3">
-                    <a href="{{ path('app_profil_me') }}" class="btn btn-light btn-lg rounded-pill px-5 fw-bold shadow-lg text-primary border-0">
-                        <i class="fas fa-user-edit me-2"></i>Mon Profil
+                    <a href="{{ path('app_profil_me') }}" class="btn btn-light rounded-pill px-4 fw-bold">
+                        <i class="fas fa-user-circle me-2"></i>Mon Profil
                     </a>
+                    <a href="{{ path('app_products') }}" class="btn btn-outline-light rounded-pill px-4 fw-bold">
+                        <i class="fas fa-shopping-basket me-2"></i>Boutique
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-4 d-none d-lg-block text-end">
+                <div class="glass-card d-inline-block p-4 text-center">
+                    <div class="text-dark small fw-bold opacity-75 mb-1 text-uppercase">Total Commandes</div>
+                    <div class="display-5 fw-black text-primary">{{ totalOrders }}</div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-{% block footer %}{% endblock %}
+    <div class="row g-4">
+        <!-- Commandes Récentes -->
+        <div class="col-lg-4">
+            <div class="glass-card h-100 p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="fw-bold mb-0 text-dark"><i class="fas fa-shopping-bag me-2 text-primary"></i>Mes Commandes</h5>
+                    <span class="badge bg-primary rounded-pill">{{ totalOrders }}</span>
+                </div>
+                
+                {% for order in recentOrders %}
+                    <div class="list-item-glass">
+                        <div class="d-flex justify-content-between align-items-start small">
+                            <span class="fw-bold text-dark">#{{ order.id }}</span>
+                            <span class="text-muted">{{ order.dateCommande|date('d/m/Y') }}</span>
+                        </div>
+                        <div class="mt-1">
+                            <span class="status-pill {% if order.statut == 'paye' %}bg-success-subtle text-success{% else %}bg-warning-subtle text-warning{% endif %}">
+                                {{ order.statut|capitalize }}
+                            </span>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <p class="text-muted small">Aucune commande récente.</p>
+                        <a href="{{ path('app_products') }}" class="btn btn-sm btn-primary rounded-pill">Acheter</a>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Demandes de Dons -->
+        <div class="col-lg-4">
+            <div class="glass-card h-100 p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="fw-bold mb-0 text-dark"><i class="fas fa-hand-holding-heart me-2 text-danger"></i>Mes Dons</h5>
+                    <span class="badge bg-danger rounded-pill">{{ totalDemandes }}</span>
+                </div>
+
+                {% for demande in recentDemandes %}
+                    <div class="list-item-glass">
+                        <div class="fw-bold text-dark small">{{ demande.offre.categorie }}</div>
+                        <div class="d-flex justify-content-between align-items-center mt-1">
+                            <span class="text-muted" style="font-size: 0.7rem;">{{ demande.createdAt|date('d/m/Y') }}</span>
+                            <span class="status-pill bg-info-subtle text-info">Inscrit</span>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <p class="text-muted small">Aucune demande de don.</p>
+                        <a href="{{ path('app_donations') }}" class="btn btn-sm btn-danger rounded-pill">Explorer</a>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Forum Tendances -->
+        <div class="col-lg-4">
+            <div class="glass-card h-100 p-4">
+                <h5 class="fw-bold mb-4 text-dark"><i class="fas fa-fire me-2 text-warning"></i>Tendances Forum</h5>
+                {% for item in trendingForum %}
+                    {% set pub = item.publication %}
+                    <a href="{{ path('app_forum_show', {'id': pub.id}) }}" class="text-decoration-none">
+                        <div class="list-item-glass">
+                            <div class="fw-bold text-dark small text-truncate">{{ pub.titre }}</div>
+                            <div class="d-flex gap-3 mt-1 text-muted" style="font-size: 0.7rem;">
+                                <span><i class="fas fa-heart me-1 text-danger"></i> {{ item.likesCount }}</span>
+                                <span><i class="fas fa-comment me-1"></i> {{ pub.commentaires|length }}</span>
+                            </div>
+                        </div>
+                    </a>
+                {% else %}
+                    <p class="text-center text-muted small py-4">Rien à signaler au forum.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
 
 
 {% endblock %}

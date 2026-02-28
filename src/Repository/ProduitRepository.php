@@ -50,4 +50,49 @@ class ProduitRepository extends ServiceEntityRepository
             ->getQuery()
             ->getSingleScalarResult();
     }
+
+    public function getGlobalStats(): array
+    {
+        $qb = $this->createQueryBuilder('p');
+        
+        $totalCount = (int) $qb->select('COUNT(p.id)')->getQuery()->getSingleScalarResult();
+        
+        $vegetalCount = (int) $this->createQueryBuilder('p')
+            ->select('COUNT(p.id)')
+            ->where('p.type = :type')
+            ->setParameter('type', 'vegetale')
+            ->getQuery()
+            ->getSingleScalarResult();
+            
+        $animaleCount = (int) $this->createQueryBuilder('p')
+            ->select('COUNT(p.id)')
+            ->where('p.type = :type')
+            ->setParameter('type', 'animale')
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        $bioCount = (int) $this->createQueryBuilder('p')
+            ->select('COUNT(p.id)')
+            ->where('p.isBio = :isBio')
+            ->setParameter('isBio', true)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        $totalValue = (float) $this->createQueryBuilder('p')
+            ->select('SUM(p.prix * p.stock)')
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return [
+            'total' => $totalCount,
+            'vegetal' => $vegetalCount,
+            'animale' => $animaleCount,
+            'bio' => $bioCount,
+            'totalValue' => $totalValue,
+            'distribution' => [
+                'Vegetal' => $totalCount > 0 ? round(($vegetalCount / $totalCount) * 100) : 0,
+                'Animal' => $totalCount > 0 ? round(($animaleCount / $totalCount) * 100) : 0,
+            ]
+        ];
+    }
 }

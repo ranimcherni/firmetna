@@ -31,24 +31,46 @@ class ProductsController extends AbstractController
     }
 
     #[Route('/vegetale', name: 'app_products_vegetale')]
-    public function vegetale(ProduitRepository $produitRepository): Response
+    public function vegetale(Request $request, ProduitRepository $produitRepository, \Knp\Component\Pager\PaginatorInterface $paginator): Response
     {
-        $produits = $produitRepository->findByType('vegetale');
+        $query = $produitRepository->createQueryBuilder('p')
+            ->where('p.type = :type')
+            ->setParameter('type', 'vegetale')
+            ->orderBy('p.nom', 'ASC')
+            ->getQuery();
+
+        $pagination = $paginator->paginate(
+            $query,
+            $request->query->getInt('page', 1),
+            6 // Items per page for frontend grid
+        );
+
         return $this->render('front/products/marketplace.html.twig', [
             'category' => 'Produits Végétaux',
             'type' => 'vegetale',
-            'produits' => $produits,
+            'produits' => $pagination,
         ]);
     }
 
     #[Route('/animale', name: 'app_products_animale')]
-    public function animale(ProduitRepository $produitRepository): Response
+    public function animale(Request $request, ProduitRepository $produitRepository, \Knp\Component\Pager\PaginatorInterface $paginator): Response
     {
-        $produits = $produitRepository->findByType('animale');
+        $query = $produitRepository->createQueryBuilder('p')
+            ->where('p.type = :type')
+            ->setParameter('type', 'animale')
+            ->orderBy('p.nom', 'ASC')
+            ->getQuery();
+
+        $pagination = $paginator->paginate(
+            $query,
+            $request->query->getInt('page', 1),
+            6 // Items per page for frontend grid
+        );
+
         return $this->render('front/products/marketplace.html.twig', [
             'category' => 'Produits Animaux',
             'type' => 'animale',
-            'produits' => $produits,
+            'produits' => $pagination,
         ]);
     }
 
