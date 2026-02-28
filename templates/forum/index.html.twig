@@ -252,7 +252,7 @@
                     <div class="user-info">
                         <p class="name">{{ publication.auteur.nom ?: publication.auteur.prenom ?: 'Utilisateur' }}</p>
                         <p class="meta">
-                            <span>{{ publication.dateCreation|date('d M, H:i') }}</span>
+                            <span>{{ publication.dateCreation|ago }}</span>
                             <span>•</span>
                             <span class="badge-type {{ publication.type == 'idee' ? 'text-idee' : 'text-probleme' }}">
                                 <i class="fas {{ publication.type == 'idee' ? 'fa-lightbulb' : 'fa-exclamation-circle' }}"></i>
@@ -277,13 +277,13 @@
 
             <div class="pub-content-area">
                 <h2 class="pub-title">{{ publication.titre }}</h2>
-                <div class="pub-text">{{ publication.contenu|u.truncate(300, '...') }}</div>
+                <div class="pub-text">{{ publication.contenu|u.truncate(300, '...')|raw }}</div>
             </div>
 
             {% if publication.imageFilename %}
                 <div class="pub-media">
                     <a href="{{ path('app_forum_show', {id: publication.id}) }}">
-                        <img src="{{ asset(publication.imageFilename) }}" alt="Illustration">
+                        <img src="{{ vich_uploader_asset(publication, 'imageFile') }}" alt="Illustration">
                     </a>
                 </div>
             {% endif %}

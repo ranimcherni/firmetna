@@ -39,7 +39,14 @@
                     
                     {{ form_row(form.titre) }}
                     {{ form_row(form.type) }}
-                    {{ form_row(form.contenu) }}
+                    
+                    <div class="mb-3">
+                        {{ form_label(form.contenu) }}
+                        {{ form_widget(form.contenu) }}
+                        <trix-editor input="{{ form.contenu.vars.id }}" class="trix-content bg-light p-3 rounded-3" style="min-height: 250px; border: 1px solid #dee2e6;"></trix-editor>
+                        {{ form_errors(form.contenu) }}
+                    </div>
+
                     {{ form_row(form.imageFile) }}
                     <div class="d-flex gap-2 mt-3">
                         <button type="submit" class="btn btn-success rounded-pill px-4">

@@ -22,11 +22,18 @@
                     {{ form_start(form) }}
                     {{ form_row(form.titre) }}
                     {{ form_row(form.type) }}
-                    {{ form_row(form.contenu) }}
+                    
+                    <div class="mb-3">
+                        {{ form_label(form.contenu) }}
+                        {{ form_widget(form.contenu) }}
+                        <trix-editor input="{{ form.contenu.vars.id }}" class="trix-content bg-light p-3 rounded-3" style="min-height: 250px; border: 1px solid #dee2e6;"></trix-editor>
+                        {{ form_errors(form.contenu) }}
+                    </div>
+
                     {{ form_row(form.imageFile) }}
                     {% if publication.imageFilename %}
                         <p class="text-muted small mb-2">
-                            <i class="fas fa-image me-1"></i>Image actuelle : <img src="{{ asset(publication.imageFilename) }}" alt="Image" class="img-thumbnail ms-1" style="max-height: 60px;">
+                             <i class="fas fa-image me-1"></i>Image actuelle : <img src="{{ vich_uploader_asset(publication, 'imageFile') }}" alt="Image" class="img-thumbnail ms-1" style="max-height: 60px;">
                         </p>
                     {% endif %}
                     <div class="d-flex gap-2 mt-3">

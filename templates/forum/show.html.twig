@@ -9,7 +9,7 @@
     <meta property="og:title" content="{{ publication.titre }} - Forum FIRMETNA">
     <meta property="og:description" content="{{ publication.contenu|u.truncate(200, '...')|striptags }}">
     {% if publication.imageFilename %}
-        <meta property="og:image" content="{{ app.request.schemeAndHttpHost ~ asset(publication.imageFilename) }}">
+        <meta property="og:image" content="{{ app.request.schemeAndHttpHost ~ vich_uploader_asset(publication, 'imageFile') }}">
     {% endif %}
     
     <!-- Twitter -->
@@ -18,7 +18,7 @@
     <meta property="twitter:title" content="{{ publication.titre }}">
     <meta property="twitter:description" content="{{ publication.contenu|u.truncate(200, '...')|striptags }}">
     {% if publication.imageFilename %}
-        <meta property="twitter:image" content="{{ app.request.schemeAndHttpHost ~ asset(publication.imageFilename) }}">
+        <meta property="twitter:image" content="{{ app.request.schemeAndHttpHost ~ vich_uploader_asset(publication, 'imageFile') }}">
     {% endif %}
 {% endblock %}
 
@@ -247,7 +247,7 @@
                 </div>
                 <div class="user-info">
                     <p class="name">{{ publication.auteur.nom ?: publication.auteur.prenom ?: 'Utilisateur' }}</p>
-                    <p class="meta">{{ publication.dateCreation|date('d F Y ├á H:i') }}</p>
+                    <p class="meta">{{ publication.dateCreation|ago }}</p>
                 </div>
             </div>
             <span class="badge {{ publication.type == 'idee' ? 'bg-success' : 'bg-danger' }} rounded-pill px-3 py-2">
@@ -257,10 +257,10 @@
 
         <div class="pub-body">
             <h1 class="pub-title">{{ publication.titre }}</h1>
-            <div class="pub-content">{{ publication.contenu }}</div>
+            <div class="pub-content">{{ publication.contenu|raw }}</div>
 
             {% if publication.imageFilename %}
-                <img src="{{ asset(publication.imageFilename) }}" class="pub-image-full" alt="Illustration">
+                <img src="{{ vich_uploader_asset(publication, 'imageFile') }}" class="pub-image-full" alt="Illustration">
             {% endif %}
 
             {% if publication.auteur == app.user or is_granted('ROLE_ADMIN') %}

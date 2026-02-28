@@ -5,7 +5,7 @@
             {{ commentaire.auteur.nom ?? commentaire.auteur.prenom ?? 'Anonyme' }}
         </span>
         <span class="comment-date">
-            {{ commentaire.dateCreation|date('d/m/Y H:i') }}
+            {{ commentaire.dateCreation|ago }}
             {% if commentaire.dateModification %}
                 <small class="text-muted">(modifié)</small>
             {% endif %}
@@ -57,7 +57,7 @@
                         <i class="fas fa-user-circle me-1 opacity-50"></i>
                         {{ reponse.auteur.nom ?? reponse.auteur.prenom ?? 'Anonyme' }}
                     </span>
-                    <span class="comment-date">{{ reponse.dateCreation|date('d/m/Y H:i') }}</span>
+                    <span class="comment-date">{{ reponse.dateCreation|ago }}</span>
                 </div>
                 <div class="comment-body">
                     {{ reponse.contenu|nl2br }}

@@ -61,13 +61,8 @@ class ForumController extends AbstractController
         $form = $this->createForm(PublicationType::class, $publication);
         $form->handleRequest($request);
 
-        // Important: les champs "auteur" et "dateCreation" ne sont pas dans le formulaire,
-        // mais ils sont obligatoires (validation). On les définit AVANT isValid().
         if ($form->isSubmitted()) {
             $publication->setAuteur($this->getUser());
-            if (!$publication->getDateCreation()) {
-                $publication->setDateCreation(new \DateTimeImmutable());
-            }
         }
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -80,28 +75,6 @@ class ForumController extends AbstractController
             // --- End Moderation Check ---
 
             try {
-                // Gestion de l'image
-                $imageFile = $form->get('imageFile')->getData();
-                if ($imageFile) {
-                    // Créer le dossier s'il n'existe pas
-                    $uploadDir = $this->getParameter('publications_directory');
-                    if (!is_dir($uploadDir)) {
-                        mkdir($uploadDir, 0777, true);
-                    }
-
-                    $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
-                    $safeFilename = $slugger->slug($originalFilename);
-                    $newFilename = $safeFilename.'-'.uniqid().'.'.$imageFile->guessExtension();
-                    
-                    try {
-                        $imageFile->move($uploadDir, $newFilename);
-                        // Le chemin doit être relatif depuis public/
-                        $publication->setImageFilename('uploads/publications/'.$newFilename);
-                    } catch (\Exception $e) {
-                        $this->addFlash('warning', 'Erreur lors de l\'upload de l\'image : '.$e->getMessage());
-                    }
-                }
-
                 // Sauvegarder
                 $entityManager->persist($publication);
                 $entityManager->flush();
@@ -148,7 +121,6 @@ class ForumController extends AbstractController
         $form = $this->createForm(CommentaireType::class, $commentaire);
         $form->handleRequest($request);
 
-        // Important: auteur/publication/dateCreation sont obligatoires mais pas dans le formulaire
         if ($form->isSubmitted()) {
             if (!$user) {
                 $this->addFlash('danger', 'Vous devez être connecté pour commenter.');
@@ -156,9 +128,6 @@ class ForumController extends AbstractController
             }
             $commentaire->setAuteur($user);
             $commentaire->setPublication($publication);
-            if (!$commentaire->getDateCreation()) {
-                $commentaire->setDateCreation(new \DateTimeImmutable());
-            }
         }
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -234,26 +203,6 @@ class ForumController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $imageFile = $form->get('imageFile')->getData();
-            if ($imageFile) {
-                // Créer le dossier s'il n'existe pas
-                $uploadDir = $this->getParameter('publications_directory');
-                if (!is_dir($uploadDir)) {
-                    mkdir($uploadDir, 0777, true);
-                }
-
-                $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
-                $safeFilename = $slugger->slug($originalFilename);
-                $newFilename = $safeFilename.'-'.uniqid().'.'.$imageFile->guessExtension();
-                try {
-                    $imageFile->move($uploadDir, $newFilename);
-                    // Le chemin doit être relatif depuis public/
-                    $publication->setImageFilename('uploads/publications/'.$newFilename);
-                } catch (\Exception $e) {
-                    $this->addFlash('warning', 'Erreur lors de l\'upload de l\'image : '.$e->getMessage());
-                }
-            }
-
             $entityManager->flush();
 
             $this->addFlash('success', 'Votre publication a été mise à jour !');

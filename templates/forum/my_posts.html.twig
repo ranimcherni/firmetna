@@ -101,7 +101,7 @@
                             {{ publication.getTypeLabel() }}
                         </span>
                         <p class="text-muted mb-0 mt-2">
-                            <small>{{ publication.dateCreation|date('d F Y à H:i') }}</small>
+                            <small>{{ publication.dateCreation|ago }}</small>
                         </p>
                     </div>
                     <div class="dropdown">
@@ -126,12 +126,12 @@
 
                 <div class="pub-content-area">
                     <h2 class="pub-title">{{ publication.titre }}</h2>
-                    <div class="pub-text">{{ publication.contenu|u.truncate(200, '...') }}</div>
+                    <div class="pub-text">{{ publication.contenu|u.truncate(200, '...')|raw }}</div>
                 </div>
 
                 {% if publication.imageFilename %}
                     <div class="pub-media" style="border-top: 1px solid #f0f0f0; background: #f8f9fa; text-align: center;">
-                        <img src="{{ asset(publication.imageFilename) }}" alt="Illustration" style="width: 100%; max-height: 300px; object-fit: cover;">
+                        <img src="{{ vich_uploader_asset(publication, 'imageFile') }}" alt="Illustration" style="width: 100%; max-height: 300px; object-fit: cover;">
                     </div>
                 {% endif %}
 
