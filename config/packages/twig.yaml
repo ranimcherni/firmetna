@@ -2,7 +2,10 @@ twig:
     file_name_pattern: '*.twig'
     globals:
         cartService: '@App\Service\CartService'
+<<<<<<< HEAD
         recaptcha_site_key: '%env(RECAPTCHA_SITE_KEY)%'
+=======
+>>>>>>> gestion-produit
 
 when@test:
     twig:

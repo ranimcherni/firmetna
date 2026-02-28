@@ -15,10 +15,13 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\String\Slugger\SluggerInterface;
+<<<<<<< HEAD
 use Symfony\Component\HttpFoundation\JsonResponse;
 use App\Service\TwilioService;
 use Dompdf\Dompdf;
 use Dompdf\Options;
+=======
+>>>>>>> gestion-produit
 
 #[Route('/admin')]
 class DonationController extends AbstractController
@@ -180,6 +183,7 @@ class DonationController extends AbstractController
         $photoFile->move($uploadDir, $newFilename);
         $offre->setPhoto('/uploads/dons/' . $newFilename);
     }
+<<<<<<< HEAD
 #[Route('/donations/stats', name: 'app_admin_donations_stats')]
 public function statistics(OffreRepository $offreRepo, DemandeRepository $demandeRepo): Response
 {
@@ -246,4 +250,6 @@ public function sendSms(
         ], 500);
     }
 }
+=======
+>>>>>>> gestion-produit
 }

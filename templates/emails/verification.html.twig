@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Code de vérification FIRMETNA</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .code-container {
+            background-color: #e8f4fd;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .code {
+            font-size: 32px;
+            font-weight: bold;
+            color: #2c3e50;
+            letter-spacing: 5px;
+            margin: 10px 0;
+        }
+        .info {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            margin-top: 20px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #999;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">FIRMETNA</div>
+        </div>
+        
+        <div class="code-container">
+            <div>Votre code de vérification est:</div>
+            <div class="code">{{ code }}</div>
+        </div>
+        
+        <div class="info">
+            Ce code expire dans {{ expires_in_minutes }} minutes.
+        </div>
+        
+        <div class="footer">
+            <p>Cet email a été envoyé à {{ user_email }}</p>
+            <p>Si vous n'avez pas demandé cette vérification, veuillez ignorer cet email.</p>
+        </div>
+    </div>
+</body>
+</html>
