@@ -16,7 +16,9 @@ class DashboardController extends AbstractController
         \App\Repository\EventRepository $eventRepository,
         \App\Repository\PublicationRepository $publicationRepository,
         \App\Repository\OffreRepository $offreRepository,
-        \App\Repository\CommandeRepository $commandeRepository
+        \App\Repository\CommandeRepository $commandeRepository,
+        \App\Repository\PartnerRepository $partnerRepository,
+        \App\Repository\ContractRepository $contractRepository
     ): Response
     {
         // Real counts
@@ -31,6 +33,8 @@ class DashboardController extends AbstractController
         $publicationsCount = $publicationRepository->count([]);
         $offresCount = $offreRepository->count([]);
         $commandesCount = $commandeRepository->count([]);
+        $partnersCount = $partnerRepository->count([]);
+        $contractsCount = $contractRepository->count([]);
 
         // Monthly sales mock for now (needs Order/Payment integration)
         $monthlySales = [1200, 1500, 1100, 1800, 2200, 2500, 2100];
@@ -59,6 +63,8 @@ class DashboardController extends AbstractController
             'publicationsCount' => $publicationsCount,
             'offresCount' => $offresCount,
             'commandesCount' => $commandesCount,
+            'partnersCount' => $partnersCount,
+            'contractsCount' => $contractsCount,
             'monthlySales' => $monthlySales,
             'productDistribution' => $productDistribution,
             'topProducts' => $topProducts,
