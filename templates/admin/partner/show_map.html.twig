@@ -1,0 +1,235 @@
+{% extends 'admin_base.html.twig' %}
+
+{% block title %}Carte des Partenaires - Solution Simple{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    .map-container {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        border-radius: 15px;
+        padding: 30px;
+        min-height: 500px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .partner-card {
+        background: white;
+        border-radius: 10px;
+        padding: 15px;
+        margin: 10px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        transition: all 0.3s;
+        cursor: pointer;
+        border-left: 4px solid #1a4d2e;
+    }
+    
+    .partner-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    
+    .partner-card h5 {
+        color: #1a4d2e;
+        margin-bottom: 10px;
+    }
+    
+    .address-display {
+        background: #f8f9fa;
+        padding: 10px;
+        border-radius: 8px;
+        font-family: monospace;
+        margin-top: 10px;
+    }
+    
+    .stats-card {
+        background: linear-gradient(135deg, #1a4d2e, #23613a);
+        color: white;
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    
+    .map-placeholder {
+        background: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iI2Y4ZjlmYSIvPgogIDx0ZXh0IHg9IjIwMCIgeT0iMTUwIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTgiIGZpbGw9IiM2Yzc1N2QiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkNhcnRlIGRlcyBwYXJ0ZW5haXJlczwvdGV4dD4KICA8dGV4dCB4PSIyMDAiIHk9IjE4MCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjE0IiBmaWxsPSIjOTZhYTNkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5Tb2x1dGlvbiBzaW1wbGUgc2FucyBjbGUgQVBJIEdvb2dsZTwvdGV4dD4KPC9zdmc+') center center no-repeat;
+        background-size: cover;
+        height: 300px;
+        border-radius: 15px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        color: #1a4d2e;
+        font-weight: bold;
+    }
+    
+    .instructions {
+        background: #e8f5e8;
+        border-left: 4px solid #1a4d2e;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+    
+    .partner-type-badge {
+        background: #1a4d2e;
+        color: white;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="fw-bold mb-2">🗺️ Carte des Partenaires</h1>
+                    <p class="text-muted mb-0">Solution simple sans API Google Maps</p>
+                </div>
+                <div>
+                    <a href="{{ path('app_admin_partenariats') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Retour aux partenaires
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="stats-card">
+                <h3><i class="fas fa-users me-2"></i>{{ partners|length }}</h3>
+                <p class="mb-0">Partenaires Total</p>
+            </div>
+
+            <div class="instructions">
+                <h6><i class="fas fa-info-circle me-2"></i>Comment ça marche?</h6>
+                <ul class="mb-0 small">
+                    <li>Ajoutez des partenaires avec leurs adresses</li>
+                    <li>Cliquez sur "Choisir sur Maps" pour trouver une adresse</li>
+                    <li>Les adresses s'affichent ci-dessous</li>
+                    <li>Pas besoin d'API Google Maps!</li>
+                </ul>
+            </div>
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h6><i class="fas fa-plus me-2"></i>Ajouter un partenaire</h6>
+                    <p class="text-muted small mb-3">Utilisez le bouton "Choisir sur Maps" dans le formulaire d'ajout</p>
+                    <a href="{{ path('app_admin_partner_new') }}" class="btn btn-success w-100">
+                        <i class="fas fa-plus me-2"></i>Nouveau Partenaire
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="map-placeholder">
+                <div class="text-center">
+                    <i class="fas fa-map-marked-alt fa-3x mb-3"></i>
+                    <h4>Carte des Partenaires</h4>
+                    <p class="text-muted">Solution sans API Google Maps</p>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h5><i class="fas fa-list me-2"></i>Liste des Partenaires avec Adresses</h5>
+                    
+                    {% if partners|filter(p => p.address) is empty %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-map-pin fa-3x text-muted mb-3"></i>
+                            <h6>Aucun partenaire avec adresse</h6>
+                            <p class="text-muted">Ajoutez des partenaires avec des adresses pour les voir ici</p>
+                            <a href="{{ path('app_admin_partner_new') }}" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>Ajouter un partenaire
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="row">
+                            {% for partner in partners|filter(p => p.address) %}
+                                <div class="col-md-6 mb-3">
+                                    <div class="partner-card" onclick="viewOnMaps('{{ partner.address|escape('js') }}')">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <h5 class="mb-1">{{ partner.name }}</h5>
+                                                {% if partner.type %}
+                                                    <span class="partner-type-badge">{{ partner.type }}</span>
+                                                {% endif %}
+                                            </div>
+                                            <i class="fas fa-external-link-alt text-muted"></i>
+                                        </div>
+                                        
+                                        {% if partner.address %}
+                                            <div class="address-display small">
+                                                <i class="fas fa-map-marker-alt me-1"></i>
+                                                {{ partner.address }}
+                                            </div>
+                                        {% endif %}
+                                        
+                                        <div class="mt-2">
+                                            {% if partner.email %}
+                                                <small class="text-muted d-block"><i class="fas fa-envelope me-1"></i>{{ partner.email }}</small>
+                                            {% endif %}
+                                            {% if partner.phone %}
+                                                <small class="text-muted d-block"><i class="fas fa-phone me-1"></i>{{ partner.phone }}</small>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="mt-2">
+                                            <a href="{{ path('app_admin_partner_edit', {'id': partner.id}) }}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-edit me-1"></i>Modifier
+                                            </a>
+                                            <button class="btn btn-sm btn-outline-success" onclick="viewOnMaps('{{ partner.address|escape('js') }}')">
+                                                <i class="fas fa-map me-1"></i>Voir sur Maps
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+function viewOnMaps(address) {
+    if (!address) {
+        alert('Aucune adresse définie pour ce partenaire');
+        return;
+    }
+    
+    // Open Google Maps with the address
+    const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+    window.open(mapsUrl, '_blank');
+}
+
+// Add some interactivity
+document.addEventListener('DOMContentLoaded', function() {
+    // Animate partner cards on hover
+    const cards = document.querySelectorAll('.partner-card');
+    cards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-5px)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
+    });
+});
+</script>
+{% endblock %}

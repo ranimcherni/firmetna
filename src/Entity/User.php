@@ -198,37 +198,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getStatut(): ?string { return $this->statut; }
     public function setStatut(?string $statut): static { $this->statut = $statut; return $this; }
 
-    public function getFaceSignature(): ?string { return $this->faceSignature; }
-    public function setFaceSignature(?string $faceSignature): static { $this->faceSignature = $faceSignature; return $this; }
-
-    public function isFacialRecognitionEnabled(): bool { return $this->facialRecognitionEnabled; }
-    public function setFacialRecognitionEnabled(bool $facialRecognitionEnabled): static { $this->facialRecognitionEnabled = $facialRecognitionEnabled; return $this; }
-
     public function getRoleType(): ?string { return $this->roleType; }
     public function setRoleType(?string $roleType): static { $this->roleType = $roleType; return $this; }
-
-    /** @return Collection<int, \App\Entity\Notification> */
-    public function getNotifications(): Collection
-    {
-        return $this->notifications;
-    }
-
-    public function addNotification(\App\Entity\Notification $notification): static
-    {
-        if (!$this->notifications->contains($notification)) {
-            $this->notifications->add($notification);
-            $notification->setDestinataire($this);
-        }
-        return $this;
-    }
-
-    public function removeNotification(\App\Entity\Notification $notification): static
-    {
-        if ($this->notifications->removeElement($notification)) {
-            if ($notification->getDestinataire() === $this) {
-                $notification->setDestinataire(null);
-            }
-        }
-        return $this;
-    }
 }

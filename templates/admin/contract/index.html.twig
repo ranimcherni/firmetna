@@ -1,0 +1,120 @@
+{% extends 'admin_base.html.twig' %}
+
+{% block title %}Contracts - FIRMETNA{% endblock %}
+
+{% block body %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="h3 mb-0">Contracts</h1>
+        <p class="text-muted mb-0">Gestion des contrats et partenariats</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{{ path('app_admin_contracts_pdf_list') }}" class="btn btn-outline-primary">
+            <i class="fas fa-file-pdf me-2"></i>Exporter la liste en PDF
+        </a>
+        <a href="{{ path('app_admin_contract_export_csv') }}" class="btn btn-outline-success px-3 py-2" style="border-radius: 8px;">
+            <i class="fas fa-file-csv me-2"></i>Exporter CSV
+        </a>
+        <a href="{{ path('app_admin_contract_new') }}" class="btn btn-success px-4 py-2" style="background-color: #1a4d2e; border: none; border-radius: 8px;">
+            <i class="fas fa-plus me-2"></i>Ajouter un contrat
+        </a>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-4" style="border-radius: 15px;">
+    <div class="card-body p-4">
+        <form method="get" action="{{ path('app_admin_contract_index') }}" class="row g-3">
+            <div class="col-md-4">
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-0"><i class="fas fa-search text-muted"></i></span>
+                    <input type="text" name="q" value="{{ app.request.query.get('q') }}" class="form-control bg-light border-0" placeholder="Rechercher par titre...">
+                </div>
+            </div>
+            <div class="col-md-2">
+                <select name="partner_id" class="form-select bg-light border-0" onchange="this.form.submit()">
+                    <option value="">Tous les partenaires</option>
+                    {% for p in partners %}
+                        <option value="{{ p.id }}" {% if app.request.query.get('partner_id') == (p.id ~ '') %}selected{% endif %}>{{ p.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="type" class="form-select bg-light border-0" onchange="this.form.submit()">
+                    <option value="">Tous les types</option>
+                    <option value="Donation" {% if app.request.query.get('type') == 'Donation' %}selected{% endif %}>Donation</option>
+                    <option value="Sponsorship" {% if app.request.query.get('type') == 'Sponsorship' %}selected{% endif %}>Sponsorship</option>
+                    <option value="Product" {% if app.request.query.get('type') == 'Product' %}selected{% endif %}>Product</option>
+                    <option value="Service" {% if app.request.query.get('type') == 'Service' %}selected{% endif %}>Service</option>
+                    <option value="Other" {% if app.request.query.get('type') == 'Other' %}selected{% endif %}>Other</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="status" class="form-select bg-light border-0" onchange="this.form.submit()">
+                    <option value="">Tous les statuts</option>
+                    <option value="En cours" {% if app.request.query.get('status') == 'En cours' %}selected{% endif %}>En cours</option>
+                    <option value="Réalisé" {% if app.request.query.get('status') == 'Réalisé' %}selected{% endif %}>Réalisé</option>
+                    <option value="Annulé" {% if app.request.query.get('status') == 'Annulé' %}selected{% endif %}>Annulé</option>
+                    <option value="En attente" {% if app.request.query.get('status') == 'En attente' %}selected{% endif %}>En attente</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="sort" class="form-select bg-light border-0" onchange="this.form.submit()">
+                    <option value="date_desc" {% if app.request.query.get('sort') == 'date_desc' or app.request.query.get('sort') is empty %}selected{% endif %}>Date (récent)</option>
+                    <option value="date_asc" {% if app.request.query.get('sort') == 'date_asc' %}selected{% endif %}>Date (ancien)</option>
+                    <option value="title" {% if app.request.query.get('sort') == 'title' %}selected{% endif %}>Titre A-Z</option>
+                    <option value="partner" {% if app.request.query.get('sort') == 'partner' %}selected{% endif %}>Partenaire</option>
+                    <option value="status" {% if app.request.query.get('sort') == 'status' %}selected{% endif %}>Statut</option>
+                </select>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm" style="border-radius: 15px;">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4 py-3 border-0" style="width: 50px;">ID</th>
+                        <th class="py-3 border-0">Titre</th>
+                        <th class="py-3 border-0">Partenaire</th>
+                        <th class="py-3 border-0">Type</th>
+                        <th class="py-3 border-0">Montant</th>
+                        <th class="py-3 border-0">Date début</th>
+                        <th class="py-3 border-0">Date fin</th>
+                        <th class="py-3 border-0">Statut</th>
+                        <th class="py-3 border-0 pe-4 text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for offer in offers %}
+                    <tr>
+                        <td class="ps-4 fw-bold text-muted">#{{ offer.id }}</td>
+                        <td class="fw-600">{{ offer.title }}</td>
+                        <td>{{ offer.partner ? offer.partner.name : '—' }}</td>
+                        <td><span class="badge bg-primary bg-opacity-25 text-primary">{{ offer.type }}</span></td>
+                        <td>{{ offer.amount ? offer.amount ~ ' €' : '—' }}</td>
+                        <td class="text-muted">{{ offer.dateDebutContract ? offer.dateDebutContract|date('d/m/Y') : '—' }}</td>
+                        <td class="text-muted">{{ offer.dateFinContract ? offer.dateFinContract|date('d/m/Y') : '—' }}</td>
+                        <td><span class="badge {% if offer.status == 'Actif' %}bg-success{% elseif offer.status == 'Suspendu' %}bg-warning text-dark{% elseif offer.status == 'Terminé' %}bg-primary{% else %}bg-secondary{% endif %}">{{ offer.status }}</span></td>
+                        <td class="text-end">
+                            <a href="{{ path('app_admin_contract_pdf', {'id': offer.id}) }}" class="btn btn-sm btn-light border" title="Exporter en PDF"><i class="fas fa-file-pdf text-danger"></i></a>
+                            <a href="{{ path('app_admin_contract_edit', {'id': offer.id}) }}" class="btn btn-sm btn-light border" title="Modifier"><i class="fas fa-pen text-muted"></i></a>
+                            <form method="post" action="{{ path('app_admin_contract_delete', {'id': offer.id}) }}" onsubmit="return confirm('Supprimer cette offre ?');" class="d-inline">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ offer.id) }}">
+                                <button class="btn btn-sm btn-light border" title="Supprimer"><i class="fas fa-trash text-danger"></i></button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="9" class="text-center py-5 text-muted">Aucune offre. <a href="{{ path('app_admin_contract_new') }}">Ajouter la première</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

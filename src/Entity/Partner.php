@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+use App\Entity\Contract;
 
 #[ORM\Entity(repositoryClass: PartnerRepository::class)]
 #[ORM\HasLifecycleCallbacks]
@@ -59,9 +60,9 @@ class Partner
     private ?\DateTimeImmutable $createdAt = null;
 
     /**
-     * @var Collection<int, PartnerOffer>
+     * @var Collection<int, Contract>
      */
-    #[ORM\OneToMany(targetEntity: PartnerOffer::class, mappedBy: 'partner', cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Contract::class, mappedBy: 'partner', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $offers;
 
     public function __construct()
@@ -185,14 +186,14 @@ class Partner
     }
 
     /**
-     * @return Collection<int, PartnerOffer>
+     * @return Collection<int, Contract>
      */
     public function getOffers(): Collection
     {
         return $this->offers;
     }
 
-    public function addOffer(PartnerOffer $offer): static
+    public function addOffer(Contract $offer): static
     {
         if (!$this->offers->contains($offer)) {
             $this->offers->add($offer);
@@ -201,7 +202,7 @@ class Partner
         return $this;
     }
 
-    public function removeOffer(PartnerOffer $offer): static
+    public function removeOffer(Contract $offer): static
     {
         if ($this->offers->removeElement($offer)) {
             if ($offer->getPartner() === $this) {

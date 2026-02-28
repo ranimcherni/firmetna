@@ -1,0 +1,383 @@
+{% extends 'admin_base.html.twig' %}
+
+{% block title %}Matching Intelligent de Partenaires - FIRMETNA{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    .ai-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+    
+    .ai-header h1 {
+        margin: 0;
+        font-size: 2.5rem;
+        font-weight: bold;
+    }
+    
+    .ai-header p {
+        margin: 10px 0 0 0;
+        opacity: 0.9;
+        font-size: 1.1rem;
+    }
+    
+    .stat-card {
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 20px;
+        color: white;
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(135deg, #1a4d2e 0%, #2d6a4f 100%);
+    }
+    
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: rgba(255, 255, 255, 0.1);
+        transform: rotate(45deg);
+    }
+    
+    .stat-number {
+        font-size: 3rem;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+    
+    .contract-card {
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 25px;
+        background: white;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .contract-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    
+    .match-item {
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 15px;
+        background: #f8f9fa;
+        border-left: 4px solid #1a4d2e;
+        transition: all 0.3s ease;
+    }
+    
+    .match-item:hover {
+        background: #e9ecef;
+        transform: translateX(5px);
+    }
+    
+    .score-badge {
+        padding: 8px 16px;
+        border-radius: 25px;
+        font-weight: bold;
+        font-size: 0.9rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .score-high {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+    }
+    
+    .score-medium {
+        background: linear-gradient(135deg, #ffc107, #fd7e14);
+        color: white;
+    }
+    
+    .score-low {
+        background: linear-gradient(135deg, #6c757d, #495057);
+        color: white;
+    }
+    
+    .reason-tag {
+        display: inline-block;
+        padding: 4px 10px;
+        margin: 2px;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        background: #e3f2fd;
+        color: #1976d2;
+        border: 1px solid #bbdefb;
+    }
+    
+    .partner-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+    
+    .partner-name {
+        font-weight: bold;
+        color: #1a4d2e;
+        font-size: 1.1rem;
+    }
+    
+    .partner-type {
+        background: #1a4d2e;
+        color: white;
+        padding: 4px 12px;
+        border-radius: 15px;
+        font-size: 0.8rem;
+    }
+    
+    .contract-title {
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: #1a4d2e;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .contract-type {
+        background: #667eea;
+        color: white;
+        padding: 4px 12px;
+        border-radius: 15px;
+        font-size: 0.8rem;
+    }
+    
+    .loading-spinner {
+        display: none;
+        text-align: center;
+        padding: 20px;
+    }
+    
+    .loading-spinner.active {
+        display: block;
+    }
+    
+    .top-performer {
+        background: linear-gradient(135deg, #ffd700, #ffed4e);
+        color: #333;
+        padding: 10px 15px;
+        border-radius: 10px;
+        margin-bottom: 10px;
+        font-weight: bold;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .fade-in {
+        animation: fadeIn 0.5s ease-out;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <!-- AI Header -->
+    <div class="ai-header">
+        <h1>🤖 Matching Intelligent de Partenaires</h1>
+        <p>IA qui recommande les meilleurs partenaires pour chaque contract</p>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-number">{{ statistics.total_partners }}</div>
+                <div>🤝 Partenaires</div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-number">{{ statistics.total_contracts }}</div>
+                <div>📋 Contracts</div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-number">{{ statistics.avg_compatibility_score }}%</div>
+                <div>📊 Score Moyen</div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-number">{{ statistics.top_performing_partners|length }}</div>
+                <div>🏆 Top Performers</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Performers -->
+    {% if statistics.top_performing_partners|length > 0 %}
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white border-0 py-3">
+            <h5 class="mb-0">🏆 Meilleurs Partenaires (Performance)</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                {% for performer in statistics.top_performing_partners[:5] %}
+                <div class="col-md-6 col-lg-4 mb-3">
+                    <div class="top-performer">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span>{{ performer.partner.name }}</span>
+                            <span>{{ (performer.total_score / performer.count)|round(1) }}%</span>
+                        </div>
+                        <small>{{ performer.count }} matchs analysés</small>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Contracts with Matches -->
+    <div class="row">
+        {% for item in contractsWithMatches %}
+        <div class="col-lg-6 mb-4">
+            <div class="contract-card fade-in">
+                <div class="contract-title">
+                    {{ item.contract.title }}
+                    <span class="contract-type">{{ item.contract.type }}</span>
+                </div>
+                
+                <div class="mb-3">
+                    <small class="text-muted">
+                        Montant: {{ item.contract.amount ? item.contract.amount ~ ' €' : 'Non spécifié' }} | 
+                        Statut: <span class="badge bg-info">{{ item.contract.status }}</span>
+                    </small>
+                </div>
+
+                <h6 class="mb-3">🎯 Partenaires Recommandés:</h6>
+                
+                {% for match in item.matches %}
+                <div class="match-item">
+                    <div class="partner-info">
+                        <div>
+                            <div class="partner-name">{{ match.partner.name }}</div>
+                            <small class="text-muted">{{ match.partner.email }}</small>
+                        </div>
+                        <div>
+                            <span class="partner-type">{{ match.partner.type }}</span>
+                            {% if match.score >= 80 %}
+                                <span class="score-badge score-high">
+                                    🎯 {{ match.score|round(1) }}%
+                                </span>
+                            {% elseif match.score >= 60 %}
+                                <span class="score-badge score-medium">
+                                    📊 {{ match.score|round(1) }}%
+                                </span>
+                            {% else %}
+                                <span class="score-badge score-low">
+                                    📈 {{ match.score|round(1) }}%
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    {% if match.reasons|length > 0 %}
+                    <div class="mt-2">
+                        {% for reason in match.reasons %}
+                        <span class="reason-tag">{{ reason }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    <div class="mt-2">
+                        <small class="text-muted">
+                            📋 {{ match.partner.offers.count }} contracts | 
+                            📞 {{ match.partner.phone ?: 'Non spécifié' }}
+                        </small>
+                    </div>
+                </div>
+                {% endfor %}
+                
+                {% if item.matches|length == 0 %}
+                <div class="text-center py-3 text-muted">
+                    <i class="fas fa-robot fa-2x mb-2"></i>
+                    <p>Aucun partenaire compatible trouvé</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if contractsWithMatches|length == 0 %}
+    <div class="text-center py-5">
+        <i class="fas fa-robot fa-4x mb-3 text-muted"></i>
+        <h4>Aucun contract à analyser</h4>
+        <p class="text-muted">Ajoutez des contracts pour voir les recommandations de l'IA</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+// Animation des nombres
+document.addEventListener('DOMContentLoaded', function() {
+    const numbers = document.querySelectorAll('.stat-number');
+    numbers.forEach(number => {
+        const target = parseInt(number.textContent);
+        let current = 0;
+        const increment = target / 50;
+        const timer = setInterval(() => {
+            current += increment;
+            if (current >= target) {
+                current = target;
+                clearInterval(timer);
+            }
+            number.textContent = Math.floor(current);
+        }, 30);
+    });
+});
+
+// Rafraîchissement automatique des statistiques
+setInterval(() => {
+    fetch('{{ path('app_admin_partner_matching_statistics_api') }}')
+        .then(response => response.json())
+        .then(data => {
+            console.log('Statistiques mises à jour:', data);
+        })
+        .catch(error => console.error('Erreur:', error));
+}, 60000); // Toutes les minutes
+
+// Animation des cartes au scroll
+const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+};
+
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('fade-in');
+        }
+    });
+}, observerOptions);
+
+document.querySelectorAll('.contract-card').forEach(card => {
+    observer.observe(card);
+});
+</script>
+{% endblock %}
