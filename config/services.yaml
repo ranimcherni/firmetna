@@ -41,3 +41,12 @@ services:
     App\Service\HuggingFaceService:
         arguments:
             $huggingfaceApiKey: '%env(HUGGINGFACE_API_KEY)%'
+
+    App\Service\PhpMailerEventService:
+        arguments:
+            $mailerHost: '%env(default::PHPMAILER_HOST)%'
+            $mailerPort: '%env(default::PHPMAILER_PORT)%'
+            $mailerUser: '%env(default::PHPMAILER_USER)%'
+            $mailerPassword: '%env(default::PHPMAILER_PASSWORD)%'
+            $mailerFromEmail: '%env(default::PHPMAILER_FROM_EMAIL)%'
+            $mailerFromName: '%env(default::PHPMAILER_FROM_NAME)%'
