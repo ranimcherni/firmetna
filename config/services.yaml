@@ -37,3 +37,7 @@ services:
             $twilioSid: '%env(TWILIO_SID)%'
             $twilioToken: '%env(TWILIO_TOKEN)%'
             $twilioPhone: '%env(TWILIO_PHONE)%'
+
+    App\Service\HuggingFaceService:
+        arguments:
+            $huggingfaceApiKey: '%env(HUGGINGFACE_API_KEY)%'
