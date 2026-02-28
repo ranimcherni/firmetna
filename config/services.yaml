@@ -23,7 +23,6 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
-<<<<<<< HEAD
     App\Validator\ReCaptchaValidator:
         arguments:
             $reCaptchaSecret: '%env(RECAPTCHA_SECRET_KEY)%'
@@ -38,5 +37,3 @@ services:
             $twilioSid: '%env(TWILIO_SID)%'
             $twilioToken: '%env(TWILIO_TOKEN)%'
             $twilioPhone: '%env(TWILIO_PHONE)%'
-=======
->>>>>>> gestion-produit
