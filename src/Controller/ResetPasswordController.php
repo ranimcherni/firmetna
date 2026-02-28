@@ -47,7 +47,7 @@ class ResetPasswordController extends AbstractController
                     $request->getSession()->set('reset_expires', (new \DateTime('+1 hour'))->getTimestamp());
                     
                     $emailMessage = (new Email())
-                        ->from('ranimcherni03@gmail.com')
+                        ->from('ryhemoueslati00@gmail.com')
                         ->to($user->getEmail())
                         ->subject('🔑 Votre code de réinitialisation FIRMETNA')
                         ->html($this->renderView('reset_password/email.html.twig', [
