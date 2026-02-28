@@ -4,6 +4,7 @@ namespace App\Form;
 
 use App\Entity\User;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
@@ -43,6 +44,11 @@ class UserType extends AbstractType
             ->add('telephone', TelType::class, [
                 'label' => 'Téléphone (+216)',
                 'attr' => ['placeholder' => '22 123 456']
+            ])
+            ->add('facialRecognitionEnabled', CheckboxType::class, [
+                'label' => 'Activer la reconnaissance faciale',
+                'required' => false,
+                'attr' => ['class' => 'form-check-input']
             ])
         ;
     }

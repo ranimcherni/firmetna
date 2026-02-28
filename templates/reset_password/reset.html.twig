@@ -1,0 +1,152 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouveau mot de passe - FIRMETNA{% endblock %}
+
+{% block body %}
+<div class="auth-wrapper">
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header text-center mb-4">
+                <div class="icon-circle mb-3">
+                    <i class="fas fa-lock text-success"></i>
+                </div>
+                <h2 class="page-title">Nouveau mot de passe</h2>
+                <p class="instruction-text">Choisissez votre nouveau mot de passe sécurisé.</p>
+            </div>
+
+            {% for label, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ label == 'error' ? 'danger' : label }} alert-dismissible fade show mb-3" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endfor %}
+
+            <form method="POST">
+                <div class="form-group mb-3">
+                    <label for="password" class="form-label">Nouveau mot de passe</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0 rounded-start-12">
+                            <i class="fas fa-key text-muted"></i>
+                        </span>
+                        <input type="password" name="password" id="password" class="form-control premium-input border-start-0 rounded-end-12" placeholder="••••••••" required autofocus>
+                    </div>
+                </div>
+                
+                <div class="form-group mb-4">
+                    <label for="confirm_password" class="form-label">Confirmer le mot de passe</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0 rounded-start-12">
+                            <i class="fas fa-check-circle text-muted"></i>
+                        </span>
+                        <input type="password" name="confirm_password" id="confirm_password" class="form-control premium-input border-start-0 rounded-end-12" placeholder="••••••••" required>
+                    </div>
+                </div>
+                
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-premium-success">Réinitialiser le mot de passe</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    :root {
+        --premium-green: #1a4d2e;
+        --soft-green: #e8f5e8;
+        --border-color: #f0f0f0;
+        --text-muted: #888;
+    }
+
+    .auth-wrapper {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f8f9fa;
+        padding: 20px;
+    }
+
+    .auth-container {
+        width: 100%;
+        max-width: 450px;
+    }
+
+    .auth-card {
+        background: white;
+        border-radius: 24px;
+        padding: 40px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    }
+
+    .icon-circle {
+        width: 60px;
+        height: 60px;
+        background-color: var(--soft-green);
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        font-size: 24px;
+    }
+
+    .page-title {
+        font-weight: 800;
+        font-size: 24px;
+        color: #101828;
+    }
+
+    .instruction-text {
+        color: #667085;
+        font-size: 14px;
+    }
+
+    .form-label {
+        font-weight: 700;
+        font-size: 14px;
+        margin-bottom: 8px;
+        color: #333;
+    }
+
+    .premium-input {
+        background-color: #fcfcfd;
+        border: 1px solid var(--border-color);
+        padding: 12px 15px;
+        font-size: 16px;
+    }
+
+    .premium-input:focus {
+        border-color: var(--premium-green);
+        box-shadow: none;
+        background-color: #fff;
+    }
+
+    .input-group-text {
+        border: 1px solid var(--border-color);
+        color: #667085;
+    }
+
+    .rounded-start-12 { border-top-left-radius: 12px !important; border-bottom-left-radius: 12px !important; }
+    .rounded-end-12 { border-top-right-radius: 12px !important; border-bottom-right-radius: 12px !important; }
+
+    .btn-premium-success {
+        background-color: var(--premium-green);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        padding: 14px;
+        font-weight: 700;
+        font-size: 16px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-premium-success:hover {
+        background-color: #143a22;
+        transform: translateY(-1px);
+        color: white;
+    }
+</style>
+{% endblock %}

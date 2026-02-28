@@ -35,7 +35,6 @@ class Publication
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
-    #[Assert\NotNull(message: 'L\'auteur est obligatoire.')]
     private ?User $auteur = null;
 
     #[ORM\Column(type: 'datetime_immutable')]
@@ -49,9 +48,14 @@ class Publication
     #[ORM\OrderBy(['dateCreation' => 'ASC'])]
     private Collection $commentaires;
 
+    /** @var Collection<int, Like> */
+    #[ORM\OneToMany(targetEntity: Like::class, mappedBy: 'publication', cascade: ['remove'], orphanRemoval: true)]
+    private Collection $likes;
+
     public function __construct()
     {
         $this->commentaires = new ArrayCollection();
+        $this->likes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -153,5 +157,35 @@ class Publication
     public function getTypeLabel(): string
     {
         return $this->type === self::TYPE_IDEE ? 'Idée' : 'Problème';
+    }
+
+    /** @return Collection<int, Like> */
+    public function getLikes(): Collection
+    {
+        return $this->likes;
+    }
+
+    public function addLike(Like $like): static
+    {
+        if (!$this->likes->contains($like)) {
+            $this->likes->add($like);
+            $like->setPublication($this);
+        }
+        return $this;
+    }
+
+    public function removeLike(Like $like): static
+    {
+        if ($this->likes->removeElement($like)) {
+            if ($like->getPublication() === $this) {
+                $like->setPublication(null);
+            }
+        }
+        return $this;
+    }
+
+    public function getLikesCount(): int
+    {
+        return $this->likes->count();
     }
 }

@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Form\UserType;
+use App\Repository\PublicationRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -23,15 +24,25 @@ final class ProfilController extends AbstractController
     }
 
     #[Route('/me', name: 'app_profil_me', methods: ['GET'])]
-    public function me(): Response
+    public function me(PublicationRepository $publicationRepository): Response
     {
         $user = $this->getUser();
         if (!$user) {
             return $this->redirectToRoute('app_login');
         }
 
+        // Récupérer les statistiques de l'utilisateur
+        $publicationsCount = $publicationRepository->count(['auteur' => $user]);
+        $recentPublications = $publicationRepository->findBy(
+            ['auteur' => $user],
+            ['dateCreation' => 'DESC'],
+            5
+        );
+
         return $this->render('profil/show.html.twig', [
             'user' => $user,
+            'publicationsCount' => $publicationsCount,
+            'recentPublications' => $recentPublications,
         ]);
     }
 

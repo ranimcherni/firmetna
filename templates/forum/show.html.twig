@@ -1,6 +1,26 @@
-﻿{% extends 'base.html.twig' %}
+{% extends 'base.html.twig' %}
 
 {% block title %}{{ publication.titre }} - Forum FIRMETNA{% endblock %}
+
+{% block meta %}
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="{{ app.request.uri }}">
+    <meta property="og:title" content="{{ publication.titre }} - Forum FIRMETNA">
+    <meta property="og:description" content="{{ publication.contenu|u.truncate(200, '...')|striptags }}">
+    {% if publication.imageFilename %}
+        <meta property="og:image" content="{{ app.request.schemeAndHttpHost ~ asset(publication.imageFilename) }}">
+    {% endif %}
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="{{ app.request.uri }}">
+    <meta property="twitter:title" content="{{ publication.titre }}">
+    <meta property="twitter:description" content="{{ publication.contenu|u.truncate(200, '...')|striptags }}">
+    {% if publication.imageFilename %}
+        <meta property="twitter:image" content="{{ app.request.schemeAndHttpHost ~ asset(publication.imageFilename) }}">
+    {% endif %}
+{% endblock %}
 
 {% block body %}
 <style>
@@ -139,6 +159,79 @@
         font-size: 0.8rem;
         color: #9ca3af;
     }
+
+    .pub-actions {
+        display: flex;
+        gap: 20px;
+        padding: 1rem 1.5rem;
+        border-top: 1px solid #f3f4f6;
+    }
+    .pub-action-btn {
+        background: none;
+        border: none;
+        color: #6b7280;
+        font-size: 0.95rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        border-radius: 8px;
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+    .pub-action-btn:hover {
+        background: #f3f4f6;
+        color: #1a4d2e;
+    }
+    .pub-action-btn.liked {
+        color: #1a4d2e;
+    }
+    .pub-action-btn.liked i {
+        color: #1a4d2e;
+    }
+
+    .comment-reply {
+        margin-left: 3rem;
+        margin-top: 1rem;
+        padding-left: 1rem;
+        border-left: 3px solid #e5e7eb;
+    }
+    .reply-btn {
+        background: none;
+        border: none;
+        color: #1a4d2e;
+        font-size: 0.85rem;
+        font-weight: 600;
+        padding: 4px 8px;
+        margin-top: 0.5rem;
+        cursor: pointer;
+    }
+    .reply-btn:hover {
+        background: #f3f0ff;
+        border-radius: 4px;
+    }
+    .reply-form {
+        margin-top: 1rem;
+        padding: 1rem;
+        background: #f9fafb;
+        border-radius: 8px;
+        display: none;
+    }
+    .reply-form.active {
+        display: block;
+    }
+
+    /* Partage Social */
+    .share-section {
+        background: #f9fafb;
+        border-radius: 10px;
+        padding: 1rem;
+    }
+    .share-buttons .btn {
+        font-size: 0.85rem;
+        padding: 0.4rem 0.8rem;
+    }
 </style>
 
 <div class="container forum-container">
@@ -179,6 +272,75 @@
                 </div>
             {% endif %}
         </div>
+        <div class="pub-actions">
+            {% if app.user %}
+                <button class="pub-action-btn like-btn {{ isLiked ? 'liked' : '' }}" data-publication-id="{{ publication.id }}">
+                    <i class="{{ isLiked ? 'fas' : 'far' }} fa-thumbs-up"></i>
+                    <span class="like-count">{{ publication.likes|length }}</span>
+                    <span>J'aime</span>
+                </button>
+            {% else %}
+                <a href="{{ path('app_login') }}" class="pub-action-btn">
+                    <i class="far fa-thumbs-up"></i>
+                    <span>{{ publication.likes|length }}</span>
+                    <span>J'aime</span>
+                </a>
+            {% endif %}
+            <div class="pub-action-btn">
+                <i class="far fa-comment"></i>
+                <span>{{ publication.commentaires|length }}</span>
+                <span>Commentaires</span>
+            </div>
+        </div>
+
+        <!-- Partage Social -->
+        <div class="share-section mt-3 pt-3 border-top">
+            <h6 class="mb-3 fw-bold">
+                <i class="fas fa-share-alt text-success me-2"></i>Partager cette publication
+            </h6>
+            <div class="share-buttons d-flex flex-wrap gap-2">
+                <a href="{{ shareService.getFacebookShareUrl(publication) }}" 
+                   target="_blank" 
+                   rel="noopener noreferrer"
+                   class="btn btn-sm btn-primary rounded-pill">
+                    <i class="fab fa-facebook-f me-1"></i>Facebook
+                </a>
+                <a href="{{ shareService.getTwitterShareUrl(publication) }}" 
+                   target="_blank" 
+                   rel="noopener noreferrer"
+                   class="btn btn-sm btn-info rounded-pill text-white">
+                    <i class="fab fa-twitter me-1"></i>Twitter
+                </a>
+                <a href="{{ shareService.getWhatsAppShareUrl(publication) }}" 
+                   target="_blank" 
+                   rel="noopener noreferrer"
+                   class="btn btn-sm btn-success rounded-pill">
+                    <i class="fab fa-whatsapp me-1"></i>WhatsApp
+                </a>
+                <a href="{{ shareService.getLinkedInShareUrl(publication) }}" 
+                   target="_blank" 
+                   rel="noopener noreferrer"
+                   class="btn btn-sm btn-primary rounded-pill" style="background-color: #0077b5;">
+                    <i class="fab fa-linkedin-in me-1"></i>LinkedIn
+                </a>
+                <a href="{{ shareService.getEmailShareUrl(publication) }}" 
+                   class="btn btn-sm btn-outline-secondary rounded-pill">
+                    <i class="fas fa-envelope me-1"></i>Email
+                </a>
+                <a href="{{ shareService.getInstagramShareUrl(publication) }}" 
+                   target="_blank" 
+                   rel="noopener noreferrer"
+                   class="btn btn-sm rounded-pill" 
+                   style="background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); color: white; border: none;"
+                   onclick="copyToClipboard('{{ shareService.getShareUrl(publication) }}'); setTimeout(() => alert('Lien copié ! Ouvrez Instagram et collez-le dans votre story ou post.'), 100);">
+                    <i class="fab fa-instagram me-1"></i>Instagram
+                </a>
+                <button onclick="copyToClipboard('{{ shareService.getShareUrl(publication) }}')" 
+                        class="btn btn-sm btn-outline-dark rounded-pill">
+                    <i class="fas fa-link me-1"></i>Copier le lien
+                </button>
+            </div>
+        </div>
     </article>
 
     <div class="comments-section" id="commentaires">
@@ -201,24 +363,92 @@
 
         <div class="comment-list">
             {% for commentaire in publication.commentaires %}
-                <div class="comment-card">
-                    <div class="comment-header">
-                        <span class="commenter-name">
-                            <i class="fas fa-user-circle me-1 opacity-50"></i>
-                            {{ commentaire.auteur.nom ?? commentaire.auteur.prenom ?? 'Anonyme' }}
-                        </span>
-                        <span class="comment-date">{{ commentaire.dateCreation|date('d/m/Y H:i') }}</span>
-                    </div>
-                    <div class="comment-body">
-                        {{ commentaire.contenu|nl2br }}
-                    </div>
-                </div>
+                {% if not commentaire.parent %}
+                    {% set replyForm = replyForms[commentaire.id] ?? form %}
+                    {% include 'forum/_comment.html.twig' with {'commentaire': commentaire, 'publication': publication, 'replyForm': replyForm} %}
+                {% endif %}
             {% else %}
                 <div class="text-center py-5 bg-white rounded-3 shadow-sm opacity-75">
-                    <p class="text-muted mb-0">Aucun commentaire pour le moment. Soyez le premier ├á r├®agir !</p>
+                    <p class="text-muted mb-0">Aucun commentaire pour le moment. Soyez le premier à réagir !</p>
                 </div>
             {% endfor %}
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Likes
+    const likeBtn = document.querySelector('.like-btn');
+    if (likeBtn) {
+        likeBtn.addEventListener('click', function() {
+            const publicationId = this.dataset.publicationId;
+            const icon = this.querySelector('i');
+            const countSpan = this.querySelector('.like-count');
+            
+            fetch('{{ path('app_forum_like', {id: '__ID__'}) }}'.replace('__ID__', publicationId), {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+                
+                countSpan.textContent = data.count;
+                
+                if (data.liked) {
+                    this.classList.add('liked');
+                    icon.classList.remove('far');
+                    icon.classList.add('fas');
+                } else {
+                    this.classList.remove('liked');
+                    icon.classList.remove('fas');
+                    icon.classList.add('far');
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+            });
+        });
+    }
+
+    // Réponses aux commentaires
+    document.querySelectorAll('.reply-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const commentId = this.dataset.commentId;
+            const form = document.getElementById('reply-form-' + commentId);
+            if (form) {
+                form.classList.toggle('active');
+            }
+            });
+        });
+    });
+
+    // Copier le lien dans le presse-papiers
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(function() {
+            // Afficher un message de confirmation
+            const btn = event.target.closest('button');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check me-1"></i>Copié !';
+            btn.classList.add('btn-success');
+            btn.classList.remove('btn-outline-dark');
+            
+            setTimeout(function() {
+                btn.innerHTML = originalText;
+                btn.classList.remove('btn-success');
+                btn.classList.add('btn-outline-dark');
+            }, 2000);
+        }).catch(function(err) {
+            console.error('Erreur lors de la copie:', err);
+            alert('Impossible de copier le lien');
+        });
+    }
+</script>
 {% endblock %}

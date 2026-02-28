@@ -40,6 +40,25 @@
                         <div class="col-sm-8"><i class="fas fa-phone text-muted me-1"></i> {{ user.telephone|default('Non renseigné') }}</div>
                     </div>
                     
+                    {% if publicationsCount is defined %}
+                        <div class="row mb-4 mt-4 pt-4 border-top">
+                            <div class="col-12">
+                                <h5 class="fw-bold mb-3">
+                                    <i class="fas fa-file-alt text-success me-2"></i>Mes Publications
+                                </h5>
+                                <p class="text-muted mb-3">
+                                    Vous avez créé <strong>{{ publicationsCount }}</strong> publication{{ publicationsCount > 1 ? 's' : '' }} sur le forum.
+                                </p>
+                                <a href="{{ path('app_forum_my_posts') }}" class="btn btn-success rounded-pill px-4">
+                                    <i class="fas fa-list me-2"></i>Voir toutes mes publications
+                                </a>
+                                <a href="{{ path('app_forum_new') }}" class="btn btn-outline-success rounded-pill px-4">
+                                    <i class="fas fa-plus me-2"></i>Nouvelle publication
+                                </a>
+                            </div>
+                        </div>
+                    {% endif %}
+
                     <div class="d-flex flex-wrap justify-content-between align-items-center mt-4 pt-4 border-top gap-3">
                         <div class="d-flex flex-wrap gap-2">
                             <a href="{{ path('app_profil_edit', {'id': user.id}) }}" class="btn btn-success rounded-pill px-4">

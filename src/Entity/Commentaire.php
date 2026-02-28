@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\CommentaireRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -21,16 +23,31 @@ class Commentaire
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
-    #[Assert\NotNull(message: 'L\'auteur est obligatoire.')]
     private ?User $auteur = null;
 
     #[ORM\ManyToOne(targetEntity: Publication::class, inversedBy: 'commentaires')]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
-    #[Assert\NotNull(message: 'La publication associée est obligatoire.')]
     private ?Publication $publication = null;
 
     #[ORM\Column(type: 'datetime_immutable')]
     private ?\DateTimeImmutable $dateCreation = null;
+
+    #[ORM\ManyToOne(targetEntity: Commentaire::class, inversedBy: 'reponses')]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'CASCADE')]
+    private ?Commentaire $parent = null;
+
+    /** @var Collection<int, Commentaire> */
+    #[ORM\OneToMany(targetEntity: Commentaire::class, mappedBy: 'parent', cascade: ['remove'], orphanRemoval: true)]
+    #[ORM\OrderBy(['dateCreation' => 'ASC'])]
+    private Collection $reponses;
+
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $dateModification = null;
+
+    public function __construct()
+    {
+        $this->reponses = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -78,6 +95,58 @@ class Commentaire
     public function setDateCreation(\DateTimeImmutable $dateCreation): static
     {
         $this->dateCreation = $dateCreation;
+        return $this;
+    }
+
+    public function getParent(): ?Commentaire
+    {
+        return $this->parent;
+    }
+
+    public function setParent(?Commentaire $parent): static
+    {
+        $this->parent = $parent;
+        return $this;
+    }
+
+    /** @return Collection<int, Commentaire> */
+    public function getReponses(): Collection
+    {
+        return $this->reponses;
+    }
+
+    public function addReponse(Commentaire $reponse): static
+    {
+        if (!$this->reponses->contains($reponse)) {
+            $this->reponses->add($reponse);
+            $reponse->setParent($this);
+        }
+        return $this;
+    }
+
+    public function removeReponse(Commentaire $reponse): static
+    {
+        if ($this->reponses->removeElement($reponse)) {
+            if ($reponse->getParent() === $this) {
+                $reponse->setParent(null);
+            }
+        }
+        return $this;
+    }
+
+    public function isReponse(): bool
+    {
+        return $this->parent !== null;
+    }
+
+    public function getDateModification(): ?\DateTimeImmutable
+    {
+        return $this->dateModification;
+    }
+
+    public function setDateModification(?\DateTimeImmutable $dateModification): static
+    {
+        $this->dateModification = $dateModification;
         return $this;
     }
 }

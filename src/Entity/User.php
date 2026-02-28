@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -33,8 +35,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 50)]
     #[Assert\NotBlank(message: 'Le rôle est obligatoire.')]
     #[Assert\Choice(
-        choices: ['ROLE_USER', 'ROLE_ADMIN'],
-        message: 'Le rôle doit être soit ROLE_USER soit ROLE_ADMIN.'
+        choices: ['ROLE_USER', 'ROLE_ADMIN', 'ROLE_AGRICULTEUR', 'ROLE_CLIENT', 'ROLE_DONATEUR'],
+        message: 'Le rôle n\'est pas valide.'
     )]
     private ?string $role = "ROLE_USER";
 
@@ -125,12 +127,27 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     )]
     private ?string $statut = null;
 
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $faceSignature = null;
+
+    #[ORM\Column(type: 'boolean', options: ['default' => false])]
+    private bool $facialRecognitionEnabled = false;
+
     #[ORM\Column(length: 50, nullable: true)]
     #[Assert\Choice(
         choices: ['Agriculteur', 'Client', 'Donateur'],
         message: 'Le type de rôle "{{ value }}" n\'est pas valide.'
     )]
     private ?string $roleType = null;
+
+    /** @var Collection<int, \App\Entity\Notification> */
+    #[ORM\OneToMany(targetEntity: \App\Entity\Notification::class, mappedBy: 'destinataire', cascade: ['remove'], orphanRemoval: true)]
+    private Collection $notifications;
+
+    public function __construct()
+    {
+        $this->notifications = new ArrayCollection();
+    }
 
     public function getId(): ?int { return $this->id; }
 
@@ -181,6 +198,37 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getStatut(): ?string { return $this->statut; }
     public function setStatut(?string $statut): static { $this->statut = $statut; return $this; }
 
+    public function getFaceSignature(): ?string { return $this->faceSignature; }
+    public function setFaceSignature(?string $faceSignature): static { $this->faceSignature = $faceSignature; return $this; }
+
+    public function isFacialRecognitionEnabled(): bool { return $this->facialRecognitionEnabled; }
+    public function setFacialRecognitionEnabled(bool $facialRecognitionEnabled): static { $this->facialRecognitionEnabled = $facialRecognitionEnabled; return $this; }
+
     public function getRoleType(): ?string { return $this->roleType; }
     public function setRoleType(?string $roleType): static { $this->roleType = $roleType; return $this; }
+
+    /** @return Collection<int, \App\Entity\Notification> */
+    public function getNotifications(): Collection
+    {
+        return $this->notifications;
+    }
+
+    public function addNotification(\App\Entity\Notification $notification): static
+    {
+        if (!$this->notifications->contains($notification)) {
+            $this->notifications->add($notification);
+            $notification->setDestinataire($this);
+        }
+        return $this;
+    }
+
+    public function removeNotification(\App\Entity\Notification $notification): static
+    {
+        if ($this->notifications->removeElement($notification)) {
+            if ($notification->getDestinataire() === $this) {
+                $notification->setDestinataire(null);
+            }
+        }
+        return $this;
+    }
 }

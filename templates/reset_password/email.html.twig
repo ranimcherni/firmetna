@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f4f4f4; }
+        .container { max-width: 600px; margin: 20px auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .header { background: #1a4d2e; padding: 30px; text-align: center; color: white; }
+        .header h1 { margin: 0; font-size: 28px; letter-spacing: 2px; }
+        .content { padding: 40px; }
+        .content h2 { color: #1a4d2e; margin-top: 0; font-size: 24px; }
+        .code-box { background: #f0f7f0; border: 2px dashed #1a4d2e; border-radius: 8px; padding: 20px; text-align: center; margin: 30px 0; }
+        .code { font-size: 48px; font-weight: bold; letter-spacing: 12px; color: #1a4d2e; margin: 0; }
+        .footer { background: #f9f9f9; padding: 20px; text-align: center; font-size: 14px; color: #777; border-top: 1px solid #eee; }
+        .btn { display: inline-block; padding: 12px 24px; background: #1a4d2e; color: #fff; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>FIRMETNA</h1>
+        </div>
+        <div class="content">
+            <h2>Bonjour {{ user.prenom|default('utilisateur') }},</h2>
+            <p>Vous avez demandé la réinitialisation de votre mot de passe pour votre compte <strong>FIRMETNA</strong>.</p>
+            
+            <div class="code-box">
+                <p style="margin-bottom: 10px; text-transform: uppercase; font-size: 12px; color: #666; letter-spacing: 1px;">Votre code de vérification est :</p>
+                <p class="code">{{ resetCode }}</p>
+            </div>
+            
+            <p>Ce code expirera dans <strong>1 heure</strong>.</p>
+            <p style="font-size: 14px; color: #666;">Si vous n'avez pas demandé cette réinitialisation, vous pouvez ignorer cet e-mail en toute sécurité. Votre mot de passe restera inchangé jusqu'à ce que vous utilisiez ce code pour en créer un nouveau.</p>
+            
+            <p style="margin-top: 30px;">Cordialement,<br><strong>L'équipe FIRMETNA</strong></p>
+        </div>
+        <div class="footer">
+            &copy; {{ "now"|date("Y") }} FIRMETNA. Tous droits réservés.
+        </div>
+    </div>
+</body>
+</html>

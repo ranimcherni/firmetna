@@ -1,0 +1,81 @@
+<div class="comment-card">
+    <div class="comment-header">
+        <span class="commenter-name">
+            <i class="fas fa-user-circle me-1 opacity-50"></i>
+            {{ commentaire.auteur.nom ?? commentaire.auteur.prenom ?? 'Anonyme' }}
+        </span>
+        <span class="comment-date">
+            {{ commentaire.dateCreation|date('d/m/Y H:i') }}
+            {% if commentaire.dateModification %}
+                <small class="text-muted">(modifié)</small>
+            {% endif %}
+        </span>
+    </div>
+    <div class="comment-body">
+        {{ commentaire.contenu|nl2br }}
+    </div>
+    <div class="comment-actions d-flex gap-2 mt-2">
+        {% if app.user %}
+            <button class="reply-btn" data-comment-id="{{ commentaire.id }}">
+                <i class="fas fa-reply me-1"></i>Répondre
+            </button>
+        {% endif %}
+        {% if commentaire.auteur == app.user or is_granted('ROLE_ADMIN') %}
+            <a href="{{ path('app_forum_comment_edit', {id: commentaire.id}) }}" class="btn btn-sm btn-outline-primary">
+                <i class="fas fa-edit me-1"></i>Modifier
+            </a>
+            <form method="POST" action="{{ path('app_forum_comment_delete', {id: commentaire.id}) }}" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce commentaire ?');">
+                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ commentaire.id) }}">
+                <button type="submit" class="btn btn-sm btn-outline-danger">
+                    <i class="fas fa-trash me-1"></i>Supprimer
+                </button>
+            </form>
+        {% endif %}
+    </div>
+
+    <!-- Formulaire de réponse -->
+    {% if app.user %}
+        <div class="reply-form" id="reply-form-{{ commentaire.id }}">
+            <form method="POST" action="{{ path('app_forum_show', {id: publication.id}) }}">
+                <input type="hidden" name="parent_id" value="{{ commentaire.id }}">
+                {{ form_widget(replyForm.contenu, {'attr': {'class': 'form-control mb-2', 'rows': 2, 'placeholder': 'Écrivez votre réponse...'}}) }}
+                {{ form_rest(replyForm) }}
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-sm btn-success">Publier</button>
+                    <button type="button" class="btn btn-sm btn-secondary" onclick="document.getElementById('reply-form-{{ commentaire.id }}').classList.remove('active')">Annuler</button>
+                </div>
+            </form>
+        </div>
+    {% endif %}
+
+    <!-- Réponses imbriquées -->
+    {% if commentaire.reponses|length > 0 %}
+        {% for reponse in commentaire.reponses %}
+            <div class="comment-reply">
+                <div class="comment-header">
+                    <span class="commenter-name">
+                        <i class="fas fa-user-circle me-1 opacity-50"></i>
+                        {{ reponse.auteur.nom ?? reponse.auteur.prenom ?? 'Anonyme' }}
+                    </span>
+                    <span class="comment-date">{{ reponse.dateCreation|date('d/m/Y H:i') }}</span>
+                </div>
+                <div class="comment-body">
+                    {{ reponse.contenu|nl2br }}
+                </div>
+                {% if reponse.auteur == app.user or is_granted('ROLE_ADMIN') %}
+                    <div class="comment-actions d-flex gap-2 mt-2">
+                        <a href="{{ path('app_forum_comment_edit', {id: reponse.id}) }}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-edit me-1"></i>Modifier
+                        </a>
+                        <form method="POST" action="{{ path('app_forum_comment_delete', {id: reponse.id}) }}" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce commentaire ?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ reponse.id) }}">
+                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                <i class="fas fa-trash me-1"></i>Supprimer
+                            </button>
+                        </form>
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% endif %}
+</div>

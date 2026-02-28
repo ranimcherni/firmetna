@@ -1,0 +1,171 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes publications - Forum FIRMETNA{% endblock %}
+
+{% block body %}
+<style>
+    body {
+        background-color: #f3f0ff !important;
+    }
+
+    .my-posts-header {
+        background: linear-gradient(rgba(26, 77, 46, 0.9), rgba(0, 0, 0, 0.7)), url('{{ asset('images/vert.png') }}');
+        background-size: cover;
+        background-position: center;
+        padding: 4rem 0;
+        color: white;
+        margin-bottom: 3rem;
+    }
+
+    .publications-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 0 1rem;
+    }
+
+    .pub-card {
+        background: #ffffff;
+        border-radius: 12px;
+        border: none;
+        margin-bottom: 2rem;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        overflow: hidden;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .pub-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .pub-header {
+        padding: 1.25rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .pub-content-area {
+        padding: 1.25rem;
+    }
+    .pub-title {
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: #1a1a1b;
+        margin-bottom: 0.75rem;
+    }
+    .pub-text {
+        font-size: 0.95rem;
+        color: #1a1a1b;
+        line-height: 1.5;
+        white-space: pre-wrap;
+    }
+
+    .pub-footer {
+        padding: 0.75rem 1.25rem;
+        border-top: 1px solid #f0f0f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .pub-stats {
+        display: flex;
+        gap: 20px;
+        font-size: 0.85rem;
+        color: #57606a;
+    }
+
+    .pub-actions {
+        display: flex;
+        gap: 10px;
+    }
+</style>
+
+<div class="my-posts-header">
+    <div class="container text-center">
+        <h1 class="display-4 fw-bold mb-3">
+            <i class="fas fa-file-alt me-3"></i>Mes Publications
+        </h1>
+        <p class="lead">Gérez toutes vos publications du forum</p>
+    </div>
+</div>
+
+<div class="container publications-container">
+    {% if publications|length > 0 %}
+        {% for publication in publications %}
+            <article class="pub-card shadow-sm">
+                <div class="pub-header">
+                    <div>
+                        <span class="badge {{ publication.type == 'idee' ? 'bg-success' : 'bg-danger' }} rounded-pill px-3 py-2">
+                            {{ publication.getTypeLabel() }}
+                        </span>
+                        <p class="text-muted mb-0 mt-2">
+                            <small>{{ publication.dateCreation|date('d F Y à H:i') }}</small>
+                        </p>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-link text-muted p-0" data-bs-toggle="dropdown">
+                            <i class="fas fa-ellipsis-h"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                            <li><a class="dropdown-item py-2" href="{{ path('app_forum_show', {id: publication.id}) }}"><i class="fas fa-eye me-2"></i>Voir</a></li>
+                            <li><a class="dropdown-item py-2" href="{{ path('app_forum_edit', {id: publication.id}) }}"><i class="fas fa-edit me-2"></i>Modifier</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form method="POST" action="{{ path('app_forum_delete', {id: publication.id}) }}" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette publication ?');">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ publication.id) }}">
+                                    <button type="submit" class="dropdown-item py-2 text-danger" style="border: none; background: none; width: 100%; text-align: left;">
+                                        <i class="fas fa-trash me-2"></i>Supprimer
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="pub-content-area">
+                    <h2 class="pub-title">{{ publication.titre }}</h2>
+                    <div class="pub-text">{{ publication.contenu|u.truncate(200, '...') }}</div>
+                </div>
+
+                {% if publication.imageFilename %}
+                    <div class="pub-media" style="border-top: 1px solid #f0f0f0; background: #f8f9fa; text-align: center;">
+                        <img src="{{ asset(publication.imageFilename) }}" alt="Illustration" style="width: 100%; max-height: 300px; object-fit: cover;">
+                    </div>
+                {% endif %}
+
+                <div class="pub-footer">
+                    <div class="pub-stats">
+                        <span><i class="far fa-thumbs-up me-1"></i>{{ publication.likes|length }} likes</span>
+                        <span><i class="far fa-comment me-1"></i>{{ publication.commentaires|length }} commentaires</span>
+                    </div>
+                    <div class="pub-actions">
+                        <a href="{{ path('app_forum_show', {id: publication.id}) }}" class="btn btn-sm btn-outline-success">
+                            <i class="fas fa-eye me-1"></i>Voir
+                        </a>
+                        <a href="{{ path('app_forum_edit', {id: publication.id}) }}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-edit me-1"></i>Modifier
+                        </a>
+                    </div>
+                </div>
+            </article>
+        {% endfor %}
+
+        {% if publications.pageCount > 1 %}
+            <div class="d-flex justify-content-center mt-5">
+                {{ knp_pagination_render(publications) }}
+            </div>
+        {% endif %}
+    {% else %}
+        <div class="text-center py-5 bg-white rounded-3 shadow-sm">
+            <i class="fas fa-file-alt fa-4x text-muted mb-3 opacity-25"></i>
+            <h3 class="text-muted">Aucune publication</h3>
+            <p class="text-muted mb-4">Vous n'avez pas encore créé de publication.</p>
+            <a href="{{ path('app_forum_new') }}" class="btn btn-success rounded-pill px-4">
+                <i class="fas fa-plus me-2"></i>Créer votre première publication
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

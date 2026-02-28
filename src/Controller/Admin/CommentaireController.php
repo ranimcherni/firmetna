@@ -38,7 +38,7 @@ class CommentaireController extends AbstractController
     {
         $commentaire = new Commentaire();
         $commentaire->setDateCreation(new \DateTimeImmutable());
-        $form = $this->createForm(\App\Form\CommentaireType::class, $commentaire);
+        $form = $this->createForm(\App\Form\CommentaireType::class, $commentaire, ['is_admin' => true]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -58,7 +58,7 @@ class CommentaireController extends AbstractController
     #[Route('/{id}/edit', name: 'app_admin_commentaire_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Commentaire $commentaire, EntityManagerInterface $entityManager): Response
     {
-        $form = $this->createForm(\App\Form\CommentaireType::class, $commentaire);
+        $form = $this->createForm(\App\Form\CommentaireType::class, $commentaire, ['is_admin' => true]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {

@@ -207,9 +207,63 @@
         margin-left: 5px;
     }
 
-    @media (max-width: 1024px) {
-        .left-side { display: none; }
-        .right-side { flex: 1; padding: 2rem; }
+    /* ... existing styles ... */
+    .login-tabs {
+        border-bottom: 2px solid #eef2ee;
+        margin-bottom: 2rem;
+    }
+
+    .tab-btn {
+        background: none;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: all 0.3s;
+        border-bottom: 3px solid transparent;
+        margin-bottom: -2px;
+    }
+
+    .tab-btn.active {
+        color: var(--primary-green);
+        border-bottom-color: var(--primary-green);
+    }
+
+    .tab-btn:hover:not(.active) {
+        color: var(--text-dark);
+    }
+    .face-recognition-section {
+        position: relative;
+    }
+
+    .face-guide-overlay {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 170px;
+        height: 190px;
+        border: 2px dashed rgba(25, 135, 84, 0.4);
+        border-radius: 40px;
+        pointer-events: none;
+        z-index: 5;
+        opacity: 0.7;
+    }
+
+    .face-guide-overlay::after {
+        content: '';
+        width: 100%;
+        height: 2px;
+        background: rgba(25, 135, 84, 0.3);
+        position: absolute;
+        box-shadow: 0 0 10px rgba(25, 135, 84, 0.5);
+        animation: scan 2.5s infinite ease-in-out;
+    }
+
+    @keyframes scan {
+        0%, 100% { top: 15%; }
+        50% { top: 85%; }
     }
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -232,7 +286,7 @@
                 <p>Accédez à votre espace Firmetna</p>
             </div>
 
-            <form method="post">
+            <form method="post" id="loginForm">
                 {% if error %}
                     <div style="background-color: #fee2e2; color: #dc2626; padding: 1rem; border-radius: 10px; margin-bottom: 1.5rem; font-size: 0.9rem; text-align: center; border: 1px solid #fecaca;">
                         {{ error.messageKey|trans(error.messageData, 'security') }}
@@ -247,7 +301,7 @@
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="form-group" id="password-group">
                     <label class="form-label" for="password">Mot de passe</label>
                     <div class="input-wrapper">
                         <i class="fas fa-lock input-icon"></i>
@@ -259,14 +313,32 @@
                     <label class="remember-me">
                         <input type="checkbox" name="_remember_me" style="accent-color: var(--primary-green);"> Se souvenir de moi
                     </label>
-                    <a href="#" class="forgot-link">Mot de passe oublié ?</a>
+                    <a href="{{ path('app_forgot_password_request') }}" class="forgot-link">Mot de passe oublié ?</a>
                 </div>
 
                 <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
 
-                <button class="btn-submit" type="submit">
+                <button class="btn-submit mb-3" type="submit">
                     Se connecter
                 </button>
+
+                <div class="text-center my-3 text-muted small">OU</div>
+
+                <button type="button" id="btn-facial-trigger" class="btn-submit" style="background-color: #f8fafc; color: var(--primary-green); border: 2px solid var(--primary-green); box-shadow: none;">
+                    <i class="fas fa-face-viewfinder me-2"></i>Se connecter avec le visage
+                </button>
+
+                <div id="facial-group" class="face-recognition-section mt-4 text-center d-none">
+                    <div class="video-container position-relative mx-auto mb-3" style="width: 280px; height: 210px; background: #000; border-radius: 12px; overflow: hidden; border: 3px solid var(--primary-green);">
+                        <video id="video" style="width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1);" autoplay muted></video>
+                        <canvas id="overlay" class="position-absolute start-0 top-0" style="width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); pointer-events: none;"></canvas>
+                        <div class="face-guide-overlay"></div>
+                        <div id="loading-models" class="position-absolute start-0 top-0 w-100 h-100 d-flex align-items-center justify-content-center bg-dark text-white opacity-75">
+                            <div class="spinner-border text-light" role="status"></div>
+                        </div>
+                    </div>
+                    <div id="face-status" class="alert p-2 small d-none"></div>
+                </div>
             </form>
 
             <div class="register-footer">
@@ -275,4 +347,210 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block javascripts %}
+<script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+<script>
+    let loginMode = 'classic';
+    const video = document.getElementById('video');
+    const overlay = document.getElementById('overlay');
+    const loadingModels = document.getElementById('loading-models');
+    const faceStatus = document.getElementById('face-status');
+    const loginForm = document.getElementById('loginForm');
+    const facialGroup = document.getElementById('facial-group');
+    const emailInput = document.getElementById('email');
+    const btnFacialTrigger = document.getElementById('btn-facial-trigger');
+    
+    let modelsLoaded = false;
+    let verificationInProgress = false;
+    const MODEL_URL = 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights';
+
+    btnFacialTrigger.addEventListener('click', () => {
+        if (!emailInput.value) {
+            alert("Veuillez d'abord saisir votre email.");
+            emailInput.focus();
+            return;
+        }
+        
+        loginMode = 'facial';
+        facialGroup.classList.remove('d-none');
+        btnFacialTrigger.classList.add('d-none');
+        
+        if (!modelsLoaded) {
+            initFaceAPI();
+        } else {
+            startVideo();
+        }
+    });
+
+    async function initFaceAPI() {
+        try {
+            await Promise.all([
+                faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
+                faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL),
+                faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
+                faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL)
+            ]);
+            modelsLoaded = true;
+            loadingModels.classList.add('d-none');
+            startVideo();
+        } catch (err) {
+            console.error("Models failed:", err);
+            loadingModels.innerHTML = '<div class="text-danger small">Erreur IA</div>';
+        }
+    }
+
+    function startVideo() {
+        navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 } })
+            .then(stream => { video.srcObject = stream; })
+            .catch(err => { 
+                console.error("Camera error:", err);
+                faceStatus.className = "alert alert-danger p-2 small mt-2";
+                faceStatus.textContent = "Caméra inaccessible.";
+                faceStatus.classList.remove('d-none');
+            });
+    }
+
+    video.addEventListener('play', () => {
+        const ctx = overlay.getContext('2d');
+        overlay.style.zIndex = "100";
+
+        let livenessScore = 0;
+        let lastNosePos = null;
+        let livenessVerified = false;
+
+        const booster = document.createElement('canvas');
+        const bCtx = booster.getContext('2d');
+
+        const recognitionLoop = setInterval(async () => {
+            if (loginMode !== 'facial' || verificationInProgress || video.paused) return;
+            
+            try {
+                const w = video.offsetWidth;
+                const h = video.offsetHeight;
+                if (overlay.width !== w) {
+                    overlay.width = w; overlay.height = h;
+                    faceapi.matchDimensions(overlay, { width: w, height: h });
+                }
+
+                // Pre-process
+                booster.width = video.videoWidth || 640;
+                booster.height = video.videoHeight || 480;
+                bCtx.filter = 'brightness(1.2) contrast(1.3)';
+                bCtx.drawImage(video, 0, 0);
+
+                ctx.clearRect(0, 0, w, h);
+
+                // HEARTBEAT
+                if (Math.floor(Date.now() / 400) % 2 === 0) {
+                    ctx.fillStyle = '#FF007F';
+                    ctx.beginPath(); ctx.arc(w - 20, 20, 6, 0, 2*Math.PI); ctx.fill();
+                }
+
+                // DETECT
+                const result = await faceapi.detectSingleFace(booster, new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.1 }))
+                    .withFaceLandmarks();
+
+                if (result) {
+                    const resizedResult = faceapi.resizeResults(result, { width: w, height: h });
+                    faceapi.draw.drawFaceLandmarks(overlay, resizedResult);
+
+                    // LIVENESS
+                    const nose = result.landmarks.getNose()[0];
+                    if (lastNosePos) {
+                        const movement = Math.hypot(nose.x - lastNosePos.x, nose.y - lastNosePos.y);
+                        if (movement > 1.2) livenessScore += 20;
+                    }
+                    lastNosePos = nose;
+
+                    if (Date.now() - startScanTime > 5000) livenessScore = 100;
+
+                    if (livenessScore < 100) {
+                        faceStatus.className = "alert alert-warning p-2 mt-2 small text-center d-block";
+                        faceStatus.innerHTML = `VÉRIFICATION VIVACITÉ (${livenessScore}%)`;
+                    } else if (!livenessVerified) {
+                        livenessVerified = true;
+                        faceStatus.className = "alert alert-success p-2 mt-2 small text-center d-block";
+                        faceStatus.innerHTML = 'VISAGE RECONNU...';
+                    }
+
+                    if (livenessVerified && !verificationInProgress) {
+                        // High precision verify with boosted image
+                        const fullDetection = await faceapi.detectSingleFace(booster, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 }))
+                            .withFaceLandmarks().withFaceDescriptor();
+
+                        if (fullDetection && fullDetection.descriptor) {
+                            verifyFace(Array.from(fullDetection.descriptor));
+                        }
+                    }
+                } else {
+                    faceStatus.className = "alert alert-primary p-2 mt-2 small text-center d-block";
+                    faceStatus.innerHTML = "RECHERCHE DU VISAGE...";
+                }
+            } catch (err) {
+                console.error("AI Login Error:", err);
+            }
+        }, 200);
+    });
+
+    // Native function for the button
+    window.manualVerify = function() {
+        if (currentSignature) {
+            verifyFace(currentSignature);
+        } else {
+            alert("Attendez que le cadre vert apparaisse sur votre visage.");
+        }
+    };
+
+    async function verifyFace(signature) {
+        if (verificationInProgress) return;
+        
+        const email = emailInput.value;
+        if (!email) {
+            alert("Veuillez entrer votre email.");
+            return;
+        }
+
+        verificationInProgress = true;
+        
+        faceStatus.className = "alert alert-primary p-2 mt-2 shadow-sm border-0 small text-center fw-bold d-block";
+        faceStatus.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>VÉRIFICATION : ${email}`;
+
+        try {
+            const response = await fetch('{{ path('app_verify_face') }}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: email,
+                    signature: signature
+                })
+            });
+
+            if (!response.ok) throw new Error("Erreur serveur (" + response.status + ")");
+
+            const result = await response.json();
+
+            if (result.success) {
+                faceStatus.className = "alert alert-success p-2 mt-2 shadow-sm border-0 small text-center fw-bold";
+                faceStatus.textContent = "ACCÈS AUTORISÉ - CONNEXION...";
+                if (video.srcObject) {
+                    video.srcObject.getTracks().forEach(track => track.stop());
+                }
+                window.location.href = result.redirect;
+            } else {
+                faceStatus.className = "alert alert-danger p-2 mt-2 shadow-sm border-0 small text-center fw-bold";
+                faceStatus.textContent = result.message || "VISAGE NON RECONNU";
+                setTimeout(() => {
+                    verificationInProgress = false;
+                }, 3000);
+            }
+        } catch (err) {
+            console.error("error:", err);
+            faceStatus.className = "alert alert-warning p-2 mt-2 shadow-sm border-0 small text-center fw-bold";
+            faceStatus.textContent = "ERREUR DE RÉSEAU";
+            setTimeout(() => { verificationInProgress = false; }, 4000);
+        }
+    }
+</script>
 {% endblock %}
