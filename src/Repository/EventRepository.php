@@ -23,4 +23,25 @@ class EventRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * Find events in a date range. Both parameters are optional.
+     *
+     * @return Event[]
+     */
+    public function findByDateRange(?\DateTimeInterface $from = null, ?\DateTimeInterface $to = null): array
+    {
+        $qb = $this->createQueryBuilder('e')
+            ->orderBy('e.date', 'ASC');
+
+        if ($from !== null) {
+            $qb->andWhere('e.date >= :from')->setParameter('from', $from);
+        }
+
+        if ($to !== null) {
+            $qb->andWhere('e.date <= :to')->setParameter('to', $to);
+        }
+
+        return $qb->getQuery()->getResult();
+    }
 }
