@@ -20,6 +20,9 @@ class TwilioService
 
    public function sendSms(string $to, string $message)
 {
+    // Nettoyer le numéro (enlever espaces, tirets, etc.)
+    $to = preg_replace('/[^0-9+]/', '', $to);
+
     // Ajouter +216 si manquant
     if (!str_starts_with($to, '+')) {
         $to = '+216' . $to;

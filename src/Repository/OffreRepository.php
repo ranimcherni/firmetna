@@ -53,20 +53,26 @@ class OffreRepository extends ServiceEntityRepository
            ->setParameter('search', '%'.$search.'%');
     }
 
-    // Tri
-    switch ($sort) {
-        case 'recent':
-            $qb->orderBy('o.createdAt', 'DESC');
-            break;
-        case 'ancien':
-            $qb->orderBy('o.createdAt', 'ASC');
-            break;
-        case 'categorie':
-            $qb->orderBy('o.categorie', 'ASC');
-            break;
-        default:
-            $qb->orderBy('o.createdAt', 'DESC');
-    }
+        // Tri
+        switch ($sort) {
+            case 'recent':
+                $qb->orderBy('o.createdAt', 'DESC');
+                break;
+            case 'oldest':
+                $qb->orderBy('o.createdAt', 'ASC');
+                break;
+            case 'qty_desc':
+                $qb->orderBy('o.quantite', 'DESC');
+                break;
+            case 'qty_asc':
+                $qb->orderBy('o.quantite', 'ASC');
+                break;
+            case 'categorie':
+                $qb->orderBy('o.categorie', 'ASC');
+                break;
+            default:
+                $qb->orderBy('o.createdAt', 'DESC');
+        }
 
     return $qb->getQuery()->getResult();
 }

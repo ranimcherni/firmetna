@@ -18,7 +18,7 @@ class DemandeType extends AbstractType
         $builder
             ->add('offre', EntityType::class, [
                 'class' => Offre::class,
-                'choice_label' => 'nom',
+                'choice_label' => 'categorie',
                 'label' => 'Offre de don',
                 'attr' => ['class' => 'form-select'],
             ])

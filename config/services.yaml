@@ -31,3 +31,9 @@ services:
     App\Service\ModerationService:
         arguments:
             $apiKey: '%env(default::PERSPECTIVE_API_KEY)%'
+
+    App\Service\TwilioService:
+        arguments:
+            $twilioSid: '%env(TWILIO_SID)%'
+            $twilioToken: '%env(TWILIO_TOKEN)%'
+            $twilioPhone: '%env(TWILIO_PHONE)%'

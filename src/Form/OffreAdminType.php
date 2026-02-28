@@ -19,11 +19,6 @@ class OffreAdminType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('nom', TextType::class, [
-                'label' => 'Nom du donateur',
-                'attr' => ['placeholder' => 'Ex: Ben Ali'],
-                'constraints' => [new NotBlank(['message' => 'Le nom est obligatoire.'])],
-            ])
             ->add('telephone', TextType::class, [
                 'label' => 'Téléphone',
                 'attr' => ['placeholder' => 'Ex: +216 12 345 678'],
