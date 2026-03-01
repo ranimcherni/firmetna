@@ -14,16 +14,16 @@ class EmailVerification
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $email = null;
+    private string $email;
 
     #[ORM\Column(length: 6)]
-    private ?string $code = null;
+    private string $code;
 
     #[ORM\Column(type: 'datetime_immutable')]
-    private ?\DateTimeImmutable $createdAt = null;
+    private \DateTimeImmutable $createdAt;
 
     #[ORM\Column(type: 'datetime_immutable')]
-    private ?\DateTimeImmutable $expiresAt = null;
+    private \DateTimeImmutable $expiresAt;
 
     #[ORM\Column]
     private bool $isVerified = false;

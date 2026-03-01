@@ -89,7 +89,10 @@ class ProductsController extends AbstractController
 
         // We use a dummy Commande object just to back the form
         $commande = new Commande();
-        $commande->setClient($this->getUser());
+        $user = $this->getUser();
+        if ($user instanceof \App\Entity\User) {
+            $commande->setClient($user);
+        }
         $form = $this->createForm(CommandeOrderType::class, $commande);
         $form->handleRequest($request);
 
@@ -122,7 +125,7 @@ class ProductsController extends AbstractController
     {
         // Check if the user is an agriculteur
         $user = $this->getUser();
-        if ($user->getRoleType() !== 'Agriculteur') {
+        if (!$user instanceof \App\Entity\User || $user->getRoleType() !== 'Agriculteur') {
             $this->addFlash('error', 'Seul un agriculteur peut vendre un produit');
             return $this->redirectToRoute('app_products');
         }

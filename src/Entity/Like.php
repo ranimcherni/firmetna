@@ -24,7 +24,7 @@ class Like
     private ?Publication $publication = null;
 
     #[ORM\Column(type: 'datetime_immutable')]
-    private ?\DateTimeImmutable $dateCreation = null;
+    private \DateTimeImmutable $dateCreation;
 
     public function __construct()
     {
@@ -63,9 +63,5 @@ class Like
         return $this->dateCreation;
     }
 
-    public function setDateCreation(\DateTimeImmutable $dateCreation): static
-    {
-        $this->dateCreation = $dateCreation;
-        return $this;
-    }
+
 }

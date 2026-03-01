@@ -34,13 +34,13 @@ class Notification
     private ?Commentaire $commentaire = null;
 
     #[ORM\Column(length: 50)]
-    private ?string $type = null;
+    private string $type;
 
     #[ORM\Column(type: 'boolean')]
     private bool $lu = false;
 
     #[ORM\Column(type: 'datetime_immutable')]
-    private ?\DateTimeImmutable $dateCreation = null;
+    private \DateTimeImmutable $dateCreation;
 
     public function __construct()
     {
@@ -123,11 +123,7 @@ class Notification
         return $this->dateCreation;
     }
 
-    public function setDateCreation(\DateTimeImmutable $dateCreation): static
-    {
-        $this->dateCreation = $dateCreation;
-        return $this;
-    }
+
 
     public function getMessage(): string
     {

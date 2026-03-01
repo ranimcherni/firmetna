@@ -28,7 +28,7 @@ class Commande
     private ?User $client = null;
 
     #[ORM\Column(type: 'datetime_immutable')]
-    private ?\DateTimeImmutable $dateCommande = null;
+    private \DateTimeImmutable $dateCommande;
 
     #[ORM\Column(length: 30)]
     #[Assert\NotBlank]
@@ -39,7 +39,7 @@ class Commande
         self::STATUT_LIVREE,
         self::STATUT_ANNULEE,
     ])]
-    private ?string $statut = self::STATUT_EN_ATTENTE;
+    private string $statut = self::STATUT_EN_ATTENTE;
 
     #[ORM\Column(type: 'text', nullable: true)]
     #[Assert\Length(max: 500)]
@@ -47,7 +47,7 @@ class Commande
 
     #[ORM\Column(type: 'decimal', precision: 12, scale: 2, options: ['default' => 0])]
     #[Assert\GreaterThanOrEqual(0)]
-    private ?string $total = '0';
+    private string $total = '0';
 
     #[ORM\Column(type: 'string', length: 500, nullable: true)]
     private ?string $commentaire = null;
@@ -84,11 +84,7 @@ class Commande
         return $this->dateCommande;
     }
 
-    public function setDateCommande(\DateTimeImmutable $dateCommande): static
-    {
-        $this->dateCommande = $dateCommande;
-        return $this;
-    }
+
 
     public function getStatut(): ?string
     {

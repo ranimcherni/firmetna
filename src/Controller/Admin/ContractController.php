@@ -37,10 +37,10 @@ class ContractController extends AbstractController
         if ($partnerId) {
             $qb->andWhere('p.id = :partnerId')->setParameter('partnerId', $partnerId);
         }
-        if ($type && $type !== '') {
+        if ($type) {
             $qb->andWhere('o.type = :type')->setParameter('type', $type);
         }
-        if ($status && $status !== '') {
+        if ($status) {
             $qb->andWhere('o.status = :status')->setParameter('status', $status);
         }
 

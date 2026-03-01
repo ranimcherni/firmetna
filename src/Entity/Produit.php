@@ -27,7 +27,7 @@ class Produit
     #[ORM\Column(length: 150)]
     #[Assert\NotBlank(message: 'Le nom du produit est obligatoire.')]
     #[Assert\Length(min: 2, max: 150)]
-    private ?string $nom = null;
+    private string $nom;
 
     #[ORM\Column(type: 'text', nullable: true)]
     #[Assert\Length(max: 2000)]
@@ -36,12 +36,12 @@ class Produit
     #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
     #[Assert\NotBlank(message: 'Le prix est obligatoire.')]
     #[Assert\PositiveOrZero(message: 'Le prix doit être positif ou nul.')]
-    private ?string $prix = null;
+    private string $prix;
 
     #[ORM\Column(length: 20)]
     #[Assert\NotBlank]
     #[Assert\Choice(choices: [self::TYPE_VEGETALE, self::TYPE_ANIMALE], message: 'Le type doit être végétal ou animal.')]
-    private ?string $type = null;
+    private string $type;
 
     #[ORM\Column(length: 255, nullable: true)]
     #[Assert\Length(max: 255)]
@@ -50,7 +50,7 @@ class Produit
     #[ORM\Column(length: 30)]
     #[Assert\NotBlank]
     #[Assert\Choice(choices: [self::UNITE_KILO, self::UNITE_UNITE, self::UNITE_BOITE, self::UNITE_BARQUETTE])]
-    private ?string $unite = self::UNITE_KILO;
+    private string $unite = self::UNITE_KILO;
 
     #[ORM\Column(type: 'integer', options: ['default' => 0])]
     #[Assert\GreaterThanOrEqual(0)]
@@ -64,7 +64,7 @@ class Produit
     private ?string $badge = null;
 
     #[ORM\Column(type: 'datetime_immutable', options: ['default' => 'CURRENT_TIMESTAMP'])]
-    private ?\DateTimeImmutable $createdAt = null;
+    private \DateTimeImmutable $createdAt;
 
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?\DateTimeImmutable $updatedAt = null;
@@ -188,21 +188,9 @@ class Produit
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTimeImmutable $createdAt): static
-    {
-        $this->createdAt = $createdAt;
-        return $this;
-    }
-
     public function getUpdatedAt(): ?\DateTimeImmutable
     {
         return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(?\DateTimeImmutable $updatedAt): static
-    {
-        $this->updatedAt = $updatedAt;
-        return $this;
     }
 
     /**

@@ -26,12 +26,12 @@ class LigneCommande
     #[ORM\Column(type: 'integer')]
     #[Assert\NotNull]
     #[Assert\Positive(message: 'La quantit├® doit ├¬tre au moins 1.')]
-    private ?int $quantite = 1;
+    private int $quantite = 1;
 
     #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
     #[Assert\NotNull]
     #[Assert\GreaterThanOrEqual(0)]
-    private ?string $prixUnitaire = null;
+    private string $prixUnitaire;
 
     public function getId(): ?int
     {

@@ -32,12 +32,12 @@ class PartnerOffer
         choices: [self::TYPE_DONATION, self::TYPE_SPONSORSHIP, self::TYPE_PRODUCT, self::TYPE_SERVICE, self::TYPE_OTHER],
         message: 'Type d\'offre invalide.'
     )]
-    private ?string $type = null;
+    private string $type;
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: 'Le titre est obligatoire.')]
     #[Assert\Length(max: 255)]
-    private ?string $title = null;
+    private string $title;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
@@ -56,8 +56,8 @@ class PartnerOffer
     )]
     private ?string $status = 'En cours';
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    private ?\DateTimeInterface $createdAt = null;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    private \DateTimeImmutable $createdAt;
 
     public function getId(): ?int
     {
@@ -141,22 +141,18 @@ class PartnerOffer
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeInterface
+    public function getCreatedAt(): ?\DateTimeImmutable
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(?\DateTimeInterface $createdAt): static
-    {
-        $this->createdAt = $createdAt;
-        return $this;
-    }
+
 
     #[ORM\PrePersist]
     public function setCreatedAtValue(): void
     {
-        if ($this->createdAt === null) {
-            $this->createdAt = new \DateTime();
+        if (!isset($this->createdAt)) {
+            $this->createdAt = new \DateTimeImmutable();
         }
     }
 }

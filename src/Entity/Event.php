@@ -20,7 +20,7 @@ class Event
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: 'Le nom est obligatoire.')]
     #[Assert\Length(max: 255)]
-    private ?string $nom = null;
+    private string $nom;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
@@ -28,7 +28,7 @@ class Event
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     #[Assert\NotBlank(message: 'La date est obligatoire.')]
     #[Assert\GreaterThanOrEqual('now', message: 'La date et l\'heure de l\'événement doivent être postérieures à maintenant.')]
-    private ?\DateTimeInterface $date = null;
+    private \DateTimeInterface $date;
 
     #[ORM\Column(length: 150, nullable: true)]
     #[Assert\Length(max: 150)]
@@ -42,7 +42,7 @@ class Event
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
     private ?Lieu $lieu = null;
 
-    #[ORM\OneToMany(mappedBy: 'event', targetEntity: Participation::class, cascade: ['remove'])]
+    #[ORM\OneToMany(mappedBy: 'event', targetEntity: Participation::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $participations;
 
     public function __construct()
@@ -80,12 +80,6 @@ class Event
     public function getDate(): ?\DateTimeInterface
     {
         return $this->date;
-    }
-
-    public function setDate(\DateTimeInterface $date): static
-    {
-        $this->date = $date;
-        return $this;
     }
 
     public function getOrganisateur(): ?string

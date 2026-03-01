@@ -28,13 +28,13 @@ class Demande
     private ?User $demandeur = null;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
-    private ?\DateTimeImmutable $createdAt = null;
+    private \DateTimeImmutable $createdAt;
 
     #[ORM\Column(length: 30, options: ['default' => self::STATUT_EN_ATTENTE])]
     private string $statut = self::STATUT_EN_ATTENTE;
 
     #[ORM\Column]
-    private ?int $quantiteDemandee = null;
+    private int $quantiteDemandee;
 
     // -------------------
     // Lifecycle Callback
@@ -82,11 +82,7 @@ class Demande
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTimeImmutable $createdAt): static
-    {
-        $this->createdAt = $createdAt;
-        return $this;
-    }
+
 
     public function getStatut(): string
     {

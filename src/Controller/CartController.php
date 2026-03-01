@@ -65,14 +65,14 @@ class CartController extends AbstractController
         }
 
         $commande = new Commande();
-        $commande->setClient($this->getUser());
+        $user = $this->getUser();
+        if ($user instanceof \App\Entity\User) {
+            $commande->setClient($user);
+        }
+        
         // Commande entity seems to have its own way of setting defaults, but let's be safe.
-        if (method_exists($commande, 'setDateCommande')) {
-            $commande->setDateCommande(new \DateTimeImmutable());
-        }
-        if (method_exists($commande, 'setStatut')) {
-            $commande->setStatut('En attente');
-        }
+        $commande->setDateCommande(new \DateTimeImmutable());
+        $commande->setStatut('En attente');
 
         foreach ($items as $item) {
             $produit = $item['produit'];
@@ -95,10 +95,10 @@ class CartController extends AbstractController
             // For now, I'll use the last address/comment provided for the whole Commande, 
             // or we can just ignore them if they are only for the cart.
             // Let's check if Commande has these methods.
-            if ($item['address'] && method_exists($commande, 'setAdresseLivraison')) {
+            if ($item['address']) {
                 $commande->setAdresseLivraison($item['address']);
             }
-            if ($item['comment'] && method_exists($commande, 'setCommentaire')) {
+            if ($item['comment']) {
                 $commande->setCommentaire($item['comment']);
             }
 
@@ -110,9 +110,7 @@ class CartController extends AbstractController
             $em->persist($ligne);
         }
 
-        if (method_exists($commande, 'recalculerTotal')) {
-            $commande->recalculerTotal();
-        }
+        $commande->recalculerTotal();
         
         $em->persist($commande);
         $em->flush();

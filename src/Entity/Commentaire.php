@@ -19,7 +19,7 @@ class Commentaire
     #[ORM\Column(type: 'text')]
     #[Assert\NotBlank(message: 'Le commentaire ne peut pas être vide.')]
     #[Assert\Length(min: 2, max: 2000)]
-    private ?string $contenu = null;
+    private string $contenu;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
@@ -30,14 +30,14 @@ class Commentaire
     private ?Publication $publication = null;
 
     #[ORM\Column(type: 'datetime_immutable')]
-    private ?\DateTimeImmutable $dateCreation = null;
+    private \DateTimeImmutable $dateCreation;
 
     #[ORM\ManyToOne(targetEntity: Commentaire::class, inversedBy: 'reponses')]
     #[ORM\JoinColumn(nullable: true, onDelete: 'CASCADE')]
     private ?Commentaire $parent = null;
 
     /** @var Collection<int, Commentaire> */
-    #[ORM\OneToMany(targetEntity: Commentaire::class, mappedBy: 'parent', cascade: ['remove'], orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Commentaire::class, mappedBy: 'parent', cascade: ['persist', 'remove'])]
     #[ORM\OrderBy(['dateCreation' => 'ASC'])]
     private Collection $reponses;
 
@@ -92,11 +92,7 @@ class Commentaire
         return $this->dateCreation;
     }
 
-    public function setDateCreation(\DateTimeImmutable $dateCreation): static
-    {
-        $this->dateCreation = $dateCreation;
-        return $this;
-    }
+
 
     public function getParent(): ?Commentaire
     {
@@ -144,9 +140,5 @@ class Commentaire
         return $this->dateModification;
     }
 
-    public function setDateModification(?\DateTimeImmutable $dateModification): static
-    {
-        $this->dateModification = $dateModification;
-        return $this;
-    }
+
 }

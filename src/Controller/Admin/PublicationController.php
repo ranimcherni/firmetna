@@ -66,7 +66,10 @@ class PublicationController extends AbstractController
 
             // In admin, we might want to manually set the author or use the current user
             if (!$publication->getAuteur()) {
-                $publication->setAuteur($this->getUser());
+                $user = $this->getUser();
+                if ($user instanceof \App\Entity\User) {
+                    $publication->setAuteur($user);
+                }
             }
 
             $entityManager->persist($publication);

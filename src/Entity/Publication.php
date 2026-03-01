@@ -22,34 +22,34 @@ class Publication
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: 'Le titre est obligatoire.')]
     #[Assert\Length(min: 3, max: 255)]
-    private ?string $titre = null;
+    private string $titre;
 
     #[ORM\Column(type: 'text')]
     #[Assert\NotBlank(message: 'Le contenu est obligatoire.')]
     #[Assert\Length(min: 10)]
-    private ?string $contenu = null;
+    private string $contenu;
 
     #[ORM\Column(length: 20)]
     #[Assert\Choice(choices: [self::TYPE_IDEE, self::TYPE_PROBLEME], message: 'Choisissez Idée ou Problème.')]
-    private ?string $type = self::TYPE_IDEE;
+    private string $type = self::TYPE_IDEE;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?User $auteur = null;
 
     #[ORM\Column(type: 'datetime_immutable')]
-    private ?\DateTimeImmutable $dateCreation = null;
+    private \DateTimeImmutable $dateCreation;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $imageFilename = null;
 
     /** @var Collection<int, Commentaire> */
-    #[ORM\OneToMany(targetEntity: Commentaire::class, mappedBy: 'publication', cascade: ['remove'], orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Commentaire::class, mappedBy: 'publication', cascade: ['persist', 'remove'], orphanRemoval: true)]
     #[ORM\OrderBy(['dateCreation' => 'ASC'])]
     private Collection $commentaires;
 
     /** @var Collection<int, Like> */
-    #[ORM\OneToMany(targetEntity: Like::class, mappedBy: 'publication', cascade: ['remove'], orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Like::class, mappedBy: 'publication', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $likes;
 
     public function __construct()
@@ -110,12 +110,6 @@ class Publication
     public function getDateCreation(): ?\DateTimeImmutable
     {
         return $this->dateCreation;
-    }
-
-    public function setDateCreation(\DateTimeImmutable $dateCreation): static
-    {
-        $this->dateCreation = $dateCreation;
-        return $this;
     }
 
     public function getImageFilename(): ?string

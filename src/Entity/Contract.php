@@ -31,12 +31,12 @@ class Contract
         choices: [self::TYPE_SPONSORSHIP, self::TYPE_PRODUCT, self::TYPE_SERVICE, self::TYPE_OTHER],
         message: 'Type d\'offre invalide.'
     )]
-    private ?string $type = null;
+    private string $type;
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: 'Le titre est obligatoire.')]
     #[Assert\Length(max: 255)]
-    private ?string $title = null;
+    private string $title;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
@@ -62,8 +62,8 @@ class Contract
     )]
     private ?string $status = 'Actif';
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    private ?\DateTimeInterface $createdAt = null;
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    private \DateTimeInterface $createdAt;
 
     public function getId(): ?int
     {
@@ -174,11 +174,7 @@ class Contract
         return $this->createdAt;
     }
 
-    public function setCreatedAt(?\DateTimeInterface $createdAt): static
-    {
-        $this->createdAt = $createdAt;
-        return $this;
-    }
+
 
     #[ORM\PrePersist]
     public function setCreatedAtValue(): void

@@ -19,12 +19,12 @@ class Lieu
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: 'L\'adresse est obligatoire.')]
     #[Assert\Length(max: 255)]
-    private ?string $adresse = null;
+    private string $adresse;
 
     #[ORM\Column(length: 100)]
     #[Assert\NotBlank(message: 'La ville est obligatoire.')]
     #[Assert\Length(max: 100)]
-    private ?string $ville = null;
+    private string $ville;
 
     #[ORM\Column(nullable: true)]
     #[Assert\Type('integer')]

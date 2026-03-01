@@ -24,7 +24,7 @@ class Participation
     private ?User $user = null;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
-    private ?\DateTimeInterface $createdAt = null;
+    private \DateTimeImmutable $createdAt;
 
     public function __construct()
     {
@@ -58,15 +58,10 @@ class Participation
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeInterface
+    public function getCreatedAt(): ?\DateTimeImmutable
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTimeInterface $createdAt): static
-    {
-        $this->createdAt = $createdAt;
-        return $this;
-    }
 }
 

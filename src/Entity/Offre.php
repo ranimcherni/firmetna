@@ -23,16 +23,16 @@ class Offre
     #[ORM\Column(length: 25)]
     #[Assert\NotBlank(message: 'Le numéro de téléphone est obligatoire.')]
     #[Assert\Length(max: 25)]
-    private ?string $telephone = null;
+    private string $telephone;
 
     #[ORM\Column(length: 100)]
     #[Assert\NotBlank(message: 'La catégorie est obligatoire.')]
     #[Assert\Length(max: 100)]
-    private ?string $categorie = null;
+    private string $categorie;
 
     #[ORM\Column(type: Types::TEXT)]
     #[Assert\NotBlank(message: 'La description est obligatoire.')]
-    private ?string $description = null;
+    private string $description;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $photo = null;
@@ -45,7 +45,7 @@ class Offre
     private bool $disponible = true;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
-    private ?\DateTimeImmutable $createdAt = null;
+    private \DateTimeImmutable $createdAt;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
@@ -146,11 +146,7 @@ class Offre
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTimeImmutable $createdAt): static
-    {
-        $this->createdAt = $createdAt;
-        return $this;
-    }
+
 
     public function getAuteur(): ?User
     {

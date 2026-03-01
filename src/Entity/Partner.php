@@ -21,7 +21,7 @@ class Partner
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: 'Le nom du partenaire est obligatoire.')]
     #[Assert\Length(max: 255)]
-    private ?string $name = null;
+    private string $name;
 
     #[ORM\Column(length: 100, nullable: true)]
     #[Assert\Choice(
@@ -56,8 +56,8 @@ class Partner
     )]
     private ?string $status = 'Actif';
 
-    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
-    private ?\DateTimeImmutable $createdAt = null;
+    #[ORM\Column(type: 'datetime_immutable')]
+    private \DateTimeImmutable $createdAt;
 
     /**
      * @var Collection<int, Contract>
@@ -179,11 +179,7 @@ class Partner
         return $this->createdAt;
     }
 
-    public function setCreatedAt(?\DateTimeImmutable $createdAt): static
-    {
-        $this->createdAt = $createdAt;
-        return $this;
-    }
+
 
     /**
      * @return Collection<int, Contract>

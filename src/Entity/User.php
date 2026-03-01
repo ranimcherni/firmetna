@@ -10,6 +10,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Serializer\Annotation\Ignore;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[UniqueEntity(fields: ['email'], message: 'Cet email est déjà utilisé.')]
@@ -27,10 +28,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         max: 180,
         maxMessage: 'L\'email ne peut pas dépasser {{ limit }} caractères.'
     )]
-    private ?string $email = null;
+    private string $email;
 
     #[ORM\Column(length: 255)]
-    private ?string $password = null;
+    #[Ignore]
+    private string $password;
 
     #[ORM\Column(length: 50)]
     #[Assert\NotBlank(message: 'Le rôle est obligatoire.')]
@@ -38,7 +40,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         choices: ['ROLE_USER', 'ROLE_ADMIN', 'ROLE_AGRICULTEUR', 'ROLE_CLIENT', 'ROLE_DONATEUR'],
         message: 'Le rôle n\'est pas valide.'
     )]
-    private ?string $role = "ROLE_USER";
+    private string $role = "ROLE_USER";
 
     #[ORM\Column(type: 'text', nullable: true)]
     #[Assert\Length(
@@ -141,11 +143,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $roleType = null;
 
     /** @var Collection<int, Notification> */
-    #[ORM\OneToMany(targetEntity: Notification::class, mappedBy: 'destinataire', cascade: ['remove'], orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Notification::class, mappedBy: 'destinataire', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $notifications;
 
     /** @var Collection<int, Participation> */
-    #[ORM\OneToMany(targetEntity: Participation::class, mappedBy: 'user', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Participation::class, mappedBy: 'user', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $participations;
 
     public function __construct()
@@ -198,7 +200,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setImageUrl(?string $imageUrl): static { $this->imageUrl = $imageUrl; return $this; }
 
     public function getDateInscription(): ?\DateTimeInterface { return $this->dateInscription; }
-    public function setDateInscription(?\DateTimeInterface $dateInscription): static { $this->dateInscription = $dateInscription; return $this; }
 
     public function getFaceSignature(): ?string { return $this->faceSignature; }
     public function setFaceSignature(?string $faceSignature): static { $this->faceSignature = $faceSignature; return $this; }
